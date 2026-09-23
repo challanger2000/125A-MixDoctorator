@@ -46,6 +46,8 @@ private:
     PairState pairStates_[3]{};
     SessionFinding sessionFinding_{};
     int heldTopPair_{-1};
+    bool wasPlaying_{false};
+    std::int64_t lastProjectSample_{-1};
 
     double last_[27]{
         -1,-1,-1,-1,-1,-1,
@@ -70,6 +72,7 @@ private:
         std::int64_t) noexcept;
 
     void updateSessionFinding() noexcept;
+    void resetAnalysisState() noexcept;
 
     static double severityFromState(const PairState&) noexcept;
     static int adviceFor(int pairIndex,int bandIndex,double dominance) noexcept;

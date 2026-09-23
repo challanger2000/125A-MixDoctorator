@@ -18,6 +18,14 @@ Processor::Processor(){
     setControllerClass(kControllerUID);
 }
 
+void Processor::resetAnalysisState() noexcept{
+    for(auto& p:pairStates_)
+        p=PairState{};
+
+    sessionFinding_=SessionFinding{};
+    heldTopPair_=-1;
+}
+
 tresult PLUGIN_API Processor::initialize(FUnknown* c){
     const auto r=AudioEffect::initialize(c);
 
@@ -70,12 +78,9 @@ tresult PLUGIN_API Processor::setupProcessing(
 
 tresult PLUGIN_API Processor::setProcessing(TBool state){
     if(state){
-        for(auto& p:pairStates_){
-            p=PairState{};
-        }
-
-        sessionFinding_=SessionFinding{};
-        heldTopPair_=-1;
+        resetAnalysisState();
+        wasPlaying_=false;
+        lastProjectSample_=-1;
     }
 
     AudioEffect::setProcessing(state);
@@ -499,6 +504,48 @@ tresult PLUGIN_API Processor::process(
                 data.numSamples);
     }
 
+    const bool playing=
+        data.processContext &&
+        ((data.processContext->state &
+          ProcessContext::kPlaying)!=0);
+
+    const std::int64_t currentSamplePosition=
+        data.processContext
+        ? static_cast<std::int64_t>(
+            data.processContext->
+            projectTimeSamples)
+        : -1;
+
+    const std::int64_t rewindTolerance=
+        std::max<std::int64_t>(
+            4096,
+            static_cast<std::int64_t>(
+                std::max<int32>(
+                    1,
+                    data.numSamples))*
+            4);
+
+    const bool restarted=
+        playing &&
+        !wasPlaying_;
+
+    const bool jumpedBackward=
+        currentSamplePosition>=0 &&
+        lastProjectSample_>=0 &&
+        currentSamplePosition+
+            rewindTolerance<
+        lastProjectSample_;
+
+    if(restarted ||
+       jumpedBackward)
+        resetAnalysisState();
+
+    wasPlaying_=playing;
+
+    if(currentSamplePosition>=0)
+        lastProjectSample_=
+            currentSamplePosition;
+
     IPC::Snapshot drums,bass,guitar;
 
     const bool drumsOk=
@@ -566,13 +613,6 @@ tresult PLUGIN_API Processor::process(
         kGuitarLevel,
         level(guitar,guitarOk),
         5);
-
-    const std::int64_t currentSamplePosition=
-        data.processContext
-        ? static_cast<std::int64_t>(
-            data.processContext->
-            projectTimeSamples)
-        : -1;
 
     updatePair(
         drums,bass,
