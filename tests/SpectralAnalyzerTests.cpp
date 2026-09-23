@@ -5,6 +5,7 @@
 #include <iostream>
 
 using MixDoctorator::Analysis::SpectralAnalyzer;
+using MixDoctorator::Analysis::combineStereoFractions;
 
 namespace {
 constexpr double kPi=
@@ -20,6 +21,19 @@ int expectedBand(double hz){
     if(hz<5000.0) return 6;
     if(hz<10000.0) return 7;
     return 8;
+}
+
+int strongestBand(
+    const std::array<double,9>& bands){
+
+    int strongest=0;
+
+    for(int i=1;i<9;++i)
+        if(bands[i]>
+           bands[strongest])
+            strongest=i;
+
+    return strongest;
 }
 }
 
@@ -40,36 +54,76 @@ int main(){
     };
 
     for(double hz:frequencies){
-        SpectralAnalyzer analyzer;
-        analyzer.prepare(
+        SpectralAnalyzer left;
+        SpectralAnalyzer right;
+
+        left.prepare(
+            sampleRate);
+
+        right.prepare(
             sampleRate);
 
         for(int n=0;
             n<24000;
             ++n){
 
-            analyzer.push(
+            const double x=
                 std::sin(
                     2.0*kPi*
                     hz*
                     static_cast<double>(n)/
-                    sampleRate));
+                    sampleRate);
+
+            left.push(x);
+            right.push(x);
         }
 
-        const auto& bands=
-            analyzer.bands();
-
-        int strongest=0;
-
-        for(int i=1;i<9;++i)
-            if(bands[i]>
-               bands[strongest])
-                strongest=i;
+        const auto bands=
+            combineStereoFractions(
+                left,
+                right);
 
         assert(
-            strongest==
+            strongestBand(bands)==
             expectedBand(hz));
     }
+
+    // Anti-phase stereo must not disappear from analysis.
+    SpectralAnalyzer left;
+    SpectralAnalyzer right;
+
+    left.prepare(sampleRate);
+    right.prepare(sampleRate);
+
+    constexpr double antiPhaseHz=
+        3500.0;
+
+    for(int n=0;
+        n<24000;
+        ++n){
+
+        const double x=
+            std::sin(
+                2.0*kPi*
+                antiPhaseHz*
+                static_cast<double>(n)/
+                sampleRate);
+
+        left.push(x);
+        right.push(-x);
+    }
+
+    const auto antiPhaseBands=
+        combineStereoFractions(
+            left,
+            right);
+
+    assert(
+        strongestBand(
+            antiPhaseBands)==6);
+
+    assert(
+        antiPhaseBands[6]>0.95);
 
     std::cout
         << "SpectralAnalyzer tests passed\n";

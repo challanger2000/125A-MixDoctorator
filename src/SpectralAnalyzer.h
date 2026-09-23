@@ -23,7 +23,7 @@ public:
         filled_=0;
 
         time_.fill(0.0);
-        bands_.fill(1.0/static_cast<double>(kBandCount));
+        energy_.fill(0.0);
     }
 
     void push(double x) noexcept {
@@ -40,8 +40,8 @@ public:
     }
 
     const std::array<double,kBandCount>&
-    bands() const noexcept {
-        return bands_;
+    energy() const noexcept {
+        return energy_;
     }
 
 private:
@@ -50,7 +50,7 @@ private:
 
     std::array<double,kFftSize> time_{};
     std::array<std::complex<double>,kFftSize> fft_{};
-    std::array<double,kBandCount> bands_{};
+    std::array<double,kBandCount> energy_{};
 
     double sampleRate_{44100.0};
     int write_{0};
@@ -146,8 +146,7 @@ private:
 
         fftInPlace();
 
-        std::array<double,kBandCount> energy{};
-        double total=0.0;
+        std::array<double,kBandCount> raw{};
 
         for(int bin=1;
             bin<=kFftSize/2;
@@ -159,19 +158,11 @@ private:
                 static_cast<double>(
                     kFftSize);
 
-            const double e=
-                std::norm(
-                    fft_[bin]);
-
-            energy[
+            raw[
                 bandFor(hz)]
-                +=e;
-
-            total+=e;
+                +=std::norm(
+                    fft_[bin]);
         }
-
-        if(total<=1.0e-20)
-            return;
 
         constexpr double kSmooth=0.35;
 
@@ -179,14 +170,37 @@ private:
             i<kBandCount;
             ++i){
 
-            const double target=
-                energy[i]/total;
-
-            bands_[i]+=
+            energy_[i]+=
                 kSmooth*
-                (target-bands_[i]);
+                (raw[i]-energy_[i]);
         }
     }
 };
+
+inline std::array<double,SpectralAnalyzer::kBandCount>
+combineStereoFractions(
+    const SpectralAnalyzer& left,
+    const SpectralAnalyzer& right) noexcept {
+
+    std::array<double,SpectralAnalyzer::kBandCount> out{};
+    double total=0.0;
+
+    for(int i=0;
+        i<SpectralAnalyzer::kBandCount;
+        ++i){
+
+        out[i]=
+            left.energy()[i]+
+            right.energy()[i];
+
+        total+=out[i];
+    }
+
+    if(total>1.0e-20)
+        for(double& value:out)
+            value/=total;
+
+    return out;
+}
 
 } // namespace MixDoctorator::Analysis

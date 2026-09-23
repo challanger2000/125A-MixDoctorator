@@ -14,10 +14,13 @@ using namespace Steinberg;
 using namespace Steinberg::Vst;
 
 Processor::Processor(){
-    setControllerClass(kControllerUID);
+    setControllerClass(
+        kControllerUID);
 }
 
-tresult PLUGIN_API Processor::initialize(FUnknown* c){
+tresult PLUGIN_API Processor::initialize(
+    FUnknown* c){
+
     const auto r=
         AudioEffect::initialize(c);
 
@@ -33,6 +36,7 @@ tresult PLUGIN_API Processor::initialize(FUnknown* c){
         SpeakerArr::kStereo);
 
     ipc_.open();
+
     return kResultOk;
 }
 
@@ -66,7 +70,10 @@ tresult PLUGIN_API Processor::canProcessSampleSize(
 tresult PLUGIN_API Processor::setupProcessing(
     ProcessSetup& setup){
 
-    analyzer_.prepare(
+    analyzerLeft_.prepare(
+        setup.sampleRate);
+
+    analyzerRight_.prepare(
         setup.sampleRate);
 
     return AudioEffect::
@@ -76,9 +83,13 @@ tresult PLUGIN_API Processor::setupProcessing(
 tresult PLUGIN_API Processor::setProcessing(
     TBool state){
 
-    if(state)
-        analyzer_.prepare(
+    if(state){
+        analyzerLeft_.prepare(
             processSetup.sampleRate);
+
+        analyzerRight_.prepare(
+            processSetup.sampleRate);
+    }
 
     AudioEffect::
         setProcessing(state);
@@ -137,11 +148,6 @@ static void copyMeasure(
     double& peak,
     Processor* self){
 
-    const int32 channels=
-        std::min(
-            input.numChannels,
-            output.numChannels);
-
     T** in=nullptr;
     T** out=nullptr;
 
@@ -158,42 +164,44 @@ static void copyMeasure(
         i<n;
         ++i){
 
-        double mono=0.0;
-        int used=0;
+        const double left=
+            (input.numChannels>0 &&
+             in[0])
+            ? static_cast<double>(
+                in[0][i])
+            : 0.0;
 
-        for(int32 c=0;
-            c<channels;
-            ++c){
+        const double right=
+            (input.numChannels>1 &&
+             in[1])
+            ? static_cast<double>(
+                in[1][i])
+            : left;
 
-            if(!out[c])
-                continue;
+        if(output.numChannels>0 &&
+           out[0])
+            out[0][i]=
+                static_cast<T>(left);
 
-            const double x=
-                in[c]
-                ? static_cast<double>(
-                    in[c][i])
-                : 0.0;
+        if(output.numChannels>1 &&
+           out[1])
+            out[1][i]=
+                static_cast<T>(right);
 
-            out[c][i]=
-                static_cast<T>(x);
-
-            peak=
+        peak=
+            std::max(
+                peak,
                 std::max(
-                    peak,
-                    std::abs(x));
+                    std::abs(left),
+                    std::abs(right)));
 
-            sumSq+=
-                x*x;
+        sumSq+=
+            left*left+
+            right*right;
 
-            mono+=x;
-            ++used;
-        }
-
-        if(used>0)
-            self->analyzeSample(
-                mono/
-                static_cast<double>(
-                    used));
+        self->analyzeStereoSample(
+            left,
+            right);
     }
 }
 
@@ -210,13 +218,6 @@ tresult PLUGIN_API Processor::process(
 
     double sumSq=0.0;
     double peak=0.0;
-
-    const int32 channels=
-        std::max<int32>(
-            1,
-            std::min(
-                data.inputs[0].numChannels,
-                data.outputs[0].numChannels));
 
     if(data.symbolicSampleSize==kSample64)
         copyMeasure<double>(
@@ -241,8 +242,7 @@ tresult PLUGIN_API Processor::process(
             std::max<double>(
                 1.0,
                 static_cast<double>(
-                    data.numSamples*
-                    channels)));
+                    data.numSamples*2)));
 
     const double rmsDb=
         IPC::dbFromAmplitude(
@@ -258,8 +258,11 @@ tresult PLUGIN_API Processor::process(
             0.0,
             1.0);
 
-    const auto& bands=
-        analyzer_.bands();
+    const auto bands=
+        Analysis::
+        combineStereoFractions(
+            analyzerLeft_,
+            analyzerRight_);
 
     ipc_.publish(
         role_,

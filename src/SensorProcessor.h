@@ -24,16 +24,25 @@ public:
     Steinberg::tresult PLUGIN_API setState(Steinberg::IBStream*) override;
     Steinberg::tresult PLUGIN_API getState(Steinberg::IBStream*) override;
 
-    void analyzeSample(double x) noexcept {
-        analyzer_.push(x);
+    void analyzeStereoSample(
+        double left,
+        double right) noexcept {
+
+        analyzerLeft_.push(left);
+        analyzerRight_.push(right);
     }
 
 private:
-    void readParameters(Steinberg::Vst::IParameterChanges*);
+    void readParameters(
+        Steinberg::Vst::IParameterChanges*);
 
-    IPC::Role role_{IPC::Role::Drums};
+    IPC::Role role_{
+        IPC::Role::Drums};
+
     IPC::SharedMemory ipc_;
-    Analysis::SpectralAnalyzer analyzer_;
+
+    Analysis::SpectralAnalyzer analyzerLeft_;
+    Analysis::SpectralAnalyzer analyzerRight_;
 };
 
 } // namespace MixDoctorator::Sensor
