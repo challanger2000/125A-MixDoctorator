@@ -43,4 +43,15 @@ if(MIXDOCTORATOR_BUILD_TESTS)
     add_test(
         NAME SpectralAnalyzerTests
         COMMAND SpectralAnalyzerTests)
+
+    add_executable(TimingModelTests
+        tests/TimingModelTests.cpp)
+
+    target_compile_features(
+        TimingModelTests
+        PRIVATE cxx_std_17)
+
+    add_test(
+        NAME TimingModelTests
+        COMMAND TimingModelTests)
 endif()

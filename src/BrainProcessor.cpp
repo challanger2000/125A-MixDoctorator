@@ -1,6 +1,7 @@
 #include "BrainProcessor.h"
 #include "BrainIDs.h"
 #include "MaskingModel.h"
+#include "TimingModel.h"
 
 #include "pluginterfaces/vst/ivstparameterchanges.h"
 #include "pluginterfaces/vst/vstspeaker.h"
@@ -122,9 +123,24 @@ void Processor::updatePair(
             0.0001,
             0.25);
 
+    const std::int64_t currentSamplePosition=
+        processContext
+        ? static_cast<std::int64_t>(
+            processContext->
+            projectTimeSamples)
+        : -1;
+
+    const bool timeCoherent=
+        Analysis::samplePositionsCoherent(
+            currentSamplePosition,
+            a.samplePosition,
+            b.samplePosition,
+            numSamples);
+
     const bool active=
         a.connected &&
         b.connected &&
+        timeCoherent &&
         a.rmsDb>-55.0 &&
         b.rmsDb>-55.0;
 

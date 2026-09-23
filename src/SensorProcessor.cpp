@@ -3,6 +3,7 @@
 
 #include "base/source/fstreamer.h"
 #include "pluginterfaces/vst/ivstparameterchanges.h"
+#include "pluginterfaces/vst/ivstprocesscontext.h"
 #include "pluginterfaces/vst/vstspeaker.h"
 
 #include <algorithm>
@@ -264,8 +265,16 @@ tresult PLUGIN_API Processor::process(
             analyzerLeft_,
             analyzerRight_);
 
+    const std::int64_t samplePosition=
+        data.processContext
+        ? static_cast<std::int64_t>(
+            data.processContext->
+            projectTimeSamples)
+        : -1;
+
     ipc_.publish(
         role_,
+        samplePosition,
         rmsDb,
         peakDb,
         activity,
