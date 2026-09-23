@@ -1,4 +1,4 @@
-name: Build Windows VST3
+name: Build Windows VST3 PoC
 on:
   workflow_dispatch:
   push:
