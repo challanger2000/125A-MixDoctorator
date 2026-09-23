@@ -9,11 +9,11 @@
     <control-tag name="BassGuitarOverlap" tag="209"/><control-tag name="BassGuitarBand" tag="210"/><control-tag name="BassGuitarStatus" tag="211"/>
     <control-tag name="DrumsGuitarOverlap" tag="212"/><control-tag name="DrumsGuitarBand" tag="213"/><control-tag name="DrumsGuitarStatus" tag="214"/>
 
-    <control-tag name="TopPair" tag="215"/><control-tag name="TopScore" tag="216"/><control-tag name="TopBand" tag="217"/>
+    <control-tag name="TopPair" tag="215"/><control-tag name="TopScore" tag="216"/><control-tag name="TopBand" tag="217"/><control-tag name="TopAdvice" tag="218"/>
   </control-tags>
 
-  <template name="view" class="CViewContainer" origin="0,0" size="740,540" background-color="#171717ff">
-    <view class="CTextLabel" origin="20,16" size="700,34" title="125A MIXDOCTORATOR BRAIN" font-size="22" font-color="#ffffffff" transparent="true"/>
+  <template name="view" class="CViewContainer" origin="0,0" size="820,610" background-color="#171717ff">
+    <view class="CTextLabel" origin="20,16" size="780,34" title="125A MIXDOCTORATOR BRAIN" font-size="22" font-color="#ffffffff" transparent="true"/>
 
     <view class="CTextLabel" origin="20,62" size="140,28" title="DRUMS" font-size="16" font-color="#ffffffff" transparent="true"/>
     <view class="CParamDisplay" origin="170,62" size="160,28" control-tag="DrumsConnected" font-size="14" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
@@ -27,7 +27,7 @@
     <view class="CParamDisplay" origin="170,142" size="160,28" control-tag="GuitarConnected" font-size="14" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
     <view class="CParamDisplay" origin="350,142" size="170,28" control-tag="GuitarLevel" font-size="14" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
 
-    <view class="CTextLabel" origin="20,198" size="700,28" title="OBSERVED SPECTRAL INTERACTION - TIME SMOOTHED" font-size="15" font-color="#ccccccff" transparent="true"/>
+    <view class="CTextLabel" origin="20,198" size="780,28" title="OBSERVED SPECTRAL INTERACTION - TIME SMOOTHED" font-size="15" font-color="#ccccccff" transparent="true"/>
 
     <view class="CTextLabel" origin="20,238" size="175,28" title="DRUMS ↔ BASS" font-size="15" font-color="#ffffffff" transparent="true"/>
     <view class="CParamDisplay" origin="205,238" size="90,28" control-tag="DrumsBassOverlap" font-size="14" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
@@ -44,11 +44,14 @@
     <view class="CParamDisplay" origin="310,338" size="225,28" control-tag="DrumsGuitarBand" font-size="14" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
     <view class="CParamDisplay" origin="550,338" size="145,28" control-tag="DrumsGuitarStatus" font-size="14" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
 
-    <view class="CTextLabel" origin="20,397" size="700,28" title="TOP FINDING" font-size="15" font-color="#ccccccff" transparent="true"/>
+    <view class="CTextLabel" origin="20,397" size="780,28" title="TOP FINDING" font-size="15" font-color="#ccccccff" transparent="true"/>
     <view class="CParamDisplay" origin="20,432" size="220,32" control-tag="TopPair" font-size="14" font-color="#ffffffff" back-color="#303030ff" frame-color="#777777ff"/>
     <view class="CParamDisplay" origin="255,432" size="100,32" control-tag="TopScore" font-size="14" font-color="#ffffffff" back-color="#303030ff" frame-color="#777777ff"/>
     <view class="CParamDisplay" origin="370,432" size="250,32" control-tag="TopBand" font-size="14" font-color="#ffffffff" back-color="#303030ff" frame-color="#777777ff"/>
 
-    <view class="CTextLabel" origin="20,492" size="700,28" title="Experimental attention scale - not yet a mix-error verdict." font-size="13" font-color="#a0a0a0ff" transparent="true"/>
+    <view class="CTextLabel" origin="20,485" size="780,28" title="SUGGESTED CHECK" font-size="15" font-color="#ccccccff" transparent="true"/>
+    <view class="CParamDisplay" origin="20,520" size="760,38" control-tag="TopAdvice" font-size="14" font-color="#ffffffff" back-color="#303030ff" frame-color="#777777ff"/>
+
+    <view class="CTextLabel" origin="20,572" size="780,24" title="Experimental guidance only - verify by ear and context." font-size="13" font-color="#a0a0a0ff" transparent="true"/>
   </template>
 </vstgui-ui-description>

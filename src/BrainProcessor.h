@@ -26,19 +26,21 @@ private:
     struct PairState {
         double score {0.0};
         double bands[IPC::kBandCount] {0.0,0.0,0.0,0.0,0.0};
+        double observedSeconds {0.0};
         int dominantBand {0};
     };
 
     IPC::SharedMemory ipc_;
     double sampleRate_ {44100.0};
     PairState pairStates_[3] {};
+    int heldTopPair_ {-1};
 
-    double last_[18] {
+    double last_[19] {
         -1,-1,-1,-1,-1,-1,
         -1,-1,-1,
         -1,-1,-1,
         -1,-1,-1,
-        -1,-1,-1
+        -1,-1,-1,-1
     };
 
     void publishParam(
@@ -53,7 +55,9 @@ private:
         PairState&,
         Steinberg::int32) noexcept;
 
-    static double severityFromScore(double) noexcept;
+    static double severityFromState(const PairState&) noexcept;
+    static int adviceFor(int pairIndex,int bandIndex) noexcept;
+    int chooseTopPair() noexcept;
 };
 
 } // namespace MixDoctorator::Brain

@@ -54,9 +54,11 @@ tresult PLUGIN_API Processor::setProcessing(TBool state) {
     if(state) {
         for(auto& p : pairStates_) {
             p.score=0.0;
+            p.observedSeconds=0.0;
             p.dominantBand=0;
             for(double& b : p.bands) b=0.0;
         }
+        heldTopPair_=-1;
     }
 
     AudioEffect::setProcessing(state);
@@ -104,6 +106,8 @@ void Processor::updatePair(
     double commonBands[IPC::kBandCount] {0.0,0.0,0.0,0.0,0.0};
 
     if(active) {
+        state.observedSeconds=std::min(30.0,state.observedSeconds+dt);
+
         double rawOverlap=0.0;
 
         for(int i=0;i<IPC::kBandCount;++i) {
@@ -121,6 +125,8 @@ void Processor::updatePair(
             std::clamp(b.activity,0.0,1.0));
 
         target=rawOverlap*(0.35+0.65*jointActivity);
+    } else {
+        state.observedSeconds=std::max(0.0,state.observedSeconds-dt*0.25);
     }
 
     const double tau=(target>state.score) ? 0.65 : 3.0;
@@ -152,11 +158,74 @@ void Processor::updatePair(
     state.dominantBand=best;
 }
 
-double Processor::severityFromScore(double score) noexcept {
-    if(score<0.18) return 0.0;
-    if(score<0.32) return 1.0/3.0;
-    if(score<0.48) return 2.0/3.0;
+double Processor::severityFromState(const PairState& state) noexcept {
+    if(state.observedSeconds<2.0) return 0.0;
+    if(state.score<0.18) return 0.25;
+    if(state.score<0.32) return 0.50;
+    if(state.score<0.48) return 0.75;
     return 1.0;
+}
+
+int Processor::adviceFor(int pairIndex,int bandIndex) noexcept {
+    if(pairIndex<0) return 0;
+
+    if(pairIndex==0) {
+        if(bandIndex==0) return 1;
+        if(bandIndex==1) return 2;
+        return 3;
+    }
+
+    if(pairIndex==1) {
+        if(bandIndex==0) return 4;
+        if(bandIndex==1) return 5;
+        if(bandIndex==2) return 6;
+        return 7;
+    }
+
+    if(pairIndex==2) {
+        if(bandIndex==0) return 8;
+        if(bandIndex==1) return 9;
+        if(bandIndex==2 || bandIndex==3) return 10;
+        return 11;
+    }
+
+    return 0;
+}
+
+int Processor::chooseTopPair() noexcept {
+    auto eligible=[this](int i) {
+        return pairStates_[i].observedSeconds>=2.0 &&
+               pairStates_[i].score>=0.18;
+    };
+
+    if(heldTopPair_>=0 && heldTopPair_<3 && eligible(heldTopPair_)) {
+        int challenger=heldTopPair_;
+        double challengerScore=pairStates_[heldTopPair_].score;
+
+        for(int i=0;i<3;++i) {
+            if(!eligible(i)) continue;
+            if(pairStates_[i].score>challengerScore+0.05) {
+                challenger=i;
+                challengerScore=pairStates_[i].score;
+            }
+        }
+
+        heldTopPair_=challenger;
+        return heldTopPair_;
+    }
+
+    int best=-1;
+    double bestScore=0.18;
+
+    for(int i=0;i<3;++i) {
+        if(eligible(i) && pairStates_[i].score>bestScore) {
+            best=i;
+            bestScore=pairStates_[i].score;
+        }
+    }
+
+    heldTopPair_=best;
+    return best;
 }
 
 template<typename T>
@@ -218,34 +287,30 @@ tresult PLUGIN_API Processor::process(ProcessData& data) {
 
     publishParam(data,kDrumsBassOverlap,pairStates_[0].score,6);
     publishParam(data,kDrumsBassBand,static_cast<double>(pairStates_[0].dominantBand)/4.0,7);
-    publishParam(data,kDrumsBassStatus,severityFromScore(pairStates_[0].score),8);
+    publishParam(data,kDrumsBassStatus,severityFromState(pairStates_[0]),8);
 
     publishParam(data,kBassGuitarOverlap,pairStates_[1].score,9);
     publishParam(data,kBassGuitarBand,static_cast<double>(pairStates_[1].dominantBand)/4.0,10);
-    publishParam(data,kBassGuitarStatus,severityFromScore(pairStates_[1].score),11);
+    publishParam(data,kBassGuitarStatus,severityFromState(pairStates_[1]),11);
 
     publishParam(data,kDrumsGuitarOverlap,pairStates_[2].score,12);
     publishParam(data,kDrumsGuitarBand,static_cast<double>(pairStates_[2].dominantBand)/4.0,13);
-    publishParam(data,kDrumsGuitarStatus,severityFromScore(pairStates_[2].score),14);
+    publishParam(data,kDrumsGuitarStatus,severityFromState(pairStates_[2]),14);
 
-    int best=-1;
-    double bestScore=0.18;
-
-    for(int i=0;i<3;++i) {
-        if(pairStates_[i].score>bestScore) {
-            bestScore=pairStates_[i].score;
-            best=i;
-        }
-    }
+    const int best=chooseTopPair();
 
     const double pairValue=(best<0) ? 0.0 : static_cast<double>(best+1)/3.0;
     const double scoreValue=(best<0) ? 0.0 : pairStates_[best].score;
     const double bandValue=(best<0) ? 0.0 :
         static_cast<double>(pairStates_[best].dominantBand)/4.0;
 
+    const int advice=(best<0) ? 0 : adviceFor(best,pairStates_[best].dominantBand);
+    const double adviceValue=static_cast<double>(advice)/11.0;
+
     publishParam(data,kTopPair,pairValue,15);
     publishParam(data,kTopScore,scoreValue,16);
     publishParam(data,kTopBand,bandValue,17);
+    publishParam(data,kTopAdvice,adviceValue,18);
 
     return kResultOk;
 }

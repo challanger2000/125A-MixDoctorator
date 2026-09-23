@@ -29,19 +29,20 @@ tresult PLUGIN_API Controller::initialize(FUnknown* c) {
 
     parameters.addParameter(STR16("Drums Bass Observed"),STR16("%"),0,0.0,ro,kDrumsBassOverlap);
     parameters.addParameter(STR16("Drums Bass Band"),nullptr,4,0.0,ro,kDrumsBassBand);
-    parameters.addParameter(STR16("Drums Bass Attention"),nullptr,3,0.0,ro,kDrumsBassStatus);
+    parameters.addParameter(STR16("Drums Bass Attention"),nullptr,4,0.0,ro,kDrumsBassStatus);
 
     parameters.addParameter(STR16("Bass Guitar Observed"),STR16("%"),0,0.0,ro,kBassGuitarOverlap);
     parameters.addParameter(STR16("Bass Guitar Band"),nullptr,4,0.0,ro,kBassGuitarBand);
-    parameters.addParameter(STR16("Bass Guitar Attention"),nullptr,3,0.0,ro,kBassGuitarStatus);
+    parameters.addParameter(STR16("Bass Guitar Attention"),nullptr,4,0.0,ro,kBassGuitarStatus);
 
     parameters.addParameter(STR16("Drums Guitar Observed"),STR16("%"),0,0.0,ro,kDrumsGuitarOverlap);
     parameters.addParameter(STR16("Drums Guitar Band"),nullptr,4,0.0,ro,kDrumsGuitarBand);
-    parameters.addParameter(STR16("Drums Guitar Attention"),nullptr,3,0.0,ro,kDrumsGuitarStatus);
+    parameters.addParameter(STR16("Drums Guitar Attention"),nullptr,4,0.0,ro,kDrumsGuitarStatus);
 
     parameters.addParameter(STR16("Top Finding Pair"),nullptr,3,0.0,ro,kTopPair);
     parameters.addParameter(STR16("Top Finding Score"),STR16("%"),0,0.0,ro,kTopScore);
     parameters.addParameter(STR16("Top Finding Band"),nullptr,4,0.0,ro,kTopBand);
+    parameters.addParameter(STR16("Suggested Check"),nullptr,11,0.0,ro,kTopAdvice);
 
     return kResultOk;
 }
@@ -119,7 +120,8 @@ tresult PLUGIN_API Controller::getParamStringByValue(
        id==kBassGuitarStatus ||
        id==kDrumsGuitarStatus) {
 
-        static const char* states[4] = {
+        static const char* states[5] = {
+            "OBSERVING",
             "CLEAR",
             "LOW",
             "MEDIUM",
@@ -127,8 +129,8 @@ tresult PLUGIN_API Controller::getParamStringByValue(
         };
 
         const int index=std::clamp(
-            static_cast<int>(std::lround(std::clamp(v,0.0,1.0)*3.0)),
-            0,3);
+            static_cast<int>(std::lround(std::clamp(v,0.0,1.0)*4.0)),
+            0,4);
 
         UString128 s;
         s.fromAscii(states[index]);
@@ -150,6 +152,32 @@ tresult PLUGIN_API Controller::getParamStringByValue(
 
         UString128 s;
         s.fromAscii(pairs[index]);
+        s.copyTo(out,128);
+        return kResultTrue;
+    }
+
+    if(id==kTopAdvice) {
+        static const char* advice[12] = {
+            "Keep listening - no strong finding yet",
+            "Check kick/bass separation below 120 Hz",
+            "Check drum/bass buildup around 120-500 Hz",
+            "Check drum attack against bass harmonics",
+            "Try reducing guitar low end before raising bass",
+            "Try carving guitar low-mids or bass harmonics",
+            "Check bass definition against guitar body",
+            "Check bass attack/harmonics against guitar presence",
+            "Check guitar low end against kick/toms",
+            "Check guitar body against drum low-mids",
+            "Check guitar presence against snare/cymbal attack",
+            "Check guitar top end against cymbals"
+        };
+
+        const int index=std::clamp(
+            static_cast<int>(std::lround(std::clamp(v,0.0,1.0)*11.0)),
+            0,11);
+
+        UString128 s;
+        s.fromAscii(advice[index]);
         s.copyTo(out,128);
         return kResultTrue;
     }
