@@ -45,6 +45,10 @@ tresult PLUGIN_API Controller::initialize(FUnknown* c){
     parameters.addParameter(STR16("Dominant Source"),nullptr,2,0.5,ro,kTopDominance);
     parameters.addParameter(STR16("Confidence"),STR16("%"),0,0.0,ro,kTopConfidence);
 
+    parameters.addParameter(STR16("Session Pair"),nullptr,3,0.0,ro,kSessionPair);
+    parameters.addParameter(STR16("Session Score"),STR16("%"),0,0.0,ro,kSessionScore);
+    parameters.addParameter(STR16("Session Band"),nullptr,4,0.0,ro,kSessionBand);
+
     return kResultOk;
 }
 
@@ -68,13 +72,14 @@ tresult PLUGIN_API Controller::getParamStringByValue(
     }
 
     if(id==kDrumsBassOverlap || id==kBassGuitarOverlap || id==kDrumsGuitarOverlap ||
-       id==kTopScore || id==kTopConfidence){
+       id==kTopScore || id==kTopConfidence || id==kSessionScore){
         char b[32]{};
         std::snprintf(b,sizeof(b),"%.0f %%",std::clamp(v,0.0,1.0)*100.0);
         UString128 s; s.fromAscii(b); s.copyTo(out,128); return kResultTrue;
     }
 
-    if(id==kDrumsBassBand || id==kBassGuitarBand || id==kDrumsGuitarBand || id==kTopBand){
+    if(id==kDrumsBassBand || id==kBassGuitarBand || id==kDrumsGuitarBand ||
+       id==kTopBand || id==kSessionBand){
         static const char* names[5]={"LOW 20-120","LOW-MID 120-500","MID 500-2k","PRESENCE 2-6k","HIGH 6k+"};
         const int index=std::clamp(static_cast<int>(std::lround(std::clamp(v,0.0,1.0)*4.0)),0,4);
         UString128 s; s.fromAscii(names[index]); s.copyTo(out,128); return kResultTrue;
@@ -86,7 +91,7 @@ tresult PLUGIN_API Controller::getParamStringByValue(
         UString128 s; s.fromAscii(states[index]); s.copyTo(out,128); return kResultTrue;
     }
 
-    if(id==kTopPair){
+    if(id==kTopPair || id==kSessionPair){
         static const char* pairs[4]={"NONE","DRUMS - BASS","BASS - E-GUITAR","DRUMS - E-GUITAR"};
         const int index=std::clamp(static_cast<int>(std::lround(std::clamp(v,0.0,1.0)*3.0)),0,3);
         UString128 s; s.fromAscii(pairs[index]); s.copyTo(out,128); return kResultTrue;

@@ -33,17 +33,26 @@ private:
         int previousBand {0};
     };
 
+    struct SessionFinding {
+        int pair {-1};
+        int band {0};
+        double score {0.0};
+        double confidence {0.0};
+    };
+
     IPC::SharedMemory ipc_;
     double sampleRate_ {44100.0};
     PairState pairStates_[3] {};
+    SessionFinding sessionFinding_ {};
     int heldTopPair_ {-1};
 
-    double last_[21] {
+    double last_[24] {
         -1,-1,-1,-1,-1,-1,
         -1,-1,-1,
         -1,-1,-1,
         -1,-1,-1,
-        -1,-1,-1,-1,-1,-1
+        -1,-1,-1,-1,-1,-1,
+        -1,-1,-1
     };
 
     void publishParam(
@@ -57,6 +66,8 @@ private:
         const IPC::Snapshot&,
         PairState&,
         Steinberg::int32) noexcept;
+
+    void updateSessionFinding() noexcept;
 
     static double severityFromState(const PairState&) noexcept;
     static int adviceFor(int pairIndex,int bandIndex,double dominance) noexcept;

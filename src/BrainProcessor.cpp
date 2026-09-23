@@ -48,6 +48,7 @@ tresult PLUGIN_API Processor::setProcessing(TBool state){
             for(double& b:p.bands) b=0.0;
         }
         heldTopPair_=-1;
+        sessionFinding_=SessionFinding{};
     }
     AudioEffect::setProcessing(state);
     return kResultTrue;
@@ -115,7 +116,7 @@ void Processor::updatePair(
     for(int i=1;i<IPC::kBandCount;++i)
         if(state.bands[i]>state.bands[best]) best=i;
 
-    const bool sameBand=(best==state.previousBand);
+    const bool sameBand=(best==state.dominantBand);
     state.previousBand=state.dominantBand;
     state.dominantBand=best;
 
@@ -226,6 +227,24 @@ int Processor::chooseTopPair() noexcept{
     return best;
 }
 
+void Processor::updateSessionFinding() noexcept{
+    for(int i=0;i<3;++i){
+        const auto& p=pairStates_[i];
+        if(p.observedSeconds<4.0 || p.confidence<0.35 || p.score<0.20)
+            continue;
+
+        const double rank=p.score*(0.65+0.35*p.confidence);
+        const double storedRank=sessionFinding_.score*(0.65+0.35*sessionFinding_.confidence);
+
+        if(sessionFinding_.pair<0 || rank>storedRank+0.015){
+            sessionFinding_.pair=i;
+            sessionFinding_.band=p.dominantBand;
+            sessionFinding_.score=p.score;
+            sessionFinding_.confidence=p.confidence;
+        }
+    }
+}
+
 template<typename T>
 static void pass(AudioBusBuffers& input,AudioBusBuffers& output,int32 n){
     const int32 ch=std::min(input.numChannels,output.numChannels);
@@ -279,6 +298,8 @@ tresult PLUGIN_API Processor::process(ProcessData& data){
     publishParam(data,kDrumsGuitarStatus,severityFromState(pairStates_[2]),14);
 
     const int best=chooseTopPair();
+    updateSessionFinding();
+
     const double pairValue=(best<0)?0.0:static_cast<double>(best+1)/3.0;
     const double scoreValue=(best<0)?0.0:pairStates_[best].score;
     const double bandValue=(best<0)?0.0:static_cast<double>(pairStates_[best].dominantBand)/4.0;
@@ -295,6 +316,16 @@ tresult PLUGIN_API Processor::process(ProcessData& data){
     publishParam(data,kTopAdvice,adviceValue,18);
     publishParam(data,kTopDominance,dominanceValue,19);
     publishParam(data,kTopConfidence,confidenceValue,20);
+
+    const double sessionPair=(sessionFinding_.pair<0)?0.0:
+        static_cast<double>(sessionFinding_.pair+1)/3.0;
+    const double sessionScore=(sessionFinding_.pair<0)?0.0:sessionFinding_.score;
+    const double sessionBand=(sessionFinding_.pair<0)?0.0:
+        static_cast<double>(sessionFinding_.band)/4.0;
+
+    publishParam(data,kSessionPair,sessionPair,21);
+    publishParam(data,kSessionScore,sessionScore,22);
+    publishParam(data,kSessionBand,sessionBand,23);
 
     return kResultOk;
 }

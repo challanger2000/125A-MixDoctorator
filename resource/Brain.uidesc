@@ -8,9 +8,10 @@
     <control-tag name="BassGuitarOverlap" tag="209"/><control-tag name="BassGuitarBand" tag="210"/><control-tag name="BassGuitarStatus" tag="211"/>
     <control-tag name="DrumsGuitarOverlap" tag="212"/><control-tag name="DrumsGuitarBand" tag="213"/><control-tag name="DrumsGuitarStatus" tag="214"/>
     <control-tag name="TopPair" tag="215"/><control-tag name="TopScore" tag="216"/><control-tag name="TopBand" tag="217"/><control-tag name="TopAdvice" tag="218"/><control-tag name="TopDominance" tag="219"/><control-tag name="TopConfidence" tag="220"/>
+    <control-tag name="SessionPair" tag="221"/><control-tag name="SessionScore" tag="222"/><control-tag name="SessionBand" tag="223"/>
   </control-tags>
 
-  <template name="view" class="CViewContainer" origin="0,0" size="900,670" background-color="#171717ff">
+  <template name="view" class="CViewContainer" origin="0,0" size="900,735" background-color="#171717ff">
     <view class="CTextLabel" origin="20,16" size="860,34" title="125A MIXDOCTORATOR BRAIN" font-size="22" font-color="#ffffffff" transparent="true"/>
 
     <view class="CTextLabel" origin="20,62" size="140,28" title="DRUMS" font-size="16" font-color="#ffffffff" transparent="true"/>
@@ -42,16 +43,21 @@
     <view class="CParamDisplay" origin="310,338" size="225,28" control-tag="DrumsGuitarBand" font-size="14" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
     <view class="CParamDisplay" origin="550,338" size="145,28" control-tag="DrumsGuitarStatus" font-size="14" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
 
-    <view class="CTextLabel" origin="20,397" size="860,28" title="TOP FINDING" font-size="15" font-color="#ccccccff" transparent="true"/>
+    <view class="CTextLabel" origin="20,397" size="860,28" title="TOP FINDING - CURRENT" font-size="15" font-color="#ccccccff" transparent="true"/>
     <view class="CParamDisplay" origin="20,432" size="210,32" control-tag="TopPair" font-size="14" font-color="#ffffffff" back-color="#303030ff" frame-color="#777777ff"/>
     <view class="CParamDisplay" origin="245,432" size="90,32" control-tag="TopScore" font-size="14" font-color="#ffffffff" back-color="#303030ff" frame-color="#777777ff"/>
     <view class="CParamDisplay" origin="350,432" size="220,32" control-tag="TopBand" font-size="14" font-color="#ffffffff" back-color="#303030ff" frame-color="#777777ff"/>
     <view class="CParamDisplay" origin="585,432" size="170,32" control-tag="TopDominance" font-size="14" font-color="#ffffffff" back-color="#303030ff" frame-color="#777777ff"/>
     <view class="CParamDisplay" origin="770,432" size="110,32" control-tag="TopConfidence" font-size="14" font-color="#ffffffff" back-color="#303030ff" frame-color="#777777ff"/>
 
-    <view class="CTextLabel" origin="20,485" size="860,28" title="SUGGESTED CHECK" font-size="15" font-color="#ccccccff" transparent="true"/>
-    <view class="CParamDisplay" origin="20,520" size="860,38" control-tag="TopAdvice" font-size="14" font-color="#ffffffff" back-color="#303030ff" frame-color="#777777ff"/>
+    <view class="CTextLabel" origin="20,480" size="860,28" title="STRONGEST CONFIDENT FINDING - SESSION" font-size="15" font-color="#ccccccff" transparent="true"/>
+    <view class="CParamDisplay" origin="20,515" size="250,32" control-tag="SessionPair" font-size="14" font-color="#ffffffff" back-color="#262626ff" frame-color="#666666ff"/>
+    <view class="CParamDisplay" origin="285,515" size="100,32" control-tag="SessionScore" font-size="14" font-color="#ffffffff" back-color="#262626ff" frame-color="#666666ff"/>
+    <view class="CParamDisplay" origin="400,515" size="250,32" control-tag="SessionBand" font-size="14" font-color="#ffffffff" back-color="#262626ff" frame-color="#666666ff"/>
 
-    <view class="CTextLabel" origin="20,625" size="860,24" title="Confidence rises with observation time and stable evidence." font-size="13" font-color="#a0a0a0ff" transparent="true"/>
+    <view class="CTextLabel" origin="20,570" size="860,28" title="SUGGESTED CHECK" font-size="15" font-color="#ccccccff" transparent="true"/>
+    <view class="CParamDisplay" origin="20,605" size="860,38" control-tag="TopAdvice" font-size="14" font-color="#ffffffff" back-color="#303030ff" frame-color="#777777ff"/>
+
+    <view class="CTextLabel" origin="20,690" size="860,24" title="Session finding only updates from sustained, higher-confidence evidence." font-size="13" font-color="#a0a0a0ff" transparent="true"/>
   </template>
 </vstgui-ui-description>
