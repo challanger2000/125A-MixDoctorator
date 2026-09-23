@@ -54,7 +54,7 @@ tresult PLUGIN_API Processor::setProcessing(TBool state){
     return kResultTrue;
 }
 
-void Processor::publishParam(ProcessData& data,ParamID id,double v,int slot){
+void Processor::publishParam(ProcessData& data,Steinberg::Vst::ParamID id,double v,int slot){
     v=std::clamp(v,0.0,1.0);
     if(std::abs(v-last_[slot])<0.0005 || !data.outputParameterChanges) return;
     int32 index=0;
