@@ -43,6 +43,7 @@ private:
 
     Analysis::SpectralAnalyzer analyzerLeft_;
     Analysis::SpectralAnalyzer analyzerRight_;
+    double sampleRate_{44100.0};
 };
 
 } // namespace MixDoctorator::Sensor

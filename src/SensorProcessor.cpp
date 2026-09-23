@@ -71,11 +71,17 @@ tresult PLUGIN_API Processor::canProcessSampleSize(
 tresult PLUGIN_API Processor::setupProcessing(
     ProcessSetup& setup){
 
+    sampleRate_=
+        (std::isfinite(setup.sampleRate) &&
+         setup.sampleRate>8000.0)
+        ? setup.sampleRate
+        : 44100.0;
+
     analyzerLeft_.prepare(
-        setup.sampleRate);
+        sampleRate_);
 
     analyzerRight_.prepare(
-        setup.sampleRate);
+        sampleRate_);
 
     return AudioEffect::
         setupProcessing(setup);
@@ -86,10 +92,10 @@ tresult PLUGIN_API Processor::setProcessing(
 
     if(state){
         analyzerLeft_.prepare(
-            processSetup.sampleRate);
+            sampleRate_);
 
         analyzerRight_.prepare(
-            processSetup.sampleRate);
+            sampleRate_);
     }
 
     AudioEffect::

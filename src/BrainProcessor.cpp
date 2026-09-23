@@ -4,6 +4,7 @@
 #include "TimingModel.h"
 
 #include "pluginterfaces/vst/ivstparameterchanges.h"
+#include "pluginterfaces/vst/ivstprocesscontext.h"
 #include "pluginterfaces/vst/vstspeaker.h"
 
 #include <algorithm>
@@ -24,6 +25,9 @@ void Processor::resetAnalysisState() noexcept{
 
     sessionFinding_=SessionFinding{};
     heldTopPair_=-1;
+
+    for(double& value:last_)
+        value=-1.0;
 }
 
 tresult PLUGIN_API Processor::initialize(FUnknown* c){
@@ -167,6 +171,13 @@ void Processor::updatePair(
 
         for(int i=0;i<IPC::kBandCount;++i)
             bandTargets[i]=metrics.bandRisk[i];
+
+        const double domAlpha=
+            1.0-std::exp(-dt/1.8);
+
+        state.dominance+=
+            domAlpha*
+            (metrics.dominance-state.dominance);
     }else{
         state.observedSeconds=
             std::max(
@@ -215,24 +226,6 @@ void Processor::updatePair(
         stableBest==state.dominantBand;
 
     state.dominantBand=stableBest;
-
-    if(active){
-        const auto metrics=
-            Analysis::evaluatePair(
-                a.rmsDb,
-                a.activity,
-                a.bands,
-                b.rmsDb,
-                b.activity,
-                b.bands);
-
-        const double domAlpha=
-            1.0-std::exp(-dt/1.8);
-
-        state.dominance+=
-            domAlpha*
-            (metrics.dominance-state.dominance);
-    }
 
     const double timeConfidence=
         std::clamp(
