@@ -35,6 +35,7 @@ tresult PLUGIN_API Processor::setBusArrangements(
        out[0]==SpeakerArr::kStereo) {
         return AudioEffect::setBusArrangements(in,ni,out,no);
     }
+
     return kResultFalse;
 }
 
@@ -42,7 +43,22 @@ tresult PLUGIN_API Processor::canProcessSampleSize(int32 s) {
     return (s==kSample32 || s==kSample64) ? kResultTrue : kResultFalse;
 }
 
+tresult PLUGIN_API Processor::setupProcessing(ProcessSetup& setup) {
+    sampleRate_=(std::isfinite(setup.sampleRate) && setup.sampleRate>8000.0)
+        ? setup.sampleRate : 44100.0;
+
+    return AudioEffect::setupProcessing(setup);
+}
+
 tresult PLUGIN_API Processor::setProcessing(TBool state) {
+    if(state) {
+        for(auto& p : pairStates_) {
+            p.score=0.0;
+            p.dominantBand=0;
+            for(double& b : p.bands) b=0.0;
+        }
+    }
+
     AudioEffect::setProcessing(state);
     return kResultTrue;
 }
@@ -68,36 +84,79 @@ void Processor::publishParam(
         last_[slot]=v;
 }
 
-void Processor::overlap(
+void Processor::updatePair(
     const IPC::Snapshot& a,
     const IPC::Snapshot& b,
-    double& score,
-    int& dominantBand) noexcept {
+    PairState& state,
+    int32 numSamples) noexcept {
 
-    score=0.0;
-    dominantBand=0;
+    const double dt=std::clamp(
+        static_cast<double>(std::max<int32>(1,numSamples)) /
+            std::max(8000.0,sampleRate_),
+        0.0001,
+        0.25);
 
-    if(!a.connected || !b.connected ||
-       a.rmsDb < -55.0 || b.rmsDb < -55.0) {
-        return;
-    }
+    const bool active=
+        a.connected && b.connected &&
+        a.rmsDb>-55.0 && b.rmsDb>-55.0;
 
-    double strongest=-1.0;
+    double target=0.0;
+    double commonBands[IPC::kBandCount] {0.0,0.0,0.0,0.0,0.0};
 
-    for(int i=0;i<IPC::kBandCount;++i) {
-        const double common=std::min(
-            std::max(0.0,a.bands[i]),
-            std::max(0.0,b.bands[i]));
+    if(active) {
+        double rawOverlap=0.0;
 
-        score+=common;
+        for(int i=0;i<IPC::kBandCount;++i) {
+            commonBands[i]=std::min(
+                std::max(0.0,a.bands[i]),
+                std::max(0.0,b.bands[i]));
 
-        if(common>strongest) {
-            strongest=common;
-            dominantBand=i;
+            rawOverlap+=commonBands[i];
         }
+
+        rawOverlap=std::clamp(rawOverlap,0.0,1.0);
+
+        const double jointActivity=std::sqrt(
+            std::clamp(a.activity,0.0,1.0) *
+            std::clamp(b.activity,0.0,1.0));
+
+        target=rawOverlap*(0.35+0.65*jointActivity);
     }
 
-    score=std::clamp(score,0.0,1.0);
+    const double tau=(target>state.score) ? 0.65 : 3.0;
+    const double alpha=1.0-std::exp(-dt/tau);
+    state.score += alpha*(target-state.score);
+
+    const double bandAlpha=1.0-std::exp(-dt/1.25);
+
+    if(active) {
+        const double jointActivity=std::sqrt(
+            std::clamp(a.activity,0.0,1.0) *
+            std::clamp(b.activity,0.0,1.0));
+
+        for(int i=0;i<IPC::kBandCount;++i) {
+            const double weighted=commonBands[i]*(0.4+0.6*jointActivity);
+            state.bands[i] += bandAlpha*(weighted-state.bands[i]);
+        }
+    } else {
+        const double releaseAlpha=1.0-std::exp(-dt/4.0);
+        for(double& value : state.bands)
+            value += releaseAlpha*(0.0-value);
+    }
+
+    int best=0;
+    for(int i=1;i<IPC::kBandCount;++i) {
+        if(state.bands[i]>state.bands[best])
+            best=i;
+    }
+    state.dominantBand=best;
+}
+
+double Processor::severityFromScore(double score) noexcept {
+    if(score<0.18) return 0.0;
+    if(score<0.32) return 1.0/3.0;
+    if(score<0.48) return 2.0/3.0;
+    return 1.0;
 }
 
 template<typename T>
@@ -153,20 +212,40 @@ tresult PLUGIN_API Processor::process(ProcessData& data) {
     publishParam(data,kGuitarConnected,guitarOk?1.0:0.0,4);
     publishParam(data,kGuitarLevel,level(guitar,guitarOk),5);
 
-    double score=0.0;
-    int band=0;
+    updatePair(drums,bass,pairStates_[0],data.numSamples);
+    updatePair(bass,guitar,pairStates_[1],data.numSamples);
+    updatePair(drums,guitar,pairStates_[2],data.numSamples);
 
-    overlap(drums,bass,score,band);
-    publishParam(data,kDrumsBassOverlap,score,6);
-    publishParam(data,kDrumsBassBand,static_cast<double>(band)/4.0,7);
+    publishParam(data,kDrumsBassOverlap,pairStates_[0].score,6);
+    publishParam(data,kDrumsBassBand,static_cast<double>(pairStates_[0].dominantBand)/4.0,7);
+    publishParam(data,kDrumsBassStatus,severityFromScore(pairStates_[0].score),8);
 
-    overlap(bass,guitar,score,band);
-    publishParam(data,kBassGuitarOverlap,score,8);
-    publishParam(data,kBassGuitarBand,static_cast<double>(band)/4.0,9);
+    publishParam(data,kBassGuitarOverlap,pairStates_[1].score,9);
+    publishParam(data,kBassGuitarBand,static_cast<double>(pairStates_[1].dominantBand)/4.0,10);
+    publishParam(data,kBassGuitarStatus,severityFromScore(pairStates_[1].score),11);
 
-    overlap(drums,guitar,score,band);
-    publishParam(data,kDrumsGuitarOverlap,score,10);
-    publishParam(data,kDrumsGuitarBand,static_cast<double>(band)/4.0,11);
+    publishParam(data,kDrumsGuitarOverlap,pairStates_[2].score,12);
+    publishParam(data,kDrumsGuitarBand,static_cast<double>(pairStates_[2].dominantBand)/4.0,13);
+    publishParam(data,kDrumsGuitarStatus,severityFromScore(pairStates_[2].score),14);
+
+    int best=-1;
+    double bestScore=0.18;
+
+    for(int i=0;i<3;++i) {
+        if(pairStates_[i].score>bestScore) {
+            bestScore=pairStates_[i].score;
+            best=i;
+        }
+    }
+
+    const double pairValue=(best<0) ? 0.0 : static_cast<double>(best+1)/3.0;
+    const double scoreValue=(best<0) ? 0.0 : pairStates_[best].score;
+    const double bandValue=(best<0) ? 0.0 :
+        static_cast<double>(pairStates_[best].dominantBand)/4.0;
+
+    publishParam(data,kTopPair,pairValue,15);
+    publishParam(data,kTopScore,scoreValue,16);
+    publishParam(data,kTopBand,bandValue,17);
 
     return kResultOk;
 }

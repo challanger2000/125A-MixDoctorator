@@ -20,10 +20,19 @@ enum ParamID : Steinberg::Vst::ParamID {
 
     kDrumsBassOverlap,
     kDrumsBassBand,
+    kDrumsBassStatus,
+
     kBassGuitarOverlap,
     kBassGuitarBand,
+    kBassGuitarStatus,
+
     kDrumsGuitarOverlap,
-    kDrumsGuitarBand
+    kDrumsGuitarBand,
+    kDrumsGuitarStatus,
+
+    kTopPair,
+    kTopScore,
+    kTopBand
 };
 
 } // namespace MixDoctorator::Brain

@@ -27,12 +27,21 @@ tresult PLUGIN_API Controller::initialize(FUnknown* c) {
     parameters.addParameter(STR16("Guitar Connected"),nullptr,1,0.0,ro,kGuitarConnected);
     parameters.addParameter(STR16("Guitar RMS"),STR16("dB"),0,0.0,ro,kGuitarLevel);
 
-    parameters.addParameter(STR16("Drums Bass Overlap"),STR16("%"),0,0.0,ro,kDrumsBassOverlap);
+    parameters.addParameter(STR16("Drums Bass Observed"),STR16("%"),0,0.0,ro,kDrumsBassOverlap);
     parameters.addParameter(STR16("Drums Bass Band"),nullptr,4,0.0,ro,kDrumsBassBand);
-    parameters.addParameter(STR16("Bass Guitar Overlap"),STR16("%"),0,0.0,ro,kBassGuitarOverlap);
+    parameters.addParameter(STR16("Drums Bass Attention"),nullptr,3,0.0,ro,kDrumsBassStatus);
+
+    parameters.addParameter(STR16("Bass Guitar Observed"),STR16("%"),0,0.0,ro,kBassGuitarOverlap);
     parameters.addParameter(STR16("Bass Guitar Band"),nullptr,4,0.0,ro,kBassGuitarBand);
-    parameters.addParameter(STR16("Drums Guitar Overlap"),STR16("%"),0,0.0,ro,kDrumsGuitarOverlap);
+    parameters.addParameter(STR16("Bass Guitar Attention"),nullptr,3,0.0,ro,kBassGuitarStatus);
+
+    parameters.addParameter(STR16("Drums Guitar Observed"),STR16("%"),0,0.0,ro,kDrumsGuitarOverlap);
     parameters.addParameter(STR16("Drums Guitar Band"),nullptr,4,0.0,ro,kDrumsGuitarBand);
+    parameters.addParameter(STR16("Drums Guitar Attention"),nullptr,3,0.0,ro,kDrumsGuitarStatus);
+
+    parameters.addParameter(STR16("Top Finding Pair"),nullptr,3,0.0,ro,kTopPair);
+    parameters.addParameter(STR16("Top Finding Score"),STR16("%"),0,0.0,ro,kTopScore);
+    parameters.addParameter(STR16("Top Finding Band"),nullptr,4,0.0,ro,kTopBand);
 
     return kResultOk;
 }
@@ -69,7 +78,8 @@ tresult PLUGIN_API Controller::getParamStringByValue(
 
     if(id==kDrumsBassOverlap ||
        id==kBassGuitarOverlap ||
-       id==kDrumsGuitarOverlap) {
+       id==kDrumsGuitarOverlap ||
+       id==kTopScore) {
 
         char b[32]{};
         std::snprintf(
@@ -84,7 +94,8 @@ tresult PLUGIN_API Controller::getParamStringByValue(
 
     if(id==kDrumsBassBand ||
        id==kBassGuitarBand ||
-       id==kDrumsGuitarBand) {
+       id==kDrumsGuitarBand ||
+       id==kTopBand) {
 
         static const char* names[5] = {
             "LOW 20-120",
@@ -100,6 +111,45 @@ tresult PLUGIN_API Controller::getParamStringByValue(
 
         UString128 s;
         s.fromAscii(names[index]);
+        s.copyTo(out,128);
+        return kResultTrue;
+    }
+
+    if(id==kDrumsBassStatus ||
+       id==kBassGuitarStatus ||
+       id==kDrumsGuitarStatus) {
+
+        static const char* states[4] = {
+            "CLEAR",
+            "LOW",
+            "MEDIUM",
+            "HIGH"
+        };
+
+        const int index=std::clamp(
+            static_cast<int>(std::lround(std::clamp(v,0.0,1.0)*3.0)),
+            0,3);
+
+        UString128 s;
+        s.fromAscii(states[index]);
+        s.copyTo(out,128);
+        return kResultTrue;
+    }
+
+    if(id==kTopPair) {
+        static const char* pairs[4] = {
+            "NONE",
+            "DRUMS - BASS",
+            "BASS - E-GUITAR",
+            "DRUMS - E-GUITAR"
+        };
+
+        const int index=std::clamp(
+            static_cast<int>(std::lround(std::clamp(v,0.0,1.0)*3.0)),
+            0,3);
+
+        UString128 s;
+        s.fromAscii(pairs[index]);
         s.copyTo(out,128);
         return kResultTrue;
     }

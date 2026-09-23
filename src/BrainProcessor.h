@@ -17,14 +17,28 @@ public:
         Steinberg::Vst::SpeakerArrangement*, Steinberg::int32,
         Steinberg::Vst::SpeakerArrangement*, Steinberg::int32) override;
     Steinberg::tresult PLUGIN_API canProcessSampleSize(Steinberg::int32) override;
+    Steinberg::tresult PLUGIN_API setupProcessing(
+        Steinberg::Vst::ProcessSetup&) override;
     Steinberg::tresult PLUGIN_API setProcessing(Steinberg::TBool) override;
     Steinberg::tresult PLUGIN_API process(Steinberg::Vst::ProcessData&) override;
 
 private:
+    struct PairState {
+        double score {0.0};
+        double bands[IPC::kBandCount] {0.0,0.0,0.0,0.0,0.0};
+        int dominantBand {0};
+    };
+
     IPC::SharedMemory ipc_;
-    double last_[12]{
+    double sampleRate_ {44100.0};
+    PairState pairStates_[3] {};
+
+    double last_[18] {
         -1,-1,-1,-1,-1,-1,
-        -1,-1,-1,-1,-1,-1
+        -1,-1,-1,
+        -1,-1,-1,
+        -1,-1,-1,
+        -1,-1,-1
     };
 
     void publishParam(
@@ -33,11 +47,13 @@ private:
         double,
         int);
 
-    static void overlap(
-        const IPC::Snapshot& a,
-        const IPC::Snapshot& b,
-        double& score,
-        int& dominantBand) noexcept;
+    void updatePair(
+        const IPC::Snapshot&,
+        const IPC::Snapshot&,
+        PairState&,
+        Steinberg::int32) noexcept;
+
+    static double severityFromScore(double) noexcept;
 };
 
 } // namespace MixDoctorator::Brain
