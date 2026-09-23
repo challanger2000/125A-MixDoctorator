@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<vstgui-ui-description version="1">
+  <control-tags><control-tag name="Role" tag="100"/></control-tags>
+  <template name="view" class="CViewContainer" origin="0,0" size="420,180" background-color="#1c1c1cff">
+    <view class="CTextLabel" origin="20,18" size="380,32" title="125A MIXDOCTORATOR SENSOR" font-size="22" font-color="#ffffffff" transparent="true"/>
+    <view class="CTextLabel" origin="20,64" size="90,24" title="SOURCE" font-size="15" font-color="#ccccccff" transparent="true"/>
+    <view class="COptionMenu" origin="120,60" size="260,32" control-tag="Role" font-size="15" back-color="#303030ff" font-color="#ffffffff" frame-color="#777777ff"/>
+    <view class="CTextLabel" origin="20,118" size="360,28" title="Audio passes through unchanged. Analysis only." font-size="13" font-color="#a0a0a0ff" transparent="true"/>
+  </template>
+</vstgui-ui-description>
