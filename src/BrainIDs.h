@@ -19,14 +19,17 @@ enum ParamID : Steinberg::Vst::ParamID {
     kGuitarLevel,
 
     kDrumsBassOverlap,
+    kDrumsBassMasking,
     kDrumsBassBand,
     kDrumsBassStatus,
 
     kBassGuitarOverlap,
+    kBassGuitarMasking,
     kBassGuitarBand,
     kBassGuitarStatus,
 
     kDrumsGuitarOverlap,
+    kDrumsGuitarMasking,
     kDrumsGuitarBand,
     kDrumsGuitarStatus,
 

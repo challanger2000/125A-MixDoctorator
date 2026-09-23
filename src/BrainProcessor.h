@@ -24,33 +24,33 @@ public:
 
 private:
     struct PairState {
-        double score {0.0};
-        double bands[IPC::kBandCount] {0.0,0.0,0.0,0.0,0.0};
-        double observedSeconds {0.0};
-        double dominance {0.0};
-        double confidence {0.0};
-        int dominantBand {0};
-        int previousBand {0};
+        double overlap{0.0};
+        double masking{0.0};
+        double bandRisk[IPC::kBandCount]{};
+        double observedSeconds{0.0};
+        double dominance{0.0};
+        double confidence{0.0};
+        int dominantBand{0};
     };
 
     struct SessionFinding {
-        int pair {-1};
-        int band {0};
-        double score {0.0};
-        double confidence {0.0};
+        int pair{-1};
+        int band{0};
+        double score{0.0};
+        double confidence{0.0};
     };
 
     IPC::SharedMemory ipc_;
-    double sampleRate_ {44100.0};
-    PairState pairStates_[3] {};
-    SessionFinding sessionFinding_ {};
-    int heldTopPair_ {-1};
+    double sampleRate_{44100.0};
+    PairState pairStates_[3]{};
+    SessionFinding sessionFinding_{};
+    int heldTopPair_{-1};
 
-    double last_[24] {
+    double last_[27]{
         -1,-1,-1,-1,-1,-1,
-        -1,-1,-1,
-        -1,-1,-1,
-        -1,-1,-1,
+        -1,-1,-1,-1,
+        -1,-1,-1,-1,
+        -1,-1,-1,-1,
         -1,-1,-1,-1,-1,-1,
         -1,-1,-1
     };

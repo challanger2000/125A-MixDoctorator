@@ -16,8 +16,12 @@ using namespace Steinberg::Vst;
 
 tresult PLUGIN_API Controller::initialize(FUnknown* c){
     const auto r=EditController::initialize(c);
-    if(r!=kResultOk) return r;
-    constexpr int32 ro=ParameterInfo::kIsReadOnly;
+
+    if(r!=kResultOk)
+        return r;
+
+    constexpr int32 ro=
+        ParameterInfo::kIsReadOnly;
 
     parameters.addParameter(STR16("Drums Connected"),nullptr,1,0.0,ro,kDrumsConnected);
     parameters.addParameter(STR16("Drums RMS"),STR16("dB"),0,0.0,ro,kDrumsLevel);
@@ -26,104 +30,266 @@ tresult PLUGIN_API Controller::initialize(FUnknown* c){
     parameters.addParameter(STR16("Guitar Connected"),nullptr,1,0.0,ro,kGuitarConnected);
     parameters.addParameter(STR16("Guitar RMS"),STR16("dB"),0,0.0,ro,kGuitarLevel);
 
-    parameters.addParameter(STR16("Drums Bass Observed"),STR16("%"),0,0.0,ro,kDrumsBassOverlap);
-    parameters.addParameter(STR16("Drums Bass Band"),nullptr,4,0.0,ro,kDrumsBassBand);
+    parameters.addParameter(STR16("Drums Bass Overlap"),STR16("%"),0,0.0,ro,kDrumsBassOverlap);
+    parameters.addParameter(STR16("Drums Bass Masking"),STR16("%"),0,0.0,ro,kDrumsBassMasking);
+    parameters.addParameter(STR16("Drums Bass Band"),nullptr,8,0.0,ro,kDrumsBassBand);
     parameters.addParameter(STR16("Drums Bass Attention"),nullptr,4,0.0,ro,kDrumsBassStatus);
 
-    parameters.addParameter(STR16("Bass Guitar Observed"),STR16("%"),0,0.0,ro,kBassGuitarOverlap);
-    parameters.addParameter(STR16("Bass Guitar Band"),nullptr,4,0.0,ro,kBassGuitarBand);
+    parameters.addParameter(STR16("Bass Guitar Overlap"),STR16("%"),0,0.0,ro,kBassGuitarOverlap);
+    parameters.addParameter(STR16("Bass Guitar Masking"),STR16("%"),0,0.0,ro,kBassGuitarMasking);
+    parameters.addParameter(STR16("Bass Guitar Band"),nullptr,8,0.0,ro,kBassGuitarBand);
     parameters.addParameter(STR16("Bass Guitar Attention"),nullptr,4,0.0,ro,kBassGuitarStatus);
 
-    parameters.addParameter(STR16("Drums Guitar Observed"),STR16("%"),0,0.0,ro,kDrumsGuitarOverlap);
-    parameters.addParameter(STR16("Drums Guitar Band"),nullptr,4,0.0,ro,kDrumsGuitarBand);
+    parameters.addParameter(STR16("Drums Guitar Overlap"),STR16("%"),0,0.0,ro,kDrumsGuitarOverlap);
+    parameters.addParameter(STR16("Drums Guitar Masking"),STR16("%"),0,0.0,ro,kDrumsGuitarMasking);
+    parameters.addParameter(STR16("Drums Guitar Band"),nullptr,8,0.0,ro,kDrumsGuitarBand);
     parameters.addParameter(STR16("Drums Guitar Attention"),nullptr,4,0.0,ro,kDrumsGuitarStatus);
 
     parameters.addParameter(STR16("Top Finding Pair"),nullptr,3,0.0,ro,kTopPair);
-    parameters.addParameter(STR16("Top Finding Score"),STR16("%"),0,0.0,ro,kTopScore);
-    parameters.addParameter(STR16("Top Finding Band"),nullptr,4,0.0,ro,kTopBand);
-    parameters.addParameter(STR16("Suggested Check"),nullptr,12,0.0,ro,kTopAdvice);
+    parameters.addParameter(STR16("Top Masking Risk"),STR16("%"),0,0.0,ro,kTopScore);
+    parameters.addParameter(STR16("Top Finding Band"),nullptr,8,0.0,ro,kTopBand);
+    parameters.addParameter(STR16("Suggested Check"),nullptr,15,0.0,ro,kTopAdvice);
     parameters.addParameter(STR16("Dominant Source"),nullptr,2,0.5,ro,kTopDominance);
     parameters.addParameter(STR16("Confidence"),STR16("%"),0,0.0,ro,kTopConfidence);
 
     parameters.addParameter(STR16("Session Pair"),nullptr,3,0.0,ro,kSessionPair);
-    parameters.addParameter(STR16("Session Score"),STR16("%"),0,0.0,ro,kSessionScore);
-    parameters.addParameter(STR16("Session Band"),nullptr,4,0.0,ro,kSessionBand);
+    parameters.addParameter(STR16("Session Masking Risk"),STR16("%"),0,0.0,ro,kSessionScore);
+    parameters.addParameter(STR16("Session Band"),nullptr,8,0.0,ro,kSessionBand);
 
     return kResultOk;
 }
 
-IPlugView* PLUGIN_API Controller::createView(FIDString name){
-    if(name && std::strcmp(name,ViewType::kEditor)==0)
-        return new VSTGUI::VST3Editor(this,"view","Brain.uidesc");
+IPlugView* PLUGIN_API Controller::createView(
+    FIDString name){
+
+    if(name &&
+       std::strcmp(
+           name,
+           ViewType::kEditor)==0)
+        return new VSTGUI::VST3Editor(
+            this,
+            "view",
+            "Brain.uidesc");
+
     return nullptr;
 }
 
 tresult PLUGIN_API Controller::getParamStringByValue(
-    Steinberg::Vst::ParamID id,ParamValue v,String128 out){
+    Steinberg::Vst::ParamID id,
+    ParamValue v,
+    String128 out){
 
-    if(id==kDrumsConnected || id==kBassConnected || id==kGuitarConnected){
-        UString128 s; s.fromAscii(v>=0.5 ? "CONNECTED" : "OFFLINE"); s.copyTo(out,128); return kResultTrue;
+    if(id==kDrumsConnected ||
+       id==kBassConnected ||
+       id==kGuitarConnected){
+
+        UString128 s;
+        s.fromAscii(
+            v>=0.5
+            ? "CONNECTED"
+            : "OFFLINE");
+        s.copyTo(out,128);
+        return kResultTrue;
     }
 
-    if(id==kDrumsLevel || id==kBassLevel || id==kGuitarLevel){
-        const double db=std::clamp(v,0.0,1.0)*60.0-60.0;
-        char b[32]{}; std::snprintf(b,sizeof(b),"%.1f dB",db);
-        UString128 s; s.fromAscii(b); s.copyTo(out,128); return kResultTrue;
-    }
+    if(id==kDrumsLevel ||
+       id==kBassLevel ||
+       id==kGuitarLevel){
 
-    if(id==kDrumsBassOverlap || id==kBassGuitarOverlap || id==kDrumsGuitarOverlap ||
-       id==kTopScore || id==kTopConfidence || id==kSessionScore){
+        const double db=
+            std::clamp(v,0.0,1.0)*
+            60.0-60.0;
+
         char b[32]{};
-        std::snprintf(b,sizeof(b),"%.0f %%",std::clamp(v,0.0,1.0)*100.0);
-        UString128 s; s.fromAscii(b); s.copyTo(out,128); return kResultTrue;
+        std::snprintf(
+            b,sizeof(b),
+            "%.1f dB",
+            db);
+
+        UString128 s;
+        s.fromAscii(b);
+        s.copyTo(out,128);
+        return kResultTrue;
     }
 
-    if(id==kDrumsBassBand || id==kBassGuitarBand || id==kDrumsGuitarBand ||
-       id==kTopBand || id==kSessionBand){
-        static const char* names[5]={"LOW 20-120","LOW-MID 120-500","MID 500-2k","PRESENCE 2-6k","HIGH 6k+"};
-        const int index=std::clamp(static_cast<int>(std::lround(std::clamp(v,0.0,1.0)*4.0)),0,4);
-        UString128 s; s.fromAscii(names[index]); s.copyTo(out,128); return kResultTrue;
+    if(id==kDrumsBassOverlap ||
+       id==kDrumsBassMasking ||
+       id==kBassGuitarOverlap ||
+       id==kBassGuitarMasking ||
+       id==kDrumsGuitarOverlap ||
+       id==kDrumsGuitarMasking ||
+       id==kTopScore ||
+       id==kTopConfidence ||
+       id==kSessionScore){
+
+        char b[32]{};
+        std::snprintf(
+            b,sizeof(b),
+            "%.0f %%",
+            std::clamp(v,0.0,1.0)*
+            100.0);
+
+        UString128 s;
+        s.fromAscii(b);
+        s.copyTo(out,128);
+        return kResultTrue;
     }
 
-    if(id==kDrumsBassStatus || id==kBassGuitarStatus || id==kDrumsGuitarStatus){
-        static const char* states[5]={"OBSERVING","CLEAR","LOW","MEDIUM","HIGH"};
-        const int index=std::clamp(static_cast<int>(std::lround(std::clamp(v,0.0,1.0)*4.0)),0,4);
-        UString128 s; s.fromAscii(states[index]); s.copyTo(out,128); return kResultTrue;
+    if(id==kDrumsBassBand ||
+       id==kBassGuitarBand ||
+       id==kDrumsGuitarBand ||
+       id==kTopBand ||
+       id==kSessionBand){
+
+        static const char* names[9]={
+            "SUB 20-80",
+            "BASS 80-160",
+            "LOW-MID 160-300",
+            "BODY 300-600",
+            "MID 600-1.2k",
+            "UPPER MID 1.2-2.5k",
+            "PRESENCE 2.5-5k",
+            "TREBLE 5-10k",
+            "AIR 10k+"
+        };
+
+        const int index=
+            std::clamp(
+                static_cast<int>(
+                    std::lround(
+                        std::clamp(
+                            v,0.0,1.0)*
+                        8.0)),
+                0,
+                8);
+
+        UString128 s;
+        s.fromAscii(names[index]);
+        s.copyTo(out,128);
+        return kResultTrue;
     }
 
-    if(id==kTopPair || id==kSessionPair){
-        static const char* pairs[4]={"NONE","DRUMS - BASS","BASS - E-GUITAR","DRUMS - E-GUITAR"};
-        const int index=std::clamp(static_cast<int>(std::lround(std::clamp(v,0.0,1.0)*3.0)),0,3);
-        UString128 s; s.fromAscii(pairs[index]); s.copyTo(out,128); return kResultTrue;
+    if(id==kDrumsBassStatus ||
+       id==kBassGuitarStatus ||
+       id==kDrumsGuitarStatus){
+
+        static const char* states[5]={
+            "OBSERVING",
+            "CLEAR",
+            "LOW",
+            "MEDIUM",
+            "HIGH"
+        };
+
+        const int index=
+            std::clamp(
+                static_cast<int>(
+                    std::lround(
+                        std::clamp(
+                            v,0.0,1.0)*
+                        4.0)),
+                0,
+                4);
+
+        UString128 s;
+        s.fromAscii(states[index]);
+        s.copyTo(out,128);
+        return kResultTrue;
+    }
+
+    if(id==kTopPair ||
+       id==kSessionPair){
+
+        static const char* pairs[4]={
+            "NONE",
+            "DRUMS - BASS",
+            "BASS - E-GUITAR",
+            "DRUMS - E-GUITAR"
+        };
+
+        const int index=
+            std::clamp(
+                static_cast<int>(
+                    std::lround(
+                        std::clamp(
+                            v,0.0,1.0)*
+                        3.0)),
+                0,
+                3);
+
+        UString128 s;
+        s.fromAscii(pairs[index]);
+        s.copyTo(out,128);
+        return kResultTrue;
     }
 
     if(id==kTopDominance){
-        static const char* labels[3]={"SECOND SOURCE","BALANCED","FIRST SOURCE"};
-        const int index=std::clamp(static_cast<int>(std::lround(std::clamp(v,0.0,1.0)*2.0)),0,2);
-        UString128 s; s.fromAscii(labels[index]); s.copyTo(out,128); return kResultTrue;
+
+        static const char* labels[3]={
+            "SECOND SOURCE",
+            "BALANCED",
+            "FIRST SOURCE"
+        };
+
+        const int index=
+            std::clamp(
+                static_cast<int>(
+                    std::lround(
+                        std::clamp(
+                            v,0.0,1.0)*
+                        2.0)),
+                0,
+                2);
+
+        UString128 s;
+        s.fromAscii(labels[index]);
+        s.copyTo(out,128);
+        return kResultTrue;
     }
 
     if(id==kTopAdvice){
-        static const char* advice[13]={
-            "Keep listening - no strong finding yet",
-            "Drums dominate low end: check kick/toms before raising bass",
-            "Bass dominates low end: check bass weight before raising kick",
-            "Drums and bass share low end: decide which should lead",
-            "Check drum/bass buildup outside the sub range",
-            "Bass dominates guitar range: check bass harmonics/body",
-            "Guitar dominates bass range: try reducing guitar low-mids",
-            "Bass and guitar overlap: separate their body ranges",
-            "Check bass attack/harmonics against guitar presence",
-            "Drums dominate upper range: check snare/cymbal emphasis",
-            "Guitar dominates upper range: check guitar presence/top end",
-            "Drums and guitar overlap: separate attack/presence",
-            "Check guitar low end against kick/toms"
+
+        static const char* advice[16]={
+            "Keep listening - no reliable masking finding yet",
+
+            "Drums dominate sub/bass: check kick/toms before raising bass",
+            "Bass dominates sub/bass: check bass weight before raising kick",
+            "Drums and bass compete in sub/bass: decide which should lead",
+            "Check drum/bass buildup in low-mids and body",
+            "Check drum attack against bass definition",
+
+            "Bass dominates guitar lows: check bass body/harmonics",
+            "Guitar dominates bass lows: reduce guitar low-end/body first",
+            "Bass and guitar compete in lows: separate their body ranges",
+            "Check bass harmonics against guitar mids/presence",
+            "Check guitar top end only if bass definition is actually lost",
+
+            "Check guitar low end against kick/toms",
+            "Drums dominate mids/presence: inspect snare/cymbal emphasis",
+            "Guitar dominates mids/presence: inspect guitar bite/presence",
+            "Drums and guitar compete in attack/presence: create space",
+            "Check cymbal/guitar treble overlap before adding more top end"
         };
-        const int index=std::clamp(static_cast<int>(std::lround(std::clamp(v,0.0,1.0)*12.0)),0,12);
-        UString128 s; s.fromAscii(advice[index]); s.copyTo(out,128); return kResultTrue;
+
+        const int index=
+            std::clamp(
+                static_cast<int>(
+                    std::lround(
+                        std::clamp(
+                            v,0.0,1.0)*
+                        15.0)),
+                0,
+                15);
+
+        UString128 s;
+        s.fromAscii(advice[index]);
+        s.copyTo(out,128);
+        return kResultTrue;
     }
 
-    return EditController::getParamStringByValue(id,v,out);
+    return EditController::
+        getParamStringByValue(
+            id,v,out);
 }
 
 } // namespace MixDoctorator::Brain

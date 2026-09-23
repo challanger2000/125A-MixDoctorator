@@ -23,9 +23,7 @@ public:
     Steinberg::tresult PLUGIN_API setState(Steinberg::IBStream*) override;
     Steinberg::tresult PLUGIN_API getState(Steinberg::IBStream*) override;
 
-    // Kept public so the small typed pass-through helper can feed the analyzer
-    // without duplicating the per-sample crossover logic.
-    void analyzeSample(double x, double* energy) noexcept;
+    void analyzeSample(double x,double* energy) noexcept;
 
 private:
     void readParameters(Steinberg::Vst::IParameterChanges*);
@@ -34,9 +32,13 @@ private:
     IPC::Role role_{IPC::Role::Drums};
     IPC::SharedMemory ipc_;
 
-    double lpState_[4]{0.0,0.0,0.0,0.0};
-    double lpCoeff_[4]{0.0,0.0,0.0,0.0};
-    double smoothedBands_[IPC::kBandCount]{0.2,0.2,0.2,0.2,0.2};
+    double lpState_[8]{};
+    double lpCoeff_[8]{};
+    double smoothedBands_[IPC::kBandCount]{
+        1.0/9.0,1.0/9.0,1.0/9.0,
+        1.0/9.0,1.0/9.0,1.0/9.0,
+        1.0/9.0,1.0/9.0,1.0/9.0
+    };
 };
 
 } // namespace MixDoctorator::Sensor
