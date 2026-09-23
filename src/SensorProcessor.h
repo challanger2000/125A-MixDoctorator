@@ -1,6 +1,7 @@
 #pragma once
 #include "public.sdk/source/vst/vstaudioeffect.h"
 #include "MixDoctoratorIPC.h"
+#include "SpectralAnalyzer.h"
 
 namespace MixDoctorator::Sensor {
 
@@ -23,22 +24,16 @@ public:
     Steinberg::tresult PLUGIN_API setState(Steinberg::IBStream*) override;
     Steinberg::tresult PLUGIN_API getState(Steinberg::IBStream*) override;
 
-    void analyzeSample(double x,double* energy) noexcept;
+    void analyzeSample(double x) noexcept {
+        analyzer_.push(x);
+    }
 
 private:
     void readParameters(Steinberg::Vst::IParameterChanges*);
-    void prepareBands(double sampleRate) noexcept;
 
     IPC::Role role_{IPC::Role::Drums};
     IPC::SharedMemory ipc_;
-
-    double lpState_[8]{};
-    double lpCoeff_[8]{};
-    double smoothedBands_[IPC::kBandCount]{
-        1.0/9.0,1.0/9.0,1.0/9.0,
-        1.0/9.0,1.0/9.0,1.0/9.0,
-        1.0/9.0,1.0/9.0,1.0/9.0
-    };
+    Analysis::SpectralAnalyzer analyzer_;
 };
 
 } // namespace MixDoctorator::Sensor

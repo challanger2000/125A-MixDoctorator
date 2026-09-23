@@ -32,4 +32,15 @@ if(MIXDOCTORATOR_BUILD_TESTS)
     add_test(
         NAME MaskingModelTests
         COMMAND MaskingModelTests)
+
+    add_executable(SpectralAnalyzerTests
+        tests/SpectralAnalyzerTests.cpp)
+
+    target_compile_features(
+        SpectralAnalyzerTests
+        PRIVATE cxx_std_17)
+
+    add_test(
+        NAME SpectralAnalyzerTests
+        COMMAND SpectralAnalyzerTests)
 endif()
