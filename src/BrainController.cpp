@@ -6,6 +6,7 @@
 #include "vstgui/plugin-bindings/vst3editor.h"
 
 #include <algorithm>
+#include <cmath>
 #include <cstdio>
 #include <cstring>
 

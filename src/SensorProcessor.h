@@ -23,10 +23,13 @@ public:
     Steinberg::tresult PLUGIN_API setState(Steinberg::IBStream*) override;
     Steinberg::tresult PLUGIN_API getState(Steinberg::IBStream*) override;
 
+    // Kept public so the small typed pass-through helper can feed the analyzer
+    // without duplicating the per-sample crossover logic.
+    void analyzeSample(double x, double* energy) noexcept;
+
 private:
     void readParameters(Steinberg::Vst::IParameterChanges*);
     void prepareBands(double sampleRate) noexcept;
-    void analyzeSample(double x, double* energy) noexcept;
 
     IPC::Role role_{IPC::Role::Drums};
     IPC::SharedMemory ipc_;
