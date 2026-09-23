@@ -42,7 +42,8 @@ tresult PLUGIN_API Controller::initialize(FUnknown* c) {
     parameters.addParameter(STR16("Top Finding Pair"),nullptr,3,0.0,ro,kTopPair);
     parameters.addParameter(STR16("Top Finding Score"),STR16("%"),0,0.0,ro,kTopScore);
     parameters.addParameter(STR16("Top Finding Band"),nullptr,4,0.0,ro,kTopBand);
-    parameters.addParameter(STR16("Suggested Check"),nullptr,11,0.0,ro,kTopAdvice);
+    parameters.addParameter(STR16("Suggested Check"),nullptr,12,0.0,ro,kTopAdvice);
+    parameters.addParameter(STR16("Dominant Source"),nullptr,2,0.5,ro,kTopDominance);
 
     return kResultOk;
 }
@@ -98,7 +99,7 @@ tresult PLUGIN_API Controller::getParamStringByValue(
        id==kDrumsGuitarBand ||
        id==kTopBand) {
 
-        static const char* names[5] = {
+        static const char* names[5]={
             "LOW 20-120",
             "LOW-MID 120-500",
             "MID 500-2k",
@@ -120,7 +121,7 @@ tresult PLUGIN_API Controller::getParamStringByValue(
        id==kBassGuitarStatus ||
        id==kDrumsGuitarStatus) {
 
-        static const char* states[5] = {
+        static const char* states[5]={
             "OBSERVING",
             "CLEAR",
             "LOW",
@@ -139,7 +140,7 @@ tresult PLUGIN_API Controller::getParamStringByValue(
     }
 
     if(id==kTopPair) {
-        static const char* pairs[4] = {
+        static const char* pairs[4]={
             "NONE",
             "DRUMS - BASS",
             "BASS - E-GUITAR",
@@ -156,25 +157,43 @@ tresult PLUGIN_API Controller::getParamStringByValue(
         return kResultTrue;
     }
 
-    if(id==kTopAdvice) {
-        static const char* advice[12] = {
-            "Keep listening - no strong finding yet",
-            "Check kick/bass separation below 120 Hz",
-            "Check drum/bass buildup around 120-500 Hz",
-            "Check drum attack against bass harmonics",
-            "Try reducing guitar low end before raising bass",
-            "Try carving guitar low-mids or bass harmonics",
-            "Check bass definition against guitar body",
-            "Check bass attack/harmonics against guitar presence",
-            "Check guitar low end against kick/toms",
-            "Check guitar body against drum low-mids",
-            "Check guitar presence against snare/cymbal attack",
-            "Check guitar top end against cymbals"
+    if(id==kTopDominance) {
+        static const char* labels[3]={
+            "SECOND SOURCE",
+            "BALANCED",
+            "FIRST SOURCE"
         };
 
         const int index=std::clamp(
-            static_cast<int>(std::lround(std::clamp(v,0.0,1.0)*11.0)),
-            0,11);
+            static_cast<int>(std::lround(std::clamp(v,0.0,1.0)*2.0)),
+            0,2);
+
+        UString128 s;
+        s.fromAscii(labels[index]);
+        s.copyTo(out,128);
+        return kResultTrue;
+    }
+
+    if(id==kTopAdvice) {
+        static const char* advice[13]={
+            "Keep listening - no strong finding yet",
+            "Drums dominate low end: check kick/toms before raising bass",
+            "Bass dominates low end: check bass weight before raising kick",
+            "Drums and bass share low end: decide which should lead",
+            "Check drum/bass buildup outside the sub range",
+            "Bass dominates guitar range: check bass harmonics/body",
+            "Guitar dominates bass range: try reducing guitar low-mids",
+            "Bass and guitar overlap: separate their body ranges",
+            "Check bass attack/harmonics against guitar presence",
+            "Drums dominate upper range: check snare/cymbal emphasis",
+            "Guitar dominates upper range: check guitar presence/top end",
+            "Drums and guitar overlap: separate attack/presence",
+            "Check guitar low end against kick/toms"
+        };
+
+        const int index=std::clamp(
+            static_cast<int>(std::lround(std::clamp(v,0.0,1.0)*12.0)),
+            0,12);
 
         UString128 s;
         s.fromAscii(advice[index]);

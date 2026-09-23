@@ -49,12 +49,12 @@ tresult PLUGIN_API Processor::canProcessSampleSize(int32 s) {
 }
 
 void Processor::prepareBands(double sampleRate) noexcept {
-    const double sr = (std::isfinite(sampleRate) && sampleRate > 8000.0)
+    const double sr=(std::isfinite(sampleRate) && sampleRate>8000.0)
         ? sampleRate : 44100.0;
 
     for(int i=0;i<4;++i) {
-        lpCoeff_[i] = 1.0 - std::exp(-2.0 * kPi * kCuts[i] / sr);
-        lpState_[i] = 0.0;
+        lpCoeff_[i]=1.0-std::exp(-2.0*kPi*kCuts[i]/sr);
+        lpState_[i]=0.0;
     }
 }
 
@@ -65,7 +65,7 @@ tresult PLUGIN_API Processor::setupProcessing(ProcessSetup& setup) {
 
 tresult PLUGIN_API Processor::setProcessing(TBool state) {
     if(state) {
-        for(double& v : lpState_) v=0.0;
+        for(double& v:lpState_) v=0.0;
     }
     AudioEffect::setProcessing(state);
     return kResultTrue;
@@ -89,17 +89,28 @@ void Processor::readParameters(IParameterChanges* changes) {
     }
 }
 
-void Processor::analyzeSample(double x, double* e) noexcept {
-    double residual=x;
+void Processor::analyzeSample(double x,double* e) noexcept {
+    // Four parallel low-pass estimates on the original sample. The five
+    // analysis bands are formed from adjacent differences. This is a
+    // deliberately lightweight coarse analyzer, but unlike the previous
+    // residual cascade its band meaning follows the displayed cut points.
+    double lp[4];
 
-    for(int band=0;band<4;++band) {
-        lpState_[band] += lpCoeff_[band] * (residual - lpState_[band]);
-        const double part=lpState_[band];
-        residual -= part;
-        e[band] += part*part;
+    for(int i=0;i<4;++i) {
+        lpState_[i]+=lpCoeff_[i]*(x-lpState_[i]);
+        lp[i]=lpState_[i];
     }
 
-    e[4] += residual*residual;
+    const double bands[IPC::kBandCount] = {
+        lp[0],
+        lp[1]-lp[0],
+        lp[2]-lp[1],
+        lp[3]-lp[2],
+        x-lp[3]
+    };
+
+    for(int i=0;i<IPC::kBandCount;++i)
+        e[i]+=bands[i]*bands[i];
 }
 
 template<typename T>
@@ -173,7 +184,7 @@ tresult PLUGIN_API Processor::process(ProcessData& data) {
     const double activity=std::clamp((rmsDb+60.0)/60.0,0.0,1.0);
 
     double total=0.0;
-    for(double v : bandEnergy) total+=v;
+    for(double v:bandEnergy) total+=v;
 
     double fractions[IPC::kBandCount]{0.0,0.0,0.0,0.0,0.0};
 
@@ -183,9 +194,8 @@ tresult PLUGIN_API Processor::process(ProcessData& data) {
     }
 
     constexpr double kSmooth=0.15;
-    for(int i=0;i<IPC::kBandCount;++i) {
-        smoothedBands_[i] += kSmooth*(fractions[i]-smoothedBands_[i]);
-    }
+    for(int i=0;i<IPC::kBandCount;++i)
+        smoothedBands_[i]+=kSmooth*(fractions[i]-smoothedBands_[i]);
 
     ipc_.publish(role_,rmsDb,peakDb,activity,smoothedBands_);
     return kResultOk;

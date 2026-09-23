@@ -27,6 +27,7 @@ private:
         double score {0.0};
         double bands[IPC::kBandCount] {0.0,0.0,0.0,0.0,0.0};
         double observedSeconds {0.0};
+        double dominance {0.0}; // -1 = second source, +1 = first source
         int dominantBand {0};
     };
 
@@ -35,12 +36,12 @@ private:
     PairState pairStates_[3] {};
     int heldTopPair_ {-1};
 
-    double last_[19] {
+    double last_[20] {
         -1,-1,-1,-1,-1,-1,
         -1,-1,-1,
         -1,-1,-1,
         -1,-1,-1,
-        -1,-1,-1,-1
+        -1,-1,-1,-1,-1
     };
 
     void publishParam(
@@ -56,7 +57,8 @@ private:
         Steinberg::int32) noexcept;
 
     static double severityFromState(const PairState&) noexcept;
-    static int adviceFor(int pairIndex,int bandIndex) noexcept;
+    static int adviceFor(int pairIndex,int bandIndex,double dominance) noexcept;
+    static double dominanceParam(double dominance) noexcept;
     int chooseTopPair() noexcept;
 };
 

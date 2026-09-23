@@ -52,11 +52,12 @@ tresult PLUGIN_API Processor::setupProcessing(ProcessSetup& setup) {
 
 tresult PLUGIN_API Processor::setProcessing(TBool state) {
     if(state) {
-        for(auto& p : pairStates_) {
+        for(auto& p:pairStates_) {
             p.score=0.0;
             p.observedSeconds=0.0;
+            p.dominance=0.0;
             p.dominantBand=0;
-            for(double& b : p.bands) b=0.0;
+            for(double& b:p.bands) b=0.0;
         }
         heldTopPair_=-1;
     }
@@ -103,7 +104,7 @@ void Processor::updatePair(
         a.rmsDb>-55.0 && b.rmsDb>-55.0;
 
     double target=0.0;
-    double commonBands[IPC::kBandCount] {0.0,0.0,0.0,0.0,0.0};
+    double commonBands[IPC::kBandCount]{0.0,0.0,0.0,0.0,0.0};
 
     if(active) {
         state.observedSeconds=std::min(30.0,state.observedSeconds+dt);
@@ -124,14 +125,17 @@ void Processor::updatePair(
             std::clamp(a.activity,0.0,1.0) *
             std::clamp(b.activity,0.0,1.0));
 
-        target=rawOverlap*(0.35+0.65*jointActivity);
+        const double levelGap=std::abs(a.rmsDb-b.rmsDb);
+        const double proximity=0.35+0.65*std::exp(-levelGap/12.0);
+
+        target=rawOverlap*(0.35+0.65*jointActivity)*proximity;
     } else {
         state.observedSeconds=std::max(0.0,state.observedSeconds-dt*0.25);
     }
 
     const double tau=(target>state.score) ? 0.65 : 3.0;
     const double alpha=1.0-std::exp(-dt/tau);
-    state.score += alpha*(target-state.score);
+    state.score+=alpha*(target-state.score);
 
     const double bandAlpha=1.0-std::exp(-dt/1.25);
 
@@ -142,12 +146,12 @@ void Processor::updatePair(
 
         for(int i=0;i<IPC::kBandCount;++i) {
             const double weighted=commonBands[i]*(0.4+0.6*jointActivity);
-            state.bands[i] += bandAlpha*(weighted-state.bands[i]);
+            state.bands[i]+=bandAlpha*(weighted-state.bands[i]);
         }
     } else {
         const double releaseAlpha=1.0-std::exp(-dt/4.0);
-        for(double& value : state.bands)
-            value += releaseAlpha*(0.0-value);
+        for(double& value:state.bands)
+            value+=releaseAlpha*(0.0-value);
     }
 
     int best=0;
@@ -156,6 +160,25 @@ void Processor::updatePair(
             best=i;
     }
     state.dominantBand=best;
+
+    if(active) {
+        const double aAmp=
+            std::pow(10.0,a.rmsDb/20.0) *
+            std::sqrt(std::max(0.0,a.bands[best]));
+
+        const double bAmp=
+            std::pow(10.0,b.rmsDb/20.0) *
+            std::sqrt(std::max(0.0,b.bands[best]));
+
+        const double aDb=20.0*std::log10(std::max(aAmp,1.0e-9));
+        const double bDb=20.0*std::log10(std::max(bAmp,1.0e-9));
+
+        const double targetDominance=
+            std::clamp((aDb-bDb)/12.0,-1.0,1.0);
+
+        const double domAlpha=1.0-std::exp(-dt/1.5);
+        state.dominance+=domAlpha*(targetDominance-state.dominance);
+    }
 }
 
 double Processor::severityFromState(const PairState& state) noexcept {
@@ -166,27 +189,51 @@ double Processor::severityFromState(const PairState& state) noexcept {
     return 1.0;
 }
 
-int Processor::adviceFor(int pairIndex,int bandIndex) noexcept {
+double Processor::dominanceParam(double dominance) noexcept {
+    if(dominance>0.20) return 1.0;
+    if(dominance<-0.20) return 0.0;
+    return 0.5;
+}
+
+int Processor::adviceFor(
+    int pairIndex,
+    int bandIndex,
+    double dominance) noexcept {
+
+    const int side=
+        dominance>0.20 ? 1 :
+        dominance<-0.20 ? -1 : 0;
+
     if(pairIndex<0) return 0;
 
+    // 1..5: drums/bass
     if(pairIndex==0) {
-        if(bandIndex==0) return 1;
-        if(bandIndex==1) return 2;
-        return 3;
+        if(bandIndex==0) {
+            if(side>0) return 1;
+            if(side<0) return 2;
+            return 3;
+        }
+        return 4;
     }
 
+    // 5..9: bass/guitar
     if(pairIndex==1) {
-        if(bandIndex==0) return 4;
-        if(bandIndex==1) return 5;
-        if(bandIndex==2) return 6;
-        return 7;
+        if(bandIndex<=1) {
+            if(side>0) return 5;
+            if(side<0) return 6;
+            return 7;
+        }
+        return 8;
     }
 
+    // 9..13: drums/guitar
     if(pairIndex==2) {
-        if(bandIndex==0) return 8;
-        if(bandIndex==1) return 9;
-        if(bandIndex==2 || bandIndex==3) return 10;
-        return 11;
+        if(bandIndex>=2) {
+            if(side>0) return 9;
+            if(side<0) return 10;
+            return 11;
+        }
+        return 12;
     }
 
     return 0;
@@ -204,6 +251,7 @@ int Processor::chooseTopPair() noexcept {
 
         for(int i=0;i<3;++i) {
             if(!eligible(i)) continue;
+
             if(pairStates_[i].score>challengerScore+0.05) {
                 challenger=i;
                 challengerScore=pairStates_[i].score;
@@ -299,18 +347,31 @@ tresult PLUGIN_API Processor::process(ProcessData& data) {
 
     const int best=chooseTopPair();
 
-    const double pairValue=(best<0) ? 0.0 : static_cast<double>(best+1)/3.0;
-    const double scoreValue=(best<0) ? 0.0 : pairStates_[best].score;
+    const double pairValue=(best<0) ? 0.0 :
+        static_cast<double>(best+1)/3.0;
+
+    const double scoreValue=(best<0) ? 0.0 :
+        pairStates_[best].score;
+
     const double bandValue=(best<0) ? 0.0 :
         static_cast<double>(pairStates_[best].dominantBand)/4.0;
 
-    const int advice=(best<0) ? 0 : adviceFor(best,pairStates_[best].dominantBand);
-    const double adviceValue=static_cast<double>(advice)/11.0;
+    const double dominanceValue=(best<0) ? 0.5 :
+        dominanceParam(pairStates_[best].dominance);
+
+    const int advice=(best<0) ? 0 :
+        adviceFor(
+            best,
+            pairStates_[best].dominantBand,
+            pairStates_[best].dominance);
+
+    const double adviceValue=static_cast<double>(advice)/12.0;
 
     publishParam(data,kTopPair,pairValue,15);
     publishParam(data,kTopScore,scoreValue,16);
     publishParam(data,kTopBand,bandValue,17);
     publishParam(data,kTopAdvice,adviceValue,18);
+    publishParam(data,kTopDominance,dominanceValue,19);
 
     return kResultOk;
 }
