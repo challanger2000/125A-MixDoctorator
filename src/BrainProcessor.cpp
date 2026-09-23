@@ -1,5 +1,6 @@
 #include "BrainProcessor.h"
 #include "BrainIDs.h"
+#include "MaskingModel.h"
 
 #include "pluginterfaces/vst/ivstparameterchanges.h"
 #include "pluginterfaces/vst/vstspeaker.h"
@@ -131,73 +132,26 @@ void Processor::updatePair(
     double maskingTarget=0.0;
     double bandTargets[IPC::kBandCount]{};
 
-    int bestBand=state.dominantBand;
-    double bestRisk=-1.0;
-
     if(active){
         state.observedSeconds=
             std::min(
                 45.0,
                 state.observedSeconds+dt);
 
-        const double jointActivity=
-            std::sqrt(
-                std::clamp(a.activity,0.0,1.0) *
-                std::clamp(b.activity,0.0,1.0));
+        const auto metrics=
+            Analysis::evaluatePair(
+                a.rmsDb,
+                a.activity,
+                a.bands,
+                b.rmsDb,
+                b.activity,
+                b.bands);
 
-        for(int i=0;i<IPC::kBandCount;++i){
-            const double af=
-                std::clamp(a.bands[i],0.0,1.0);
+        overlapTarget=metrics.overlap;
+        maskingTarget=metrics.masking;
 
-            const double bf=
-                std::clamp(b.bands[i],0.0,1.0);
-
-            const double common=
-                std::min(af,bf);
-
-            overlapTarget+=common;
-
-            const double aBandDb=
-                a.rmsDb +
-                10.0*std::log10(
-                    std::max(af,1.0e-12));
-
-            const double bBandDb=
-                b.rmsDb +
-                10.0*std::log10(
-                    std::max(bf,1.0e-12));
-
-            const double gap=
-                std::abs(aBandDb-bBandDb);
-
-            const double levelSimilarity=
-                std::exp(-gap/6.0);
-
-            const double risk=
-                common *
-                levelSimilarity *
-                (0.25+0.75*jointActivity);
-
-            bandTargets[i]=risk;
-            maskingTarget+=risk;
-
-            if(risk>bestRisk){
-                bestRisk=risk;
-                bestBand=i;
-            }
-        }
-
-        overlapTarget=
-            std::clamp(
-                overlapTarget,
-                0.0,
-                1.0);
-
-        maskingTarget=
-            std::clamp(
-                maskingTarget,
-                0.0,
-                1.0);
+        for(int i=0;i<IPC::kBandCount;++i)
+            bandTargets[i]=metrics.bandRisk[i];
     }else{
         state.observedSeconds=
             std::max(
@@ -248,40 +202,21 @@ void Processor::updatePair(
     state.dominantBand=stableBest;
 
     if(active){
-        const double af=
-            std::clamp(
-                a.bands[state.dominantBand],
-                0.0,
-                1.0);
-
-        const double bf=
-            std::clamp(
-                b.bands[state.dominantBand],
-                0.0,
-                1.0);
-
-        const double aBandDb=
-            a.rmsDb+
-            10.0*std::log10(
-                std::max(af,1.0e-12));
-
-        const double bBandDb=
-            b.rmsDb+
-            10.0*std::log10(
-                std::max(bf,1.0e-12));
-
-        const double targetDominance=
-            std::clamp(
-                (aBandDb-bBandDb)/12.0,
-                -1.0,
-                1.0);
+        const auto metrics=
+            Analysis::evaluatePair(
+                a.rmsDb,
+                a.activity,
+                a.bands,
+                b.rmsDb,
+                b.activity,
+                b.bands);
 
         const double domAlpha=
             1.0-std::exp(-dt/1.8);
 
         state.dominance+=
             domAlpha*
-            (targetDominance-state.dominance);
+            (metrics.dominance-state.dominance);
     }
 
     const double timeConfidence=

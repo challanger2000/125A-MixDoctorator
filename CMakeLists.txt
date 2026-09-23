@@ -15,3 +15,21 @@ FetchContent_Declare(vst3sdk
     GIT_SHALLOW TRUE)
 FetchContent_MakeAvailable(vst3sdk)
 add_subdirectory(src)
+
+
+option(MIXDOCTORATOR_BUILD_TESTS "Build lightweight analysis tests" OFF)
+
+if(MIXDOCTORATOR_BUILD_TESTS)
+    enable_testing()
+
+    add_executable(MaskingModelTests
+        tests/MaskingModelTests.cpp)
+
+    target_compile_features(
+        MaskingModelTests
+        PRIVATE cxx_std_17)
+
+    add_test(
+        NAME MaskingModelTests
+        COMMAND MaskingModelTests)
+endif()
