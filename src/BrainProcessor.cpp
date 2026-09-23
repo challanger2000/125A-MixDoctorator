@@ -113,7 +113,8 @@ void Processor::updatePair(
     const IPC::Snapshot& a,
     const IPC::Snapshot& b,
     PairState& state,
-    int32 numSamples) noexcept{
+    int32 numSamples,
+    std::int64_t currentSamplePosition) noexcept{
 
     const double dt=
         std::clamp(
@@ -122,13 +123,6 @@ void Processor::updatePair(
             std::max(8000.0,sampleRate_),
             0.0001,
             0.25);
-
-    const std::int64_t currentSamplePosition=
-        processContext
-        ? static_cast<std::int64_t>(
-            processContext->
-            projectTimeSamples)
-        : -1;
 
     const bool timeCoherent=
         Analysis::samplePositionsCoherent(
@@ -573,20 +567,30 @@ tresult PLUGIN_API Processor::process(
         level(guitar,guitarOk),
         5);
 
+    const std::int64_t currentSamplePosition=
+        data.processContext
+        ? static_cast<std::int64_t>(
+            data.processContext->
+            projectTimeSamples)
+        : -1;
+
     updatePair(
         drums,bass,
         pairStates_[0],
-        data.numSamples);
+        data.numSamples,
+        currentSamplePosition);
 
     updatePair(
         bass,guitar,
         pairStates_[1],
-        data.numSamples);
+        data.numSamples,
+        currentSamplePosition);
 
     updatePair(
         drums,guitar,
         pairStates_[2],
-        data.numSamples);
+        data.numSamples,
+        currentSamplePosition);
 
     publishParam(data,kDrumsBassOverlap,pairStates_[0].overlap,6);
     publishParam(data,kDrumsBassMasking,pairStates_[0].masking,7);

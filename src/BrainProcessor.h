@@ -1,6 +1,7 @@
 #pragma once
 #include "public.sdk/source/vst/vstaudioeffect.h"
 #include "MixDoctoratorIPC.h"
+#include <cstdint>
 
 namespace MixDoctorator::Brain {
 
@@ -65,7 +66,8 @@ private:
         const IPC::Snapshot&,
         const IPC::Snapshot&,
         PairState&,
-        Steinberg::int32) noexcept;
+        Steinberg::int32,
+        std::int64_t) noexcept;
 
     void updateSessionFinding() noexcept;
 
