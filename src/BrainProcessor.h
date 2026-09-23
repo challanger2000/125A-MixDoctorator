@@ -27,8 +27,10 @@ private:
         double score {0.0};
         double bands[IPC::kBandCount] {0.0,0.0,0.0,0.0,0.0};
         double observedSeconds {0.0};
-        double dominance {0.0}; // -1 = second source, +1 = first source
+        double dominance {0.0};
+        double confidence {0.0};
         int dominantBand {0};
+        int previousBand {0};
     };
 
     IPC::SharedMemory ipc_;
@@ -36,12 +38,12 @@ private:
     PairState pairStates_[3] {};
     int heldTopPair_ {-1};
 
-    double last_[20] {
+    double last_[21] {
         -1,-1,-1,-1,-1,-1,
         -1,-1,-1,
         -1,-1,-1,
         -1,-1,-1,
-        -1,-1,-1,-1,-1
+        -1,-1,-1,-1,-1,-1
     };
 
     void publishParam(

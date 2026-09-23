@@ -34,7 +34,8 @@ enum ParamID : Steinberg::Vst::ParamID {
     kTopScore,
     kTopBand,
     kTopAdvice,
-    kTopDominance
+    kTopDominance,
+    kTopConfidence
 };
 
 } // namespace MixDoctorator::Brain
