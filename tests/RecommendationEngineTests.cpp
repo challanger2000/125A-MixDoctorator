@@ -95,6 +95,16 @@ int main(){
 
     Recommendation noAction;
     assert(recommendationTargetCode(noAction)==0);
+    assert(recommendationActionCode(noAction)==0);
+
+    auto earlyHint=makeRecommendation(
+        IPC::Role::LeadVocal,
+        IPC::Role::Synth,
+        6,0.30,0.20,0.0,0.0);
+    assert(earlyHint.valid);
+    assert(earlyHint.context==RecommendationContext::VocalVsHarmonic);
+    assert(recommendationTargetCode(earlyHint)==0);
+    assert(recommendationActionCode(earlyHint)==0);
 
     auto compareBoth=makeRecommendation(
         IPC::Role::Kick,
@@ -103,6 +113,9 @@ int main(){
     assert(compareBoth.valid);
     assert(compareBoth.adjustRole==IPC::Role::Unknown);
     assert(recommendationTargetCode(compareBoth)==1);
+    assert(recommendationActionCode(compareBoth)==
+           recommendationActionCode(
+               RecommendationContext::KickBass));
 
     auto targeted=makeRecommendation(
         IPC::Role::LeadVocal,
