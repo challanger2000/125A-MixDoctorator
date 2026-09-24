@@ -1179,6 +1179,16 @@ tresult PLUGIN_API Processor::process(
                 recommendation.context))/6.0
         : 0.0;
 
+    const double coachTargetValue=
+        recommendation.valid &&
+        recommendation.adjustRole!=IPC::Role::Unknown
+        ? static_cast<double>(
+            static_cast<int>(
+                recommendation.adjustRole))/
+          static_cast<double>(
+            IPC::kRoleCount)
+        : 0.0;
+
     publishParam(data,kCoachHeadline,coachAdviceValue,39);
     publishParam(data,kCoachAction,coachActionValue,40);
     publishParam(data,kCoachListen,coachAdviceValue,41);
@@ -1192,6 +1202,7 @@ tresult PLUGIN_API Processor::process(
     publishParam(data,kCoachEvidence,evidenceValue,43);
     publishParam(data,kCoachPair,coachPairValue,44);
     publishParam(data,kCoachBand,coachBandValue,45);
+    publishParam(data,kCoachTarget,coachTargetValue,48);
 
     const double sessionPair=
         (sessionFinding_.pair<0)
