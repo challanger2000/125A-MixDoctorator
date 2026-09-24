@@ -40,6 +40,13 @@ int main(){
     assert(full.masking>half.masking);
     assert(half.masking>low.masking);
 
+    // Near-silent equal spectra must not cross the Coach finding threshold.
+    const auto nearSilent=evaluatePair(
+        -54.0,0.10,band.data(),
+        -54.0,0.10,band.data());
+
+    assert(nearSilent.masking<0.14);
+
     const auto ab=evaluatePair(
         -12.0,0.8,band.data(),
         -18.0,0.7,band.data());
