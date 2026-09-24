@@ -93,10 +93,17 @@ inline PairMetrics evaluatePair(
         const double levelSimilarity=
             std::exp(-gap/6.0);
 
+        // Near-silent material must not accumulate a confident masking
+        // finding merely because two normalized spectra look alike. Keep a
+        // small floor for continuity, but let real joint activity dominate.
+        const double activityFactor=
+            0.08+
+            0.92*jointActivity;
+
         const double risk=
             common *
             levelSimilarity *
-            (0.25+0.75*jointActivity);
+            activityFactor;
 
         m.bandRisk[i]=risk;
         m.masking+=risk;
