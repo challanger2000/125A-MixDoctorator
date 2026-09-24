@@ -5,6 +5,7 @@
 #include "RoleAggregate.h"
 #include "TransientInteraction.h"
 #include "AttackFinding.h"
+#include "TransportModel.h"
 
 #include "base/source/fstreamer.h"
 #include "pluginterfaces/vst/ivstparameterchanges.h"
@@ -652,13 +653,21 @@ tresult PLUGIN_API Processor::process(
                 data.numSamples);
     }
 
+    const bool hasProcessContext=
+        data.processContext!=nullptr;
+
     const bool playing=
-        data.processContext &&
+        !hasProcessContext ||
         ((data.processContext->state &
           ProcessContext::kPlaying)!=0);
 
+    const bool cycleActive=
+        hasProcessContext &&
+        ((data.processContext->state &
+          ProcessContext::kCycleActive)!=0);
+
     const std::int64_t currentSamplePosition=
-        data.processContext
+        hasProcessContext
         ? static_cast<std::int64_t>(
             data.processContext->
             projectTimeSamples)
@@ -673,19 +682,13 @@ tresult PLUGIN_API Processor::process(
                     data.numSamples))*
             4);
 
-    const bool restarted=
-        playing &&
-        !wasPlaying_;
-
-    const bool jumpedBackward=
-        currentSamplePosition>=0 &&
-        lastProjectSample_>=0 &&
-        currentSamplePosition+
-            rewindTolerance<
-        lastProjectSample_;
-
-    if(restarted ||
-       jumpedBackward)
+    if(Analysis::shouldResetAnalysis(
+           playing,
+           wasPlaying_,
+           cycleActive,
+           currentSamplePosition,
+           lastProjectSample_,
+           rewindTolerance))
         resetAnalysisState();
 
     wasPlaying_=playing;
@@ -758,6 +761,47 @@ tresult PLUGIN_API Processor::process(
         kGuitarConnected,
         guitarOk?1.0:0.0,
         4);
+
+    publishParam(
+        data,
+        kDrumsCount,
+        drumsOk
+            ? std::clamp(
+                static_cast<double>(drums.aggregateCount)/
+                static_cast<double>(IPC::kSensorSlotCount),
+                0.0,
+                1.0)
+            : 0.0,
+        30);
+
+    publishParam(
+        data,
+        kBassCount,
+        bassOk
+            ? std::clamp(
+                static_cast<double>(bass.aggregateCount)/
+                static_cast<double>(IPC::kSensorSlotCount),
+                0.0,
+                1.0)
+            : 0.0,
+        31);
+
+    publishParam(
+        data,
+        kGuitarCount,
+        guitarOk
+            ? std::clamp(
+                static_cast<double>(guitar.aggregateCount)/
+                static_cast<double>(IPC::kSensorSlotCount),
+                0.0,
+                1.0)
+            : 0.0,
+        32);
+
+    // When the transport is stopped, keep the last measured diagnosis
+    // visible instead of decaying live values to silence.
+    if(hasProcessContext && !playing)
+        return kResultOk;
 
     publishParam(
         data,
@@ -892,42 +936,6 @@ tresult PLUGIN_API Processor::process(
             ? std::clamp(guitar.transient,0.0,1.0)
             : 0.0,
         29);
-
-    publishParam(
-        data,
-        kDrumsCount,
-        drumsOk
-            ? std::clamp(
-                static_cast<double>(drums.aggregateCount)/
-                static_cast<double>(IPC::kSensorSlotCount),
-                0.0,
-                1.0)
-            : 0.0,
-        30);
-
-    publishParam(
-        data,
-        kBassCount,
-        bassOk
-            ? std::clamp(
-                static_cast<double>(bass.aggregateCount)/
-                static_cast<double>(IPC::kSensorSlotCount),
-                0.0,
-                1.0)
-            : 0.0,
-        31);
-
-    publishParam(
-        data,
-        kGuitarCount,
-        guitarOk
-            ? std::clamp(
-                static_cast<double>(guitar.aggregateCount)/
-                static_cast<double>(IPC::kSensorSlotCount),
-                0.0,
-                1.0)
-            : 0.0,
-        32);
 
     publishParam(
         data,

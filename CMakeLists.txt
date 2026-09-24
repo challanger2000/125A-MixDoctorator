@@ -110,4 +110,15 @@ if(MIXDOCTORATOR_BUILD_TESTS)
     add_test(
         NAME AttackFindingTests
         COMMAND AttackFindingTests)
+
+    add_executable(TransportModelTests
+        tests/TransportModelTests.cpp)
+
+    target_compile_features(
+        TransportModelTests
+        PRIVATE cxx_std_17)
+
+    add_test(
+        NAME TransportModelTests
+        COMMAND TransportModelTests)
 endif()
