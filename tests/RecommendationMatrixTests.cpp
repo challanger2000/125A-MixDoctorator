@@ -46,6 +46,7 @@ int main(){
 
                 assert(normal.valid);
                 assert(normal.band==band);
+                assert(recommendationBandCode(normal)==band+1);
                 assert(normal.score>=0.0 && normal.score<=1.0);
                 assert(normal.confidence>=0.0 && normal.confidence<=1.0);
                 assert(normal.dominance>=-1.0 && normal.dominance<=1.0);
@@ -62,6 +63,7 @@ int main(){
 
                 assert(early.valid);
                 assert(early.context==normal.context);
+                assert(recommendationBandCode(early)==band+1);
                 assert(recommendationActionCode(early)==0);
                 assert(recommendationTargetCode(early)==0);
 
