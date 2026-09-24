@@ -104,10 +104,6 @@ inline Recommendation makeRecommendation(
     Recommendation out;
     out.first=first;
     out.second=second;
-    out.context=
-        recommendationContext(
-            first,
-            second);
     out.band=std::clamp(band,0,IPC::kBandCount-1);
 
     const double safeMasking=
@@ -140,6 +136,11 @@ inline Recommendation makeRecommendation(
        out.score<0.05 ||
        out.confidence<0.12)
         return out;
+
+    out.context=
+        recommendationContext(
+            first,
+            second);
 
     const bool transientPair=
         isTransientRole(first) ||
