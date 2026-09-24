@@ -8,21 +8,15 @@ namespace MixDoctorator::Analysis {
 
 constexpr int kSpectralBandCount=9;
 
-inline void distributeSmoothBandEnergy(
-    std::array<double,kSpectralBandCount>& bands,
-    double hz,
-    double power) noexcept {
+struct SmoothBandPosition {
+    int lower{0};
+    int upper{0};
+    double upperWeight{0.0};
+};
 
-    if(!std::isfinite(hz) ||
-       !std::isfinite(power) ||
-       hz<=0.0 ||
-       power<=0.0)
-        return;
+inline SmoothBandPosition smoothBandPosition(
+    double hz) noexcept {
 
-    // Keep the existing musical band layout, but interpolate each FFT bin
-    // between neighbouring representative centres on a log-frequency axis.
-    // This removes hard boundary jumps while preserving total spectral power.
-    // It is intentionally not presented as a full psychoacoustic/Bark model.
     static constexpr double centres[kSpectralBandCount]{
         50.0,
         120.0,
@@ -35,15 +29,16 @@ inline void distributeSmoothBandEnergy(
         14000.0
     };
 
-    if(hz<=centres[0]){
-        bands[0]+=power;
-        return;
-    }
+    if(!std::isfinite(hz) ||
+       hz<=centres[0])
+        return {0,0,0.0};
 
-    if(hz>=centres[kSpectralBandCount-1]){
-        bands[kSpectralBandCount-1]+=power;
-        return;
-    }
+    if(hz>=centres[kSpectralBandCount-1])
+        return {
+            kSpectralBandCount-1,
+            kSpectralBandCount-1,
+            0.0
+        };
 
     for(int i=0;
         i<kSpectralBandCount-1;
@@ -61,20 +56,43 @@ inline void distributeSmoothBandEnergy(
         const double x=
             std::log(hz);
 
-        const double t=
+        return {
+            i,
+            i+1,
             std::clamp(
                 (x-lo)/(hi-lo),
                 0.0,
-                1.0);
-
-        bands[i]+=
-            power*(1.0-t);
-
-        bands[i+1]+=
-            power*t;
-
-        return;
+                1.0)
+        };
     }
+
+    return {
+        kSpectralBandCount-1,
+        kSpectralBandCount-1,
+        0.0
+    };
+}
+
+inline void distributeSmoothBandEnergy(
+    std::array<double,kSpectralBandCount>& bands,
+    double hz,
+    double power) noexcept {
+
+    if(!std::isfinite(power) ||
+       power<=0.0)
+        return;
+
+    const auto position=
+        smoothBandPosition(hz);
+
+    bands[position.lower]+=
+        power*
+        (1.0-position.upperWeight);
+
+    if(position.upper!=position.lower)
+        bands[position.upper]+=
+            power*
+            position.upperWeight;
 }
 
 class SpectralAnalyzer {
@@ -95,6 +113,7 @@ public:
 
         time_.fill(0.0);
         energy_.fill(0.0);
+        prepareBandMap();
     }
 
     void push(double x) noexcept {
@@ -125,11 +144,39 @@ private:
     std::array<double,kFftSize> time_{};
     std::array<std::complex<double>,kFftSize> fft_{};
     std::array<double,kBandCount> energy_{};
+    std::array<int,kFftSize/2+1> bandLower_{};
+    std::array<int,kFftSize/2+1> bandUpper_{};
+    std::array<double,kFftSize/2+1> bandUpperWeight_{};
 
     double sampleRate_{44100.0};
     int write_{0};
     int sinceFft_{0};
     int filled_{0};
+
+    void prepareBandMap() noexcept {
+        for(int bin=1;
+            bin<=kFftSize/2;
+            ++bin){
+
+            const double hz=
+                static_cast<double>(bin)*
+                sampleRate_/
+                static_cast<double>(
+                    kFftSize);
+
+            const auto position=
+                smoothBandPosition(hz);
+
+            bandLower_[bin]=
+                position.lower;
+
+            bandUpper_[bin]=
+                position.upper;
+
+            bandUpperWeight_[bin]=
+                position.upperWeight;
+        }
+    }
 
     void fftInPlace() noexcept {
         for(int i=1,j=0;i<kFftSize;++i){
@@ -220,11 +267,27 @@ private:
                 static_cast<double>(
                     kFftSize);
 
-            distributeSmoothBandEnergy(
-                raw,
-                hz,
+            const double power=
                 std::norm(
-                    fft_[bin]));
+                    fft_[bin]);
+
+            const int lower=
+                bandLower_[bin];
+
+            const int upper=
+                bandUpper_[bin];
+
+            const double upperWeight=
+                bandUpperWeight_[bin];
+
+            raw[lower]+=
+                power*
+                (1.0-upperWeight);
+
+            if(upper!=lower)
+                raw[upper]+=
+                    power*
+                    upperWeight;
         }
 
         constexpr double kSmooth=0.35;
