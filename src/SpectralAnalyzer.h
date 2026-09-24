@@ -99,8 +99,8 @@ inline void distributeSmoothBandEnergy(
 
 class SpectralAnalyzer {
 public:
-    static constexpr int kFftSize=1024;
-    static constexpr int kHopSize=512;
+    static constexpr int kFftSize=2048;
+    static constexpr int kHopSize=1024;
     static constexpr int kBandCount=kSpectralBandCount;
 
     void prepare(double sampleRate) noexcept {
@@ -286,7 +286,10 @@ private:
                     upperWeight;
         }
 
-        constexpr double kSmooth=0.35;
+        // Hop size doubled with the 2048-point FFT. 0.58 preserves roughly the
+        // same smoothing time constant as alpha=0.35 at a 512-sample hop:
+        // 1-(1-0.35)^2 = 0.5775.
+        constexpr double kSmooth=0.58;
 
         for(int i=0;
             i<kBandCount;
