@@ -158,6 +158,35 @@ inline RoleFamily roleFamily(IPC::Role role) noexcept {
     }
 }
 
+inline bool isDrumSubRole(IPC::Role role) noexcept {
+    return role==IPC::Role::Kick ||
+           role==IPC::Role::Snare ||
+           role==IPC::Role::Toms ||
+           role==IPC::Role::Cymbals ||
+           role==IPC::Role::Percussion;
+}
+
+inline bool rolesComparableForCoach(
+    IPC::Role first,
+    IPC::Role second) noexcept {
+
+    if(first==IPC::Role::Unknown ||
+       second==IPC::Role::Unknown ||
+       first==second)
+        return false;
+
+    // A generic drum bus/loop may contain the component track. Comparing
+    // DRUMS directly against KICK/SNARE/TOMS/CYMBALS/PERCUSSION can therefore
+    // create a high-confidence self-correlation false positive.
+    if((first==IPC::Role::Drums &&
+        isDrumSubRole(second)) ||
+       (second==IPC::Role::Drums &&
+        isDrumSubRole(first)))
+        return false;
+
+    return true;
+}
+
 inline bool isLowEndRole(IPC::Role role) noexcept {
     const auto family=roleFamily(role);
     return family==RoleFamily::RhythmLow ||
