@@ -61,7 +61,9 @@ int main(){
     assert(!findingEligible(c[5]));
     assert(choose(-1)==3);
 
-    // Negative or non-finite switch margins are sanitized.
+    // Negative or non-finite switch margins are sanitized. Isolate this
+    // scenario so stronger candidates from the previous test cannot leak in.
+    c.fill(FindingCandidate{});
     c[0]={8.0,0.30,0.60};
     c[3]={8.0,0.31,0.60};
     assert(choose(0,-1.0)==3);
