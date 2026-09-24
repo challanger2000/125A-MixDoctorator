@@ -34,10 +34,10 @@ jobs:
           if (-not $sensor) { throw "Sensor VST3 bundle not found for validation" }
           if (-not $brain)  { throw "Brain VST3 bundle not found for validation" }
 
-          & $validator.FullName $sensor.FullName 2>&1 | Tee-Object -FilePath validation/Sensor-validator.txt
+          & $validator.FullName -e $sensor.FullName 2>&1 | Tee-Object -FilePath validation/Sensor-validator.txt
           if ($LASTEXITCODE -ne 0) { throw "Sensor failed Steinberg VST3 validator" }
 
-          & $validator.FullName $brain.FullName 2>&1 | Tee-Object -FilePath validation/Brain-validator.txt
+          & $validator.FullName -e $brain.FullName 2>&1 | Tee-Object -FilePath validation/Brain-validator.txt
           if ($LASTEXITCODE -ne 0) { throw "Brain failed Steinberg VST3 validator" }
 
       - name: Stage VST3 bundles
