@@ -126,11 +126,15 @@ inline RecommendationContext recommendationContext(
 
     const bool vocalA=a==RoleFamily::Vocal;
     const bool vocalB=b==RoleFamily::Vocal;
+    const bool leadVocalA=
+        first==IPC::Role::LeadVocal;
+    const bool leadVocalB=
+        second==IPC::Role::LeadVocal;
     const bool harmonicA=isHarmonicRole(first);
     const bool harmonicB=isHarmonicRole(second);
 
-    if((vocalA && harmonicB && !vocalB) ||
-       (vocalB && harmonicA && !vocalA))
+    if((leadVocalA && harmonicB && !vocalB) ||
+       (leadVocalB && harmonicA && !vocalA))
         return RecommendationContext::VocalVsHarmonic;
 
     const bool cymbalA=first==IPC::Role::Cymbals;
@@ -239,12 +243,17 @@ inline Recommendation makeRecommendation(
             second,
             out.kind);
 
-    out.adjustRole=
-        recommendedAdjustmentRole(
-            first,
-            second,
-            out.context,
-            out.dominance);
+    // Source-specific action hints are intentionally stricter than merely
+    // showing a finding. Early hints may identify a pair/range, but should not
+    // yet tell a beginner which source to change first.
+    if(out.confidence>=0.30){
+        out.adjustRole=
+            recommendedAdjustmentRole(
+                first,
+                second,
+                out.context,
+                out.dominance);
+    }
 
     // Low-end ownership is especially meaningful for kick/bass style pairs,
     // but remains valid for other sources when measured evidence supports it.
