@@ -33,7 +33,7 @@ int main(){
         1.0e-12);
     assert(std::abs(
         r.maskingDownAlpha-
-        (1.0-std::exp(-dt/3.5)))<
+        (1.0-std::exp(-dt/2.4)))<
         1.0e-12);
     assert(std::abs(
         r.transientUpAlpha-
