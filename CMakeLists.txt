@@ -340,6 +340,7 @@ if(MIXDOCTORATOR_BUILD_TESTS)
         MaskingSweepTests
         MaskingModelTests
         SpectralAnalyzerTests
+        PairMeasurementTests
         PairUpdateRatesTests
         TimingModelTests
         TransientModelTests
