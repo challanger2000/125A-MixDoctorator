@@ -82,6 +82,34 @@ int main(){
             assert(std::abs(mapped[i+1]-0.5)<1.0e-12);
         }
 
+        static constexpr double oldBoundaries[]{
+            80.0,160.0,300.0,600.0,
+            1200.0,2500.0,5000.0,10000.0
+        };
+
+        for(double boundary:oldBoundaries){
+            std::array<double,kSpectralBandCount> below{};
+            std::array<double,kSpectralBandCount> above{};
+
+            distributeSmoothBandEnergy(
+                below,
+                boundary*0.999,
+                1.0);
+
+            distributeSmoothBandEnergy(
+                above,
+                boundary*1.001,
+                1.0);
+
+            double l1=0.0;
+
+            for(int i=0;i<kSpectralBandCount;++i)
+                l1+=std::abs(
+                    below[i]-above[i]);
+
+            assert(l1<0.01);
+        }
+
         std::array<double,kSpectralBandCount> invalid{};
         distributeSmoothBandEnergy(invalid,-1.0,1.0);
         distributeSmoothBandEnergy(invalid,1000.0,-1.0);
