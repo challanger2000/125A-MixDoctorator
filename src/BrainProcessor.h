@@ -116,14 +116,12 @@ private:
         double,
         int);
 
-    bool readRoleAggregate(
+    void readAllRoleAggregates(
         int,
-        IPC::Role,
         std::int64_t,
         Steinberg::int32,
         std::uint64_t,
-        IPC::Snapshot&,
-        int&) noexcept;
+        IpcResponse&) noexcept;
 
     void startIpcWorker();
     void stopIpcWorker() noexcept;
