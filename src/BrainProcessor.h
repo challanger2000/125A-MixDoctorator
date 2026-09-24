@@ -3,6 +3,7 @@
 #include "MixDoctoratorIPC.h"
 #include "SpscQueue.h"
 #include "RoleModel.h"
+#include "PairUpdateRates.h"
 #include <atomic>
 #include <cstdint>
 #include <thread>
@@ -131,6 +132,7 @@ private:
         const IPC::Snapshot&,
         const IPC::Snapshot&,
         PairState&,
+        const Analysis::PairUpdateRates&,
         Steinberg::int32,
         std::int64_t) noexcept;
 
