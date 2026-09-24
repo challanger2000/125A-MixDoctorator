@@ -65,7 +65,7 @@
     <view class="CTextLabel" origin="0,468" size="940,24" title="WENN ES NICHT BESSER KLINGT" font-size="14" font-color="#ccccccff" transparent="true"/>
     <view class="CMultiLineTextLabel" origin="0,498" size="940,64" title="Aenderung rueckgaengig machen. Gemessene Ueberlappung ist nicht automatisch ein Mix-Problem. Hoeren bleibt entscheidend." font-size="15" font-color="#ffffffff" back-color="#252525ff" frame-color="#555555ff" line-layout="wrap" vertical-centered="true"/>
 
-    <view class="CTextLabel" origin="0,590" size="940,22" title="ZUSAETZLICH: ATTACK / TRANSIENTEN" font-size="12" font-color="#888888ff" transparent="true"/>
+    <view class="CTextLabel" origin="0,590" size="940,22" title="ZUSAETZLICH: ANSCHLAG / TRANSIENTEN" font-size="12" font-color="#888888ff" transparent="true"/>
     <view class="CParamDisplay" origin="0,618" size="300,34" control-tag="CoachAttackPair" font-size="13" font-color="#ffffffff" back-color="#202020ff" frame-color="#555555ff"/>
     <view class="CParamDisplay" origin="312,618" size="628,34" control-tag="CoachAttackAdvice" font-size="13" font-color="#ffffffff" back-color="#202020ff" frame-color="#555555ff"/>
   </template>
@@ -126,7 +126,7 @@
     <view class="CParamDisplay" origin="232,420" size="90,30" control-tag="SessionScore" font-size="12" font-color="#ffffffff" back-color="#262626ff" frame-color="#666666ff"/>
     <view class="CParamDisplay" origin="334,420" size="240,30" control-tag="SessionBand" font-size="12" font-color="#ffffffff" back-color="#262626ff" frame-color="#666666ff"/>
 
-    <view class="CTextLabel" origin="0,470" size="940,22" title="AKTUELLER ATTACK-HINWEIS" font-size="13" font-color="#ccccccff" transparent="true"/>
+    <view class="CTextLabel" origin="0,470" size="940,22" title="AKTUELLER ANSCHLAG-HINWEIS" font-size="13" font-color="#ccccccff" transparent="true"/>
     <view class="CParamDisplay" origin="0,496" size="220,30" control-tag="TopAttackPair" font-size="12" font-color="#ffffffff" back-color="#303030ff" frame-color="#777777ff"/>
     <view class="CParamDisplay" origin="232,496" size="90,30" control-tag="TopAttackScore" font-size="12" font-color="#ffffffff" back-color="#303030ff" frame-color="#777777ff"/>
     <view class="CParamDisplay" origin="334,496" size="606,30" control-tag="TopAttackAdvice" font-size="12" font-color="#ffffffff" back-color="#303030ff" frame-color="#777777ff"/>
