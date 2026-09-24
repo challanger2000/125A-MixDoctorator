@@ -166,6 +166,17 @@ if(MIXDOCTORATOR_BUILD_TESTS)
         NAME TestBuildModeTests
         COMMAND TestBuildModeTests)
 
+    add_executable(AudioSafetyTests
+        tests/AudioSafetyTests.cpp)
+
+    target_compile_features(
+        AudioSafetyTests
+        PRIVATE cxx_std_17)
+
+    add_test(
+        NAME AudioSafetyTests
+        COMMAND AudioSafetyTests)
+
     # CI builds tests in Release. Keep assert()-based regression checks active;
     # otherwise NDEBUG would compile most existing test assertions away.
     set(MIXDOCTORATOR_TEST_TARGETS
@@ -181,7 +192,8 @@ if(MIXDOCTORATOR_BUILD_TESTS)
         PrimaryFindingTests
         AnalysisSafetyTests
         IPCConcurrencyTests
-        TestBuildModeTests)
+        TestBuildModeTests
+        AudioSafetyTests)
 
     foreach(test_target IN LISTS MIXDOCTORATOR_TEST_TARGETS)
         if(MSVC)

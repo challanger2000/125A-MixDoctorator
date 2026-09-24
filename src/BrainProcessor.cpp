@@ -7,6 +7,7 @@
 #include "AttackFinding.h"
 #include "TransportModel.h"
 #include "PrimaryFinding.h"
+#include "AudioSafety.h"
 
 #include "base/source/fstreamer.h"
 #include "pluginterfaces/vst/ivstparameterchanges.h"
@@ -68,8 +69,10 @@ tresult PLUGIN_API Processor::setBusArrangements(
 
     if(ni==1 &&
        no==1 &&
-       in[0]==SpeakerArr::kStereo &&
-       out[0]==SpeakerArr::kStereo)
+       ((in[0]==SpeakerArr::kStereo &&
+         out[0]==SpeakerArr::kStereo) ||
+        (in[0]==SpeakerArr::kMono &&
+         out[0]==SpeakerArr::kMono)))
         return AudioEffect::setBusArrangements(
             in,ni,out,no);
 
@@ -634,11 +637,19 @@ static void pass(
         if(!out[c])
             continue;
 
-        for(int32 i=0;i<n;++i)
-            out[c][i]=
+        for(int32 i=0;i<n;++i){
+            const double raw=
                 in[c]
-                ? in[c][i]
-                : static_cast<T>(0);
+                ? static_cast<double>(
+                    in[c][i])
+                : 0.0;
+
+            out[c][i]=
+                static_cast<T>(
+                    Analysis::
+                    sanitizeAudioSample(
+                        raw));
+        }
     }
 }
 

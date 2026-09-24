@@ -1,5 +1,6 @@
 #include "SensorProcessor.h"
 #include "SensorIDs.h"
+#include "AudioSafety.h"
 
 #include "base/source/fstreamer.h"
 #include "pluginterfaces/vst/ivstparameterchanges.h"
@@ -107,8 +108,10 @@ tresult PLUGIN_API Processor::setBusArrangements(
 
     if(ni==1 &&
        no==1 &&
-       in[0]==SpeakerArr::kStereo &&
-       out[0]==SpeakerArr::kStereo)
+       ((in[0]==SpeakerArr::kStereo &&
+         out[0]==SpeakerArr::kStereo) ||
+        (in[0]==SpeakerArr::kMono &&
+         out[0]==SpeakerArr::kMono)))
         return AudioEffect::
             setBusArrangements(
                 in,ni,out,no);
@@ -256,14 +259,12 @@ static void copyMeasure(
             : rawLeft;
 
         const double left=
-            std::isfinite(rawLeft)
-            ? rawLeft
-            : 0.0;
+            Analysis::sanitizeAudioSample(
+                rawLeft);
 
         const double right=
-            std::isfinite(rawRight)
-            ? rawRight
-            : 0.0;
+            Analysis::sanitizeAudioSample(
+                rawRight);
 
         if(output.numChannels>0 &&
            out[0])
