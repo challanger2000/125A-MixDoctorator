@@ -4,6 +4,7 @@
 #include "SpscQueue.h"
 #include "RoleModel.h"
 #include "PairUpdateRates.h"
+#include "PairMeasurement.h"
 #include <atomic>
 #include <cstdint>
 #include <thread>
@@ -75,11 +76,13 @@ private:
         bool drumsOk{false};
         bool bassOk{false};
         bool guitarOk{false};
+        Analysis::PairMeasurement coachMeasurements[
+            Analysis::kRolePairCount]{};
     };
 
     IPC::SharedMemory ipc_;
     Realtime::SpscQueue<IpcRequest,64> ipcRequests_;
-    Realtime::SpscQueue<IpcResponse,64> ipcResponses_;
+    Realtime::SpscQueue<IpcResponse,16> ipcResponses_;
     std::atomic<bool> ipcWorkerRunning_{false};
     std::thread ipcWorker_;
     IpcResponse latestIpc_{};
@@ -136,6 +139,11 @@ private:
         bool,
         Steinberg::int32,
         std::int64_t) noexcept;
+
+    void applyPairMeasurement(
+        const Analysis::PairMeasurement&,
+        PairState&,
+        const Analysis::PairUpdateRates&) noexcept;
 
     void readParameters(Steinberg::Vst::IParameterChanges*) noexcept;
     void updateSessionFinding() noexcept;
