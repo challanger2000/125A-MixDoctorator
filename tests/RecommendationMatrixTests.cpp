@@ -72,6 +72,7 @@ int main(){
                 assert(mirrored.valid);
                 assert(mirrored.kind==normal.kind);
                 assert(mirrored.context==normal.context);
+                assert(mirrored.adjustRole==normal.adjustRole);
                 assert(std::abs(mirrored.score-normal.score)<1.0e-12);
 
                 ++checked;
