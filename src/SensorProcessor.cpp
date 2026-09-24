@@ -281,9 +281,12 @@ void Processor::readParameters(
             const int index=
                 std::clamp(
                     static_cast<int>(
-                        std::lround(v*2.0)),
+                        std::lround(
+                            v*
+                            static_cast<double>(
+                                IPC::kRoleCount-1))),
                     0,
-                    2);
+                    IPC::kRoleCount-1);
 
             role_=
                 static_cast<IPC::Role>(
@@ -480,7 +483,7 @@ tresult PLUGIN_API Processor::setState(
 
     role_=
         static_cast<IPC::Role>(
-            std::clamp(r,1,3));
+            std::clamp(r,1,IPC::kRoleCount));
 
     int32 session=0;
 
