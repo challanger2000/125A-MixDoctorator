@@ -57,7 +57,7 @@ int main(){
 
     assert(maxAdjacent>0.05);
     assert(maxAdjacent<0.35);
-    assert(maxDistance2<0.04);
+    assert(maxDistance2<1.0e-12);
     assert(maxDistance3Plus<0.001);
 
     // Level-gap sweep for adjacent bands must be monotonically decreasing.
