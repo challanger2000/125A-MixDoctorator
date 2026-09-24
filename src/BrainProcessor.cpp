@@ -1183,7 +1183,7 @@ tresult PLUGIN_API Processor::process(
         recommendation.valid
         ? static_cast<double>(
             Analysis::recommendationActionCode(
-                recommendation.context))/5.0
+                recommendation.context))/6.0
         : 0.0;
 
     publishParam(data,kCoachHeadline,coachAdviceValue,39);
