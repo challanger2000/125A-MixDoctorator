@@ -2,7 +2,7 @@ name: Build Windows VST3 PoC
 on:
   workflow_dispatch:
   push:
-    branches: [ "poc/sensor-brain" ]
+    branches: [ "poc/sensor-brain", "dev/masking-lab" ]
 
 jobs:
   build:
@@ -16,7 +16,7 @@ jobs:
         run: cmake -S . -B build -G "Visual Studio 17 2022" -A x64 -DMIXDOCTORATOR_BUILD_TESTS=ON
 
       - name: Build plugins and analysis tests
-        run: cmake --build build --config Release --target MixDoctoratorSensor MixDoctoratorBrain MaskingModelTests SpectralAnalyzerTests TimingModelTests --parallel
+        run: cmake --build build --config Release --target MixDoctoratorSensor MixDoctoratorBrain MaskingModelTests SpectralAnalyzerTests TimingModelTests TransientModelTests --parallel
 
       - name: Run analysis tests
         run: ctest --test-dir build -C Release --output-on-failure
