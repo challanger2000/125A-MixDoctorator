@@ -73,6 +73,17 @@ if(MIXDOCTORATOR_BUILD_TESTS)
     add_executable(SpectralSampleRateTests
         tests/SpectralSampleRateTests.cpp)
 
+    add_executable(SpectralRealtimeTests
+        tests/SpectralRealtimeTests.cpp)
+
+    target_compile_features(
+        SpectralRealtimeTests
+        PRIVATE cxx_std_17)
+
+    add_test(
+        NAME SpectralRealtimeTests
+        COMMAND SpectralRealtimeTests)
+
     target_compile_features(
         SpectralSampleRateTests
         PRIVATE cxx_std_17)
@@ -363,6 +374,7 @@ if(MIXDOCTORATOR_BUILD_TESTS)
         MaskingModelTests
         SpectralAnalyzerTests
         SpectralSampleRateTests
+        SpectralRealtimeTests
         PairMeasurementTests
         PairUpdateRatesTests
         TimingModelTests
