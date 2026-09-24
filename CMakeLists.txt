@@ -313,6 +313,17 @@ if(MIXDOCTORATOR_BUILD_TESTS)
     add_executable(FindingRankingTests
         tests/FindingRankingTests.cpp)
 
+    add_executable(TemporalFindingTests
+        tests/TemporalFindingTests.cpp)
+
+    target_compile_features(
+        TemporalFindingTests
+        PRIVATE cxx_std_17)
+
+    add_test(
+        NAME TemporalFindingTests
+        COMMAND TemporalFindingTests)
+
     target_compile_features(
         FindingRankingTests
         PRIVATE cxx_std_17)
@@ -406,6 +417,7 @@ if(MIXDOCTORATOR_BUILD_TESTS)
         RoleModelTests
         RecommendationEngineTests
         FindingRankingTests
+        TemporalFindingTests
         RecommendationScenarioTests
         CoachMaskingModelTests
         RecommendationMatrixTests
