@@ -79,9 +79,9 @@ tresult PLUGIN_API Controller::initialize(FUnknown* c){
     parameters.addParameter(STR16("Bass Transient"),STR16("%"),0,0.0,ro,kBassTransient);
     parameters.addParameter(STR16("Guitar Transient"),STR16("%"),0,0.0,ro,kGuitarTransient);
 
-    parameters.addParameter(STR16("Drums Sensor Count"),nullptr,0,0.0,ro,kDrumsCount);
-    parameters.addParameter(STR16("Bass Sensor Count"),nullptr,0,0.0,ro,kBassCount);
-    parameters.addParameter(STR16("Guitar Sensor Count"),nullptr,0,0.0,ro,kGuitarCount);
+    parameters.addParameter(STR16("Drums Sensor Count"),nullptr,IPC::kSensorSlotCount,0.0,ro,kDrumsCount);
+    parameters.addParameter(STR16("Bass Sensor Count"),nullptr,IPC::kSensorSlotCount,0.0,ro,kBassCount);
+    parameters.addParameter(STR16("Guitar Sensor Count"),nullptr,IPC::kSensorSlotCount,0.0,ro,kGuitarCount);
 
     parameters.addParameter(STR16("Drums Bass Transient Competition"),STR16("%"),0,0.0,ro,kDrumsBassTransientCompetition);
     parameters.addParameter(STR16("Bass Guitar Transient Competition"),STR16("%"),0,0.0,ro,kBassGuitarTransientCompetition);
@@ -101,8 +101,8 @@ tresult PLUGIN_API Controller::initialize(FUnknown* c){
     parameters.addParameter(STR16("Coach Target"),nullptr,Analysis::kRecommendationTargetCodeCount,0.0,ro,kCoachTarget);
     parameters.addParameter(STR16("Coach Attack Pair"),nullptr,Analysis::kRolePairCount,0.0,ro,kCoachAttackPair);
     parameters.addParameter(STR16("Coach Attack Advice"),nullptr,1,0.0,ro,kCoachAttackAdvice);
-    parameters.addParameter(STR16("All Sensor Count"),nullptr,0,0.0,ro,kAllSensorCount);
-    parameters.addParameter(STR16("All Role Count"),nullptr,0,0.0,ro,kAllRoleCount);
+    parameters.addParameter(STR16("All Sensor Count"),nullptr,IPC::kSensorSlotCount,0.0,ro,kAllSensorCount);
+    parameters.addParameter(STR16("All Role Count"),nullptr,IPC::kRoleCount,0.0,ro,kAllRoleCount);
 
     // UIViewSwitchContainer is driven by a real controller parameter. Leaving
     // the tag unbound creates a null-parameter listener path in VST3Editor
