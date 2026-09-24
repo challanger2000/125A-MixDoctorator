@@ -51,8 +51,8 @@ int main(){
                 assert(normal.dominance>=-1.0 && normal.dominance<=1.0);
                 assert(recommendationCode(normal.kind)>=1);
                 assert(recommendationCode(normal.kind)<=6);
-                assert(recommendationActionCode(normal.context)>=0);
-                assert(recommendationActionCode(normal.context)<=5);
+                assert(recommendationActionCode(normal.context)>=1);
+                assert(recommendationActionCode(normal.context)<=6);
 
                 if(band<=1)
                     assert(normal.kind==RecommendationKind::LowEndOwnership);
