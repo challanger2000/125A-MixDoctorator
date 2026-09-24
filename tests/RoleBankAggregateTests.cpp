@@ -165,6 +165,38 @@ int main(){
 
     assert(count==0);
 
+    // Every declared role must route to its own aggregate slot.
+    RoleBankAggregate allRoles;
+    allRoles.reset();
+
+    for(int i=0;i<IPC::kRoleCount;++i){
+        auto s=snapshot(
+            roleFromIndex(i),
+            now,
+            -20.0,
+            i%IPC::kBandCount,
+            static_cast<std::uint64_t>(300+i));
+
+        allRoles.add(
+            s,
+            now,
+            block);
+    }
+
+    for(int i=0;i<IPC::kRoleCount;++i){
+        assert(allRoles.result(
+            i,
+            now,
+            out,
+            count));
+
+        assert(count==1);
+        assert(out.role==roleFromIndex(i));
+        assert(out.aggregateCount==1);
+        assert(out.bands[
+            i%IPC::kBandCount]>0.999);
+    }
+
     std::cout
         << "Role bank aggregate tests passed\n";
 
