@@ -97,6 +97,8 @@ tresult PLUGIN_API Controller::initialize(FUnknown* c){
     parameters.addParameter(STR16("Coach Evidence"),nullptr,3,0.0,ro,kCoachEvidence);
     parameters.addParameter(STR16("Coach Pair"),nullptr,Analysis::kRolePairCount,0.0,ro,kCoachPair);
     parameters.addParameter(STR16("Coach Band"),nullptr,8,0.0,ro,kCoachBand);
+    parameters.addParameter(STR16("Coach Attack Pair"),nullptr,Analysis::kRolePairCount,0.0,ro,kCoachAttackPair);
+    parameters.addParameter(STR16("Coach Attack Advice"),nullptr,1,0.0,ro,kCoachAttackAdvice);
 
     // UIViewSwitchContainer is driven by a real controller parameter. Leaving
     // the tag unbound creates a null-parameter listener path in VST3Editor
@@ -474,7 +476,8 @@ tresult PLUGIN_API Controller::getParamStringByValue(
         return kResultTrue;
     }
 
-    if(id==kCoachPair){
+    if(id==kCoachPair ||
+       id==kCoachAttackPair){
         const int encoded=
             std::clamp(
                 static_cast<int>(
@@ -501,6 +504,9 @@ tresult PLUGIN_API Controller::getParamStringByValue(
                encoded-1,
                first,
                second)){
+            Analysis::orderRolePairForDisplay(
+                first,
+                second);
             std::snprintf(
                 b,sizeof(b),
                 "%s - %s",
@@ -514,6 +520,16 @@ tresult PLUGIN_API Controller::getParamStringByValue(
 
         UString128 s;
         s.fromAscii(b);
+        s.copyTo(out,128);
+        return kResultTrue;
+    }
+
+    if(id==kCoachAttackAdvice){
+        UString128 s;
+        s.fromAscii(
+            v>=0.5
+            ? "Check timing, envelopes, transient emphasis or gentle ducking between these sources"
+            : "No sustained attack competition detected");
         s.copyTo(out,128);
         return kResultTrue;
     }
