@@ -116,6 +116,54 @@ int main(){
     assert(foundB);
     assert(guitarCount>=2);
 
+    // A fresh session supports exactly the documented 24 live Sensor slots.
+    constexpr int capacitySession=4;
+    int capacitySlots[kSensorSlotCount]{};
+
+    for(int n=0;n<kSensorSlotCount;++n){
+        capacitySlots[n]=-1;
+        const std::uint64_t id=
+            0x125A100000000000ull+
+            static_cast<std::uint64_t>(n+1);
+
+        assert(
+            first.publish(
+                capacitySession,
+                id,
+                capacitySlots[n],
+                Role::Drums,
+                200000+n,
+                -24.0,
+                -6.0,
+                0.5,
+                0.1,
+                bands.data()));
+
+        assert(capacitySlots[n]>=0);
+
+        for(int p=0;p<n;++p)
+            assert(
+                capacitySlots[p]!=
+                capacitySlots[n]);
+    }
+
+    int overflowSlot=-1;
+
+    assert(
+        !first.publish(
+            capacitySession,
+            0x125A1FFFFFFFFFFFull,
+            overflowSlot,
+            Role::Bass,
+            300000,
+            -24.0,
+            -6.0,
+            0.5,
+            0.1,
+            bands.data()));
+
+    assert(overflowSlot<0);
+
     std::cout
         << "IPCModel tests passed\n";
 #else
