@@ -98,4 +98,15 @@ if(MIXDOCTORATOR_BUILD_TESTS)
     add_test(
         NAME TransientInteractionTests
         COMMAND TransientInteractionTests)
+
+    add_executable(AttackFindingTests
+        tests/AttackFindingTests.cpp)
+
+    target_compile_features(
+        AttackFindingTests
+        PRIVATE cxx_std_17)
+
+    add_test(
+        NAME AttackFindingTests
+        COMMAND AttackFindingTests)
 endif()

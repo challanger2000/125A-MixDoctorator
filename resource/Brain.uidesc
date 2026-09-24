@@ -15,9 +15,10 @@
     <control-tag name="DrumsTransient" tag="227"/><control-tag name="BassTransient" tag="228"/><control-tag name="GuitarTransient" tag="229"/>
     <control-tag name="DrumsCount" tag="230"/><control-tag name="BassCount" tag="231"/><control-tag name="GuitarCount" tag="232"/>
     <control-tag name="DrumsBassTransientCompetition" tag="233"/><control-tag name="BassGuitarTransientCompetition" tag="234"/><control-tag name="DrumsGuitarTransientCompetition" tag="235"/>
+    <control-tag name="TopAttackPair" tag="236"/><control-tag name="TopAttackScore" tag="237"/><control-tag name="TopAttackAdvice" tag="238"/>
   </control-tags>
 
-  <template name="view" class="CViewContainer" origin="0,0" size="980,760" background-color="#171717ff">
+  <template name="view" class="CViewContainer" origin="0,0" size="980,845" background-color="#171717ff">
     <view class="CTextLabel" origin="20,16" size="620,34" title="125A MIXDOCTORATOR BRAIN" font-size="22" font-color="#ffffffff" transparent="true"/>
     <view class="CTextLabel" origin="690,20" size="80,24" title="SESSION" font-size="13" font-color="#ccccccff" transparent="true"/>
     <view class="COptionMenu" origin="775,16" size="120,32" control-tag="Session" font-size="14" back-color="#303030ff" font-color="#ffffffff" frame-color="#777777ff"/>
@@ -72,14 +73,19 @@
     <view class="CParamDisplay" origin="615,432" size="170,32" control-tag="TopDominance" font-size="14" font-color="#ffffffff" back-color="#303030ff" frame-color="#777777ff"/>
     <view class="CParamDisplay" origin="800,432" size="120,32" control-tag="TopConfidence" font-size="14" font-color="#ffffffff" back-color="#303030ff" frame-color="#777777ff"/>
 
-    <view class="CTextLabel" origin="20,480" size="940,28" title="STRONGEST CONFIDENT MASKING FINDING - SESSION" font-size="15" font-color="#ccccccff" transparent="true"/>
-    <view class="CParamDisplay" origin="20,515" size="250,32" control-tag="SessionPair" font-size="14" font-color="#ffffffff" back-color="#262626ff" frame-color="#666666ff"/>
-    <view class="CParamDisplay" origin="285,515" size="100,32" control-tag="SessionScore" font-size="14" font-color="#ffffffff" back-color="#262626ff" frame-color="#666666ff"/>
-    <view class="CParamDisplay" origin="400,515" size="270,32" control-tag="SessionBand" font-size="14" font-color="#ffffffff" back-color="#262626ff" frame-color="#666666ff"/>
+    <view class="CTextLabel" origin="20,480" size="940,28" title="TOP ATTACK FINDING - CURRENT" font-size="15" font-color="#ccccccff" transparent="true"/>
+    <view class="CParamDisplay" origin="20,515" size="210,32" control-tag="TopAttackPair" font-size="14" font-color="#ffffffff" back-color="#303030ff" frame-color="#777777ff"/>
+    <view class="CParamDisplay" origin="245,515" size="90,32" control-tag="TopAttackScore" font-size="14" font-color="#ffffffff" back-color="#303030ff" frame-color="#777777ff"/>
+    <view class="CParamDisplay" origin="350,515" size="570,32" control-tag="TopAttackAdvice" font-size="14" font-color="#ffffffff" back-color="#303030ff" frame-color="#777777ff"/>
 
-    <view class="CTextLabel" origin="20,570" size="940,28" title="SUGGESTED CHECK" font-size="15" font-color="#ccccccff" transparent="true"/>
-    <view class="CParamDisplay" origin="20,605" size="940,38" control-tag="TopAdvice" font-size="14" font-color="#ffffffff" back-color="#303030ff" frame-color="#777777ff"/>
+    <view class="CTextLabel" origin="20,570" size="940,28" title="STRONGEST CONFIDENT MASKING FINDING - SESSION" font-size="15" font-color="#ccccccff" transparent="true"/>
+    <view class="CParamDisplay" origin="20,605" size="250,32" control-tag="SessionPair" font-size="14" font-color="#ffffffff" back-color="#262626ff" frame-color="#666666ff"/>
+    <view class="CParamDisplay" origin="285,605" size="100,32" control-tag="SessionScore" font-size="14" font-color="#ffffffff" back-color="#262626ff" frame-color="#666666ff"/>
+    <view class="CParamDisplay" origin="400,605" size="270,32" control-tag="SessionBand" font-size="14" font-color="#ffffffff" back-color="#262626ff" frame-color="#666666ff"/>
 
-    <view class="CTextLabel" origin="20,705" size="940,24" title="Overlap alone is not treated as a problem; masking risk also considers band-level similarity and simultaneous activity." font-size="13" font-color="#a0a0a0ff" transparent="true"/>
+    <view class="CTextLabel" origin="20,655" size="940,28" title="SUGGESTED CHECK" font-size="15" font-color="#ccccccff" transparent="true"/>
+    <view class="CParamDisplay" origin="20,690" size="940,38" control-tag="TopAdvice" font-size="14" font-color="#ffffffff" back-color="#303030ff" frame-color="#777777ff"/>
+
+    <view class="CTextLabel" origin="20,795" size="940,24" title="Overlap alone is not treated as a problem; masking risk also considers band-level similarity and simultaneous activity." font-size="13" font-color="#a0a0a0ff" transparent="true"/>
   </template>
 </vstgui-ui-description>

@@ -85,6 +85,10 @@ tresult PLUGIN_API Controller::initialize(FUnknown* c){
     parameters.addParameter(STR16("Bass Guitar Transient Competition"),STR16("%"),0,0.0,ro,kBassGuitarTransientCompetition);
     parameters.addParameter(STR16("Drums Guitar Transient Competition"),STR16("%"),0,0.0,ro,kDrumsGuitarTransientCompetition);
 
+    parameters.addParameter(STR16("Top Attack Pair"),nullptr,3,0.0,ro,kTopAttackPair);
+    parameters.addParameter(STR16("Top Attack Score"),STR16("%"),0,0.0,ro,kTopAttackScore);
+    parameters.addParameter(STR16("Top Attack Advice"),nullptr,3,0.0,ro,kTopAttackAdvice);
+
     return kResultOk;
 }
 
@@ -201,7 +205,8 @@ tresult PLUGIN_API Controller::getParamStringByValue(
        id==kGuitarTransient ||
        id==kDrumsBassTransientCompetition ||
        id==kBassGuitarTransientCompetition ||
-       id==kDrumsGuitarTransientCompetition){
+       id==kDrumsGuitarTransientCompetition ||
+       id==kTopAttackScore){
 
         char b[32]{};
         std::snprintf(
@@ -279,7 +284,8 @@ tresult PLUGIN_API Controller::getParamStringByValue(
     }
 
     if(id==kTopPair ||
-       id==kSessionPair){
+       id==kSessionPair ||
+       id==kTopAttackPair){
 
         static const char* pairs[4]={
             "NONE",
@@ -300,6 +306,31 @@ tresult PLUGIN_API Controller::getParamStringByValue(
 
         UString128 s;
         s.fromAscii(pairs[index]);
+        s.copyTo(out,128);
+        return kResultTrue;
+    }
+
+    if(id==kTopAttackAdvice){
+
+        static const char* advice[4]={
+            "No sustained attack competition detected",
+            "Drums and bass attacks coincide: check envelopes, timing or ducking",
+            "Bass and guitar attacks coincide: check articulation and transient emphasis",
+            "Drums and guitar attacks coincide: check pick/snare/cymbal attack space"
+        };
+
+        const int index=
+            std::clamp(
+                static_cast<int>(
+                    std::lround(
+                        std::clamp(
+                            v,0.0,1.0)*
+                        3.0)),
+                0,
+                3);
+
+        UString128 s;
+        s.fromAscii(advice[index]);
         s.copyTo(out,128);
         return kResultTrue;
     }

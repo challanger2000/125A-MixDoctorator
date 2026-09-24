@@ -4,6 +4,7 @@
 #include "TimingModel.h"
 #include "RoleAggregate.h"
 #include "TransientInteraction.h"
+#include "AttackFinding.h"
 
 #include "base/source/fstreamer.h"
 #include "pluginterfaces/vst/ivstparameterchanges.h"
@@ -945,6 +946,53 @@ tresult PLUGIN_API Processor::process(
         kDrumsGuitarTransientCompetition,
         pairStates_[2].transientCompetition,
         35);
+
+    const double attackScores[3]{
+        pairStates_[0].transientCompetition,
+        pairStates_[1].transientCompetition,
+        pairStates_[2].transientCompetition
+    };
+
+    const double attackObserved[3]{
+        pairStates_[0].observedSeconds,
+        pairStates_[1].observedSeconds,
+        pairStates_[2].observedSeconds
+    };
+
+    const auto attackFinding=
+        Analysis::chooseAttackFinding(
+            attackScores,
+            attackObserved);
+
+    const double attackPairValue=
+        attackFinding.pair<0
+        ? 0.0
+        : static_cast<double>(
+            attackFinding.pair+1)/3.0;
+
+    const double attackAdviceValue=
+        attackFinding.pair<0
+        ? 0.0
+        : static_cast<double>(
+            attackFinding.pair+1)/3.0;
+
+    publishParam(
+        data,
+        kTopAttackPair,
+        attackPairValue,
+        36);
+
+    publishParam(
+        data,
+        kTopAttackScore,
+        attackFinding.score,
+        37);
+
+    publishParam(
+        data,
+        kTopAttackAdvice,
+        attackAdviceValue,
+        38);
 
     return kResultOk;
 }

@@ -56,7 +56,11 @@ enum ParamID : Steinberg::Vst::ParamID {
 
     kDrumsBassTransientCompetition,
     kBassGuitarTransientCompetition,
-    kDrumsGuitarTransientCompetition
+    kDrumsGuitarTransientCompetition,
+
+    kTopAttackPair,
+    kTopAttackScore,
+    kTopAttackAdvice
 };
 
 } // namespace MixDoctorator::Brain
