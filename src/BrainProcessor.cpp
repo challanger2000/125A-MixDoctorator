@@ -1050,6 +1050,29 @@ tresult PLUGIN_API Processor::process(
             pairStates_[2],
             data.numSamples,
             currentSamplePosition);
+
+        for(int a=0;a<IPC::kRoleCount-1;++a){
+            for(int b=a+1;b<IPC::kRoleCount;++b){
+                const auto first=
+                    Analysis::roleFromIndex(a);
+                const auto second=
+                    Analysis::roleFromIndex(b);
+
+                const int pairIndex=
+                    Analysis::encodeRolePair(
+                        first,second);
+
+                if(pairIndex<0)
+                    continue;
+
+                updatePair(
+                    latestIpc_.roles[a],
+                    latestIpc_.roles[b],
+                    coachPairStates_[pairIndex],
+                    data.numSamples,
+                    currentSamplePosition);
+            }
+        }
     }
 
     publishParam(data,kDrumsBassOverlap,pairStates_[0].overlap,6);
@@ -1148,19 +1171,74 @@ tresult PLUGIN_API Processor::process(
     publishParam(data,kTopDominance,dominanceValue,22);
     publishParam(data,kTopConfidence,confidenceValue,23);
 
-    // The beginner-facing Coach view uses the same measured finding and the
-    // same stable recommendation code as the technical view.
-    publishParam(data,kCoachHeadline,adviceValue,39);
-    publishParam(data,kCoachAction,adviceValue,40);
-    publishParam(data,kCoachListen,adviceValue,41);
-    publishParam(data,kCoachReason,adviceValue,42);
+    const int coachPair=
+        chooseCoachPair();
+
+    Analysis::Recommendation recommendation;
+
+    if(coachPair>=0){
+        IPC::Role first=IPC::Role::Unknown;
+        IPC::Role second=IPC::Role::Unknown;
+
+        if(Analysis::decodeRolePair(
+               coachPair,
+               first,
+               second)){
+
+            const auto& state=
+                coachPairStates_[coachPair];
+
+            recommendation=
+                Analysis::makeRecommendation(
+                    first,
+                    second,
+                    state.dominantBand,
+                    state.masking,
+                    state.confidence,
+                    state.dominance,
+                    state.transientCompetition);
+        }
+    }
+
+    const double coachAdviceValue=
+        recommendation.valid
+        ? static_cast<double>(
+            Analysis::recommendationCode(
+                recommendation.kind))/6.0
+        : 0.0;
+
+    const double coachPairValue=
+        recommendation.valid
+        ? static_cast<double>(
+            coachPair+1)/
+          static_cast<double>(
+            Analysis::kRolePairCount)
+        : 0.0;
+
+    const double coachBandValue=
+        recommendation.valid
+        ? static_cast<double>(
+            recommendation.band)/8.0
+        : 0.0;
+
+    const double coachConfidence=
+        recommendation.valid
+        ? recommendation.confidence
+        : 0.0;
+
+    publishParam(data,kCoachHeadline,coachAdviceValue,39);
+    publishParam(data,kCoachAction,coachAdviceValue,40);
+    publishParam(data,kCoachListen,coachAdviceValue,41);
+    publishParam(data,kCoachReason,coachAdviceValue,42);
 
     const double evidenceValue=
         static_cast<double>(
             Analysis::coachEvidenceBand(
-                confidenceValue))/3.0;
+                coachConfidence))/3.0;
 
     publishParam(data,kCoachEvidence,evidenceValue,43);
+    publishParam(data,kCoachPair,coachPairValue,44);
+    publishParam(data,kCoachBand,coachBandValue,45);
 
     const double sessionPair=
         (sessionFinding_.pair<0)
