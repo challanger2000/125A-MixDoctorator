@@ -1211,12 +1211,12 @@ tresult PLUGIN_API Processor::process(
         : 0.0;
 
     const double coachBandValue=
-        recommendation.valid
-        ? static_cast<double>(
-            recommendation.band+1)/
-          static_cast<double>(
-            IPC::kBandCount)
-        : 0.0;
+        static_cast<double>(
+            Analysis::recommendationBandCode(
+                recommendation))/
+        static_cast<double>(
+            Analysis::
+            kRecommendationBandCodeCount);
 
     const double coachConfidence=
         recommendation.valid
