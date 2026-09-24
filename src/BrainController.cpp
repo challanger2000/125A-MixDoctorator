@@ -91,7 +91,7 @@ tresult PLUGIN_API Controller::initialize(FUnknown* c){
     parameters.addParameter(STR16("Top Attack Advice"),nullptr,3,0.0,ro,kTopAttackAdvice);
 
     parameters.addParameter(STR16("Coach Headline"),nullptr,6,0.0,ro,kCoachHeadline);
-    parameters.addParameter(STR16("Coach Action"),nullptr,5,0.0,ro,kCoachAction);
+    parameters.addParameter(STR16("Coach Action"),nullptr,6,0.0,ro,kCoachAction);
     parameters.addParameter(STR16("Coach Listen"),nullptr,6,0.0,ro,kCoachListen);
     parameters.addParameter(STR16("Coach Reason"),nullptr,6,0.0,ro,kCoachReason);
     parameters.addParameter(STR16("Coach Evidence"),nullptr,3,0.0,ro,kCoachEvidence);
@@ -446,12 +446,13 @@ tresult PLUGIN_API Controller::getParamStringByValue(
                     std::lround(
                         std::clamp(
                             v,0.0,1.0)*
-                        5.0)),
+                        6.0)),
                 0,
-                5);
+                6);
 
-        static const char* action[6]={
+        static const char* action[7]={
             "Mix weiterlaufen lassen. Erst etwas aendern, wenn der Hinweis stabil wird.",
+            "Beide Quellen im gezeigten Bereich vergleichen. Bei der stoerenderen Quelle vorsichtig Platz schaffen und im Mix gegenhoeren.",
             "Kick und Bass getrennt beurteilen. Festlegen, wer die Tiefe traegt; bei der anderen Quelle vorsichtig Platz schaffen.",
             "Gesang als Bezugspunkt. Bei Synth, Keys, Pad oder Gitarre pruefen, ob eine kleine Absenkung die Stimme klaert.",
             "Becken nicht automatisch dumpf machen. Erst pruefen, ob Gitarre, Synth oder Keys im Hoehenbereich etwas Platz abgeben.",
