@@ -26,7 +26,7 @@
     <view class="CTextLabel" origin="690,18" size="75,24" title="SESSION" font-size="12" font-color="#a0a0a0ff" transparent="true"/>
     <view class="COptionMenu" origin="775,14" size="120,32" control-tag="Session" font-size="14" back-color="#303030ff" font-color="#ffffffff" frame-color="#777777ff"/>
 
-    <view class="CTextLabel" origin="20,62" size="90,22" title="DETAIL DRUMS" font-size="11" font-color="#ccccccff" transparent="true"/>
+    <view class="CTextLabel" origin="20,62" size="90,22" title="DETAIL SCHLAGZEUG" font-size="11" font-color="#ccccccff" transparent="true"/>
     <view class="CParamDisplay" origin="105,58" size="120,30" control-tag="DrumsConnected" font-size="13" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
     <view class="CTextLabel" origin="235,62" size="45,22" title="x" font-size="13" font-color="#888888ff" transparent="true"/>
     <view class="CParamDisplay" origin="252,58" size="45,30" control-tag="DrumsCount" font-size="13" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
@@ -36,109 +36,109 @@
     <view class="CTextLabel" origin="525,62" size="45,22" title="x" font-size="13" font-color="#888888ff" transparent="true"/>
     <view class="CParamDisplay" origin="542,58" size="45,30" control-tag="BassCount" font-size="13" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
 
-    <view class="CTextLabel" origin="620,62" size="90,22" title="DETAIL E-GUITAR" font-size="11" font-color="#ccccccff" transparent="true"/>
+    <view class="CTextLabel" origin="620,62" size="90,22" title="DETAIL E-GITARRE" font-size="11" font-color="#ccccccff" transparent="true"/>
     <view class="CParamDisplay" origin="705,58" size="120,30" control-tag="GuitarConnected" font-size="13" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
     <view class="CTextLabel" origin="835,62" size="45,22" title="x" font-size="13" font-color="#888888ff" transparent="true"/>
     <view class="CParamDisplay" origin="852,58" size="45,30" control-tag="GuitarCount" font-size="13" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
 
-    <view class="CTextLabel" origin="20,108" size="520,24" title="STATUS ABOVE: fixed detail roles only. COACH BELOW: all configured roles." font-size="12" font-color="#888888ff" transparent="true"/>
-    <view class="CTextButton" origin="720,100" size="240,36" title="SHOW / HIDE DETAILS" control-tag="ViewMode" kick-style="false" font-size="13" text-color="#ffffffff" text-color-highlighted="#ffffffff" frame-color="#666666ff" frame-color-highlighted="#aaaaaaff" round-radius="5" frame-width="1"/>
+    <view class="CTextLabel" origin="20,108" size="520,24" title="STATUS OBEN: feste Detailrollen. COACH UNTEN: alle eingestellten Rollen." font-size="12" font-color="#888888ff" transparent="true"/>
+    <view class="CTextButton" origin="720,100" size="240,36" title="DETAILS AN / AUS" control-tag="ViewMode" kick-style="false" font-size="13" text-color="#ffffffff" text-color-highlighted="#ffffffff" frame-color="#666666ff" frame-color-highlighted="#aaaaaaff" round-radius="5" frame-width="1"/>
 
     <view class="UIViewSwitchContainer" origin="20,150" size="940,700" template-names="CoachView,TechnicalView" template-switch-control="ViewMode" animation-style="fade" animation-time="100"/>
   </template>
 
   <template name="CoachView" class="CViewContainer" origin="0,0" size="940,700" background-color="#171717ff">
-    <view class="CTextLabel" origin="0,8" size="940,34" title="WHAT YOU CAN DO NOW" font-size="20" font-color="#ffffffff" transparent="true"/>
+    <view class="CTextLabel" origin="0,8" size="940,34" title="WAS DU JETZT TUN KANNST" font-size="20" font-color="#ffffffff" transparent="true"/>
 
     <view class="CParamDisplay" origin="0,54" size="940,46" control-tag="CoachHeadline" font-size="18" font-color="#ffffffff" back-color="#252525ff" frame-color="#777777ff"/>
 
-    <view class="CTextLabel" origin="0,118" size="300,22" title="SOURCES" font-size="12" font-color="#a0a0a0ff" transparent="true"/>
+    <view class="CTextLabel" origin="0,118" size="300,22" title="QUELLEN" font-size="12" font-color="#a0a0a0ff" transparent="true"/>
     <view class="CParamDisplay" origin="0,143" size="300,54" control-tag="CoachPair" font-size="13" font-color="#ffffffff" back-color="#202020ff" frame-color="#555555ff"/>
-    <view class="CTextLabel" origin="315,118" size="185,22" title="AREA TO CHECK" font-size="12" font-color="#a0a0a0ff" transparent="true"/>
+    <view class="CTextLabel" origin="315,118" size="185,22" title="BEREICH PRUEFEN" font-size="12" font-color="#a0a0a0ff" transparent="true"/>
     <view class="CParamDisplay" origin="315,143" size="185,54" control-tag="CoachBand" font-size="13" font-color="#ffffffff" back-color="#202020ff" frame-color="#555555ff"/>
-    <view class="CTextLabel" origin="515,118" size="135,22" title="EVIDENCE" font-size="12" font-color="#a0a0a0ff" transparent="true"/>
+    <view class="CTextLabel" origin="515,118" size="135,22" title="SICHERHEIT" font-size="12" font-color="#a0a0a0ff" transparent="true"/>
     <view class="CParamDisplay" origin="515,143" size="135,54" control-tag="CoachEvidence" font-size="13" font-color="#ffffffff" back-color="#202020ff" frame-color="#555555ff"/>
-    <view class="CTextLabel" origin="665,118" size="275,22" title="WHY MIXDOCTORATOR SAYS THIS" font-size="12" font-color="#a0a0a0ff" transparent="true"/>
+    <view class="CTextLabel" origin="665,118" size="275,22" title="WARUM DIESER HINWEIS" font-size="12" font-color="#a0a0a0ff" transparent="true"/>
     <view class="CMultiLineTextLabel" origin="665,143" size="275,54" control-tag="CoachReason" font-size="12" font-color="#ffffffff" back-color="#202020ff" frame-color="#555555ff" line-layout="wrap" vertical-centered="true"/>
 
-    <view class="CTextLabel" origin="0,208" size="940,24" title="TRY THIS FIRST" font-size="14" font-color="#ccccccff" transparent="true"/>
+    <view class="CTextLabel" origin="0,208" size="940,24" title="ZUERST AUSPROBIEREN" font-size="14" font-color="#ccccccff" transparent="true"/>
     <view class="CMultiLineTextLabel" origin="0,238" size="940,72" control-tag="CoachAction" font-size="15" font-color="#ffffffff" back-color="#303030ff" frame-color="#777777ff" line-layout="wrap" vertical-centered="true"/>
 
-    <view class="CTextLabel" origin="0,338" size="940,24" title="LISTEN FOR THIS" font-size="14" font-color="#ccccccff" transparent="true"/>
+    <view class="CTextLabel" origin="0,338" size="940,24" title="DARAUF HOEREN" font-size="14" font-color="#ccccccff" transparent="true"/>
     <view class="CMultiLineTextLabel" origin="0,368" size="940,72" control-tag="CoachListen" font-size="15" font-color="#ffffffff" back-color="#292929ff" frame-color="#666666ff" line-layout="wrap" vertical-centered="true"/>
 
-    <view class="CTextLabel" origin="0,468" size="940,24" title="IF IT DOES NOT SOUND BETTER" font-size="14" font-color="#ccccccff" transparent="true"/>
-    <view class="CMultiLineTextLabel" origin="0,498" size="940,64" title="Undo the change. A measured overlap is not automatically a mix problem, and MixDoctorator should never replace listening." font-size="15" font-color="#ffffffff" back-color="#252525ff" frame-color="#555555ff" line-layout="wrap" vertical-centered="true"/>
+    <view class="CTextLabel" origin="0,468" size="940,24" title="WENN ES NICHT BESSER KLINGT" font-size="14" font-color="#ccccccff" transparent="true"/>
+    <view class="CMultiLineTextLabel" origin="0,498" size="940,64" title="Aenderung rueckgaengig machen. Gemessene Ueberlappung ist nicht automatisch ein Mix-Problem. Hoeren bleibt entscheidend." font-size="15" font-color="#ffffffff" back-color="#252525ff" frame-color="#555555ff" line-layout="wrap" vertical-centered="true"/>
 
-    <view class="CTextLabel" origin="0,590" size="940,22" title="SECONDARY CHECK: ATTACK / TRANSIENT SPACE" font-size="12" font-color="#888888ff" transparent="true"/>
+    <view class="CTextLabel" origin="0,590" size="940,22" title="ZUSAETZLICH: ATTACK / TRANSIENTEN" font-size="12" font-color="#888888ff" transparent="true"/>
     <view class="CParamDisplay" origin="0,618" size="300,34" control-tag="CoachAttackPair" font-size="13" font-color="#ffffffff" back-color="#202020ff" frame-color="#555555ff"/>
     <view class="CParamDisplay" origin="312,618" size="628,34" control-tag="CoachAttackAdvice" font-size="13" font-color="#ffffffff" back-color="#202020ff" frame-color="#555555ff"/>
   </template>
 
   <template name="TechnicalView" class="CViewContainer" origin="0,0" size="940,700" background-color="#171717ff">
-    <view class="CTextLabel" origin="0,4" size="940,24" title="TECHNICAL DETAIL: DRUMS / BASS / E-GUITAR" font-size="16" font-color="#ccccccff" transparent="true"/>
+    <view class="CTextLabel" origin="0,4" size="940,24" title="TECHNISCHE DETAILS: SCHLAGZEUG / BASS / E-GITARRE" font-size="16" font-color="#ccccccff" transparent="true"/>
 
-    <view class="CTextLabel" origin="0,36" size="125,20" title="SOURCE" font-size="11" font-color="#888888ff" transparent="true"/>
-    <view class="CTextLabel" origin="140,36" size="125,20" title="LEVEL" font-size="11" font-color="#888888ff" transparent="true"/>
+    <view class="CTextLabel" origin="0,36" size="125,20" title="QUELLE" font-size="11" font-color="#888888ff" transparent="true"/>
+    <view class="CTextLabel" origin="140,36" size="125,20" title="PEGEL" font-size="11" font-color="#888888ff" transparent="true"/>
     <view class="CTextLabel" origin="280,36" size="125,20" title="TRANSIENT" font-size="11" font-color="#888888ff" transparent="true"/>
-    <view class="CTextLabel" origin="0,62" size="125,28" title="DRUMS" font-size="13" font-color="#ffffffff" transparent="true"/>
+    <view class="CTextLabel" origin="0,62" size="125,28" title="SCHLAGZEUG" font-size="13" font-color="#ffffffff" transparent="true"/>
     <view class="CParamDisplay" origin="140,62" size="125,28" control-tag="DrumsLevel" font-size="13" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
     <view class="CParamDisplay" origin="280,62" size="125,28" control-tag="DrumsTransient" font-size="13" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
     <view class="CTextLabel" origin="430,62" size="100,28" title="BASS" font-size="13" font-color="#ffffffff" transparent="true"/>
     <view class="CParamDisplay" origin="520,62" size="125,28" control-tag="BassLevel" font-size="13" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
     <view class="CParamDisplay" origin="660,62" size="125,28" control-tag="BassTransient" font-size="13" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
-    <view class="CTextLabel" origin="0,98" size="125,28" title="E-GUITAR" font-size="13" font-color="#ffffffff" transparent="true"/>
+    <view class="CTextLabel" origin="0,98" size="125,28" title="E-GITARRE" font-size="13" font-color="#ffffffff" transparent="true"/>
     <view class="CParamDisplay" origin="140,98" size="125,28" control-tag="GuitarLevel" font-size="13" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
     <view class="CParamDisplay" origin="280,98" size="125,28" control-tag="GuitarTransient" font-size="13" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
 
-    <view class="CTextLabel" origin="0,145" size="940,22" title="PAIR ANALYSIS" font-size="13" font-color="#ccccccff" transparent="true"/>
-    <view class="CTextLabel" origin="175,168" size="85,18" title="OVERLAP" font-size="10" font-color="#888888ff" transparent="true"/>
+    <view class="CTextLabel" origin="0,145" size="940,22" title="PAAR-ANALYSE" font-size="13" font-color="#ccccccff" transparent="true"/>
+    <view class="CTextLabel" origin="175,168" size="85,18" title="UEBERLAPPUNG" font-size="10" font-color="#888888ff" transparent="true"/>
     <view class="CTextLabel" origin="270,168" size="95,18" title="MASKING" font-size="10" font-color="#888888ff" transparent="true"/>
     <view class="CTextLabel" origin="375,168" size="85,18" title="ATTACK" font-size="10" font-color="#888888ff" transparent="true"/>
-    <view class="CTextLabel" origin="470,168" size="245,18" title="MAIN RANGE" font-size="10" font-color="#888888ff" transparent="true"/>
+    <view class="CTextLabel" origin="470,168" size="245,18" title="HAUPTBEREICH" font-size="10" font-color="#888888ff" transparent="true"/>
     <view class="CTextLabel" origin="730,168" size="150,18" title="STATUS" font-size="10" font-color="#888888ff" transparent="true"/>
 
-    <view class="CTextLabel" origin="0,190" size="165,28" title="DRUMS ↔ BASS" font-size="13" font-color="#ffffffff" transparent="true"/>
+    <view class="CTextLabel" origin="0,190" size="165,28" title="SCHLAGZEUG ↔ BASS" font-size="13" font-color="#ffffffff" transparent="true"/>
     <view class="CParamDisplay" origin="175,190" size="85,28" control-tag="DrumsBassOverlap" font-size="12" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
     <view class="CParamDisplay" origin="270,190" size="95,28" control-tag="DrumsBassMasking" font-size="12" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
     <view class="CParamDisplay" origin="375,190" size="85,28" control-tag="DrumsBassTransientCompetition" font-size="12" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
     <view class="CParamDisplay" origin="470,190" size="245,28" control-tag="DrumsBassBand" font-size="12" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
     <view class="CParamDisplay" origin="730,190" size="150,28" control-tag="DrumsBassStatus" font-size="12" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
 
-    <view class="CTextLabel" origin="0,226" size="165,28" title="BASS ↔ E-GUITAR" font-size="13" font-color="#ffffffff" transparent="true"/>
+    <view class="CTextLabel" origin="0,226" size="165,28" title="BASS ↔ E-GITARRE" font-size="13" font-color="#ffffffff" transparent="true"/>
     <view class="CParamDisplay" origin="175,226" size="85,28" control-tag="BassGuitarOverlap" font-size="12" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
     <view class="CParamDisplay" origin="270,226" size="95,28" control-tag="BassGuitarMasking" font-size="12" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
     <view class="CParamDisplay" origin="375,226" size="85,28" control-tag="BassGuitarTransientCompetition" font-size="12" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
     <view class="CParamDisplay" origin="470,226" size="245,28" control-tag="BassGuitarBand" font-size="12" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
     <view class="CParamDisplay" origin="730,226" size="150,28" control-tag="BassGuitarStatus" font-size="12" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
 
-    <view class="CTextLabel" origin="0,262" size="165,28" title="DRUMS ↔ E-GUITAR" font-size="13" font-color="#ffffffff" transparent="true"/>
+    <view class="CTextLabel" origin="0,262" size="165,28" title="SCHLAGZEUG ↔ E-GITARRE" font-size="13" font-color="#ffffffff" transparent="true"/>
     <view class="CParamDisplay" origin="175,262" size="85,28" control-tag="DrumsGuitarOverlap" font-size="12" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
     <view class="CParamDisplay" origin="270,262" size="95,28" control-tag="DrumsGuitarMasking" font-size="12" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
     <view class="CParamDisplay" origin="375,262" size="85,28" control-tag="DrumsGuitarTransientCompetition" font-size="12" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
     <view class="CParamDisplay" origin="470,262" size="245,28" control-tag="DrumsGuitarBand" font-size="12" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
     <view class="CParamDisplay" origin="730,262" size="150,28" control-tag="DrumsGuitarStatus" font-size="12" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
 
-    <view class="CTextLabel" origin="0,318" size="940,22" title="PRIMARY MASKING FINDING" font-size="13" font-color="#ccccccff" transparent="true"/>
+    <view class="CTextLabel" origin="0,318" size="940,22" title="WICHTIGSTER MASKING-HINWEIS" font-size="13" font-color="#ccccccff" transparent="true"/>
     <view class="CParamDisplay" origin="0,344" size="200,30" control-tag="TopPair" font-size="12" font-color="#ffffffff" back-color="#303030ff" frame-color="#777777ff"/>
     <view class="CParamDisplay" origin="212,344" size="80,30" control-tag="TopScore" font-size="12" font-color="#ffffffff" back-color="#303030ff" frame-color="#777777ff"/>
     <view class="CParamDisplay" origin="304,344" size="220,30" control-tag="TopBand" font-size="12" font-color="#ffffffff" back-color="#303030ff" frame-color="#777777ff"/>
     <view class="CParamDisplay" origin="536,344" size="160,30" control-tag="TopDominance" font-size="12" font-color="#ffffffff" back-color="#303030ff" frame-color="#777777ff"/>
     <view class="CParamDisplay" origin="708,344" size="100,30" control-tag="TopConfidence" font-size="12" font-color="#ffffffff" back-color="#303030ff" frame-color="#777777ff"/>
 
-    <view class="CTextLabel" origin="0,394" size="940,22" title="STRONGEST SESSION OBSERVATION" font-size="13" font-color="#ccccccff" transparent="true"/>
+    <view class="CTextLabel" origin="0,394" size="940,22" title="STAERKSTER SESSION-HINWEIS" font-size="13" font-color="#ccccccff" transparent="true"/>
     <view class="CParamDisplay" origin="0,420" size="220,30" control-tag="SessionPair" font-size="12" font-color="#ffffffff" back-color="#262626ff" frame-color="#666666ff"/>
     <view class="CParamDisplay" origin="232,420" size="90,30" control-tag="SessionScore" font-size="12" font-color="#ffffffff" back-color="#262626ff" frame-color="#666666ff"/>
     <view class="CParamDisplay" origin="334,420" size="240,30" control-tag="SessionBand" font-size="12" font-color="#ffffffff" back-color="#262626ff" frame-color="#666666ff"/>
 
-    <view class="CTextLabel" origin="0,470" size="940,22" title="CURRENT ATTACK FINDING" font-size="13" font-color="#ccccccff" transparent="true"/>
+    <view class="CTextLabel" origin="0,470" size="940,22" title="AKTUELLER ATTACK-HINWEIS" font-size="13" font-color="#ccccccff" transparent="true"/>
     <view class="CParamDisplay" origin="0,496" size="220,30" control-tag="TopAttackPair" font-size="12" font-color="#ffffffff" back-color="#303030ff" frame-color="#777777ff"/>
     <view class="CParamDisplay" origin="232,496" size="90,30" control-tag="TopAttackScore" font-size="12" font-color="#ffffffff" back-color="#303030ff" frame-color="#777777ff"/>
     <view class="CParamDisplay" origin="334,496" size="606,30" control-tag="TopAttackAdvice" font-size="12" font-color="#ffffffff" back-color="#303030ff" frame-color="#777777ff"/>
 
-    <view class="CTextLabel" origin="0,555" size="940,22" title="TECHNICAL SUGGESTION" font-size="12" font-color="#888888ff" transparent="true"/>
+    <view class="CTextLabel" origin="0,555" size="940,22" title="TECHNISCHER HINWEIS" font-size="12" font-color="#888888ff" transparent="true"/>
     <view class="CParamDisplay" origin="0,580" size="940,36" control-tag="TopAdvice" font-size="12" font-color="#ffffffff" back-color="#252525ff" frame-color="#555555ff"/>
 
-    <view class="CTextLabel" origin="0,645" size="940,22" title="Indicators are experimental and not calibrated masking probabilities." font-size="12" font-color="#888888ff" transparent="true"/>
+    <view class="CTextLabel" origin="0,645" size="940,22" title="Anzeigen sind experimentell und keine kalibrierten Masking-Wahrscheinlichkeiten." font-size="12" font-color="#888888ff" transparent="true"/>
   </template>
 </vstgui-ui-description>
