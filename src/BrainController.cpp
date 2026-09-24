@@ -452,8 +452,8 @@ tresult PLUGIN_API Controller::getParamStringByValue(
 
         static const char* action[6]={
             "Mix weiterlaufen lassen. Erst etwas aendern, wenn der Hinweis stabil wird.",
-            "Kick und Bass getrennt beurteilen. Festlegen, wer den Tiefenbereich traegt; bei der anderen Quelle vorsichtig Platz schaffen.",
-            "Gesang als Bezugspunkt. Bei Synth, Keys, Pad oder Gitarre pruefen, ob eine kleine Absenkung im Bereich die Stimme klaert.",
+            "Kick und Bass getrennt beurteilen. Festlegen, wer die Tiefe traegt; bei der anderen Quelle vorsichtig Platz schaffen.",
+            "Gesang als Bezugspunkt. Bei Synth, Keys, Pad oder Gitarre pruefen, ob eine kleine Absenkung die Stimme klaert.",
             "Becken nicht automatisch dumpf machen. Erst pruefen, ob Gitarre, Synth oder Keys im Hoehenbereich etwas Platz abgeben.",
             "Attack- und harmonische Quelle getrennt pruefen: Timing, Huellkurve oder kleine Entzerrung vor grossen EQ-Eingriffen.",
             "Bei Bass gegen Gitarre, Synth, Keys oder Pad zuerst unnoetige Tiefen der harmonischen Quelle pruefen."
