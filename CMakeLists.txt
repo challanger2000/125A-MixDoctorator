@@ -70,6 +70,17 @@ if(MIXDOCTORATOR_BUILD_TESTS)
     add_executable(SpectralAnalyzerTests
         tests/SpectralAnalyzerTests.cpp)
 
+    add_executable(SpectralSampleRateTests
+        tests/SpectralSampleRateTests.cpp)
+
+    target_compile_features(
+        SpectralSampleRateTests
+        PRIVATE cxx_std_17)
+
+    add_test(
+        NAME SpectralSampleRateTests
+        COMMAND SpectralSampleRateTests)
+
     target_compile_features(
         SpectralAnalyzerTests
         PRIVATE cxx_std_17)
