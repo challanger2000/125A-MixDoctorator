@@ -77,7 +77,7 @@ int main(){
 
     // The Coach's current stable-finding threshold is 0.14. Very quiet
     // material must not cross it solely because normalized spectra match.
-    assert(maxNearSilent<0.14);
+    assert(maxNearSilent<0.12);
 
     // Very large level gaps should be comfortably below the finding threshold
     // even for perfectly matching normalized spectra.
