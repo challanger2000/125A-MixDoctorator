@@ -209,6 +209,36 @@ void Processor::ipcWorkerLoop() noexcept{
                 Analysis::roleToIndex(
                     IPC::Role::ElectricGuitar)];
 
+        // Heavy Coach pair measurement lives on the worker thread. The audio
+        // thread only smooths these precomputed targets.
+        for(int a=0;a<IPC::kRoleCount-1;++a){
+            for(int b=a+1;b<IPC::kRoleCount;++b){
+                const auto first=
+                    Analysis::roleFromIndex(a);
+                const auto second=
+                    Analysis::roleFromIndex(b);
+
+                const int pairIndex=
+                    Analysis::encodeRolePair(
+                        first,
+                        second);
+
+                if(pairIndex<0 ||
+                   !Analysis::rolesComparableForCoach(
+                       first,
+                       second))
+                    continue;
+
+                response.coachMeasurements[pairIndex]=
+                    Analysis::measurePair(
+                        response.roles[a],
+                        response.roles[b],
+                        newest.samplePosition,
+                        newest.numSamples,
+                        true);
+            }
+        }
+
         // Worker-to-audio queue is also bounded. The audio thread drains to
         // the newest available response each block.
         ipcResponses_.push(response);
@@ -374,68 +404,52 @@ void Processor::updatePair(
     int32 numSamples,
     std::int64_t currentSamplePosition) noexcept{
 
+    const auto measurement=
+        Analysis::measurePair(
+            a,
+            b,
+            currentSamplePosition,
+            numSamples,
+            coachMasking);
+
+    applyPairMeasurement(
+        measurement,
+        state,
+        rates);
+}
+
+void Processor::applyPairMeasurement(
+    const Analysis::PairMeasurement& measurement,
+    PairState& state,
+    const Analysis::PairUpdateRates& rates) noexcept{
+
     const double dt=rates.dt;
 
-    const bool timeCoherent=
-        Analysis::samplePositionsCoherent(
-            currentSamplePosition,
-            a.samplePosition,
-            b.samplePosition,
-            numSamples);
+    const double overlapTarget=
+        measurement.active
+        ? measurement.overlap
+        : 0.0;
 
-    const bool active=
-        a.connected &&
-        b.connected &&
-        timeCoherent &&
-        a.rmsDb>-55.0 &&
-        b.rmsDb>-55.0;
+    const double maskingTarget=
+        measurement.active
+        ? measurement.masking
+        : 0.0;
 
-    double overlapTarget=0.0;
-    double maskingTarget=0.0;
-    double transientCompetitionTarget=0.0;
-    double bandTargets[IPC::kBandCount]{};
+    const double transientCompetitionTarget=
+        measurement.active
+        ? measurement.transientCompetition
+        : 0.0;
 
-    if(active){
+    if(measurement.active){
         state.observedSeconds=
             std::min(
                 45.0,
                 state.observedSeconds+dt);
 
-        const auto metrics=
-            coachMasking
-            ? Analysis::evaluateCoachMasking(
-                a.rmsDb,
-                a.activity,
-                a.bands,
-                b.rmsDb,
-                b.activity,
-                b.bands)
-            : Analysis::evaluatePair(
-                a.rmsDb,
-                a.activity,
-                a.bands,
-                b.rmsDb,
-                b.activity,
-                b.bands);
-
-        overlapTarget=metrics.overlap;
-        maskingTarget=metrics.masking;
-
-        transientCompetitionTarget=
-            Analysis::transientCompetition(
-                a.transient,
-                b.transient,
-                a.rmsDb,
-                b.rmsDb,
-                a.activity,
-                b.activity);
-
-        for(int i=0;i<IPC::kBandCount;++i)
-            bandTargets[i]=metrics.bandRisk[i];
-
         state.dominance+=
             rates.dominanceAlpha*
-            (metrics.dominance-state.dominance);
+            (measurement.dominance-
+             state.dominance);
     }else{
         state.observedSeconds=
             std::max(
@@ -476,10 +490,17 @@ void Processor::updatePair(
         (transientCompetitionTarget-
          state.transientCompetition);
 
-    for(int i=0;i<IPC::kBandCount;++i)
+    for(int i=0;i<IPC::kBandCount;++i){
+        const double target=
+            measurement.active
+            ? measurement.bandRisk[
+                static_cast<std::size_t>(i)]
+            : 0.0;
+
         state.bandRisk[i]+=
             rates.bandAlpha*
-            (bandTargets[i]-state.bandRisk[i]);
+            (target-state.bandRisk[i]);
+    }
 
     int stableBest=0;
 
@@ -1023,14 +1044,12 @@ tresult PLUGIN_API Processor::process(
                     continue;
                 }
 
-                updatePair(
-                    latestIpc_.roles[a],
-                    latestIpc_.roles[b],
+                applyPairMeasurement(
+                    latestIpc_.
+                        coachMeasurements[
+                            pairIndex],
                     state,
-                    pairRates,
-                    true,
-                    data.numSamples,
-                    currentSamplePosition);
+                    pairRates);
             }
         }
     }
