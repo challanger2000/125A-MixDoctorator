@@ -53,6 +53,17 @@ int main(){
                 assert(recommendationCode(normal.kind)<=6);
                 assert(recommendationActionCode(normal.context)>=1);
                 assert(recommendationActionCode(normal.context)<=6);
+                assert(recommendationActionCode(normal)>=1);
+                assert(recommendationTargetCode(normal)>=1);
+
+                const auto early=makeRecommendation(
+                    first,second,band,
+                    0.35,0.20,0.15,0.10);
+
+                assert(early.valid);
+                assert(early.context==normal.context);
+                assert(recommendationActionCode(early)==0);
+                assert(recommendationTargetCode(early)==0);
 
                 if(band<=1)
                     assert(normal.kind==RecommendationKind::LowEndOwnership);
