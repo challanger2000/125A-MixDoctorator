@@ -288,6 +288,17 @@ if(MIXDOCTORATOR_BUILD_TESTS)
         NAME RecommendationScenarioTests
         COMMAND RecommendationScenarioTests)
 
+    add_executable(CoachMaskingModelTests
+        tests/CoachMaskingModelTests.cpp)
+
+    target_compile_features(
+        CoachMaskingModelTests
+        PRIVATE cxx_std_17)
+
+    add_test(
+        NAME CoachMaskingModelTests
+        COMMAND CoachMaskingModelTests)
+
     add_executable(RecommendationMatrixTests
         tests/RecommendationMatrixTests.cpp)
 
@@ -337,6 +348,7 @@ if(MIXDOCTORATOR_BUILD_TESTS)
         RecommendationEngineTests
         FindingRankingTests
         RecommendationScenarioTests
+        CoachMaskingModelTests
         RecommendationMatrixTests
         SpscQueueTests)
 
