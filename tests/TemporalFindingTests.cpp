@@ -140,7 +140,7 @@ int main(){
     }
 
     assert(clearSeconds>0.0);
-    assert(clearSeconds<8.0);
+    assert(clearSeconds<3.5);
 
     std::cout
         << "Temporal finding QA: first eligible="
