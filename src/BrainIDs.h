@@ -66,7 +66,10 @@ enum ParamID : Steinberg::Vst::ParamID {
     kCoachAction,
     kCoachListen,
     kCoachReason,
-    kCoachEvidence
+    kCoachEvidence,
+
+    // Controller/UI-only parameter used by the details toggle.
+    kViewMode=9000
 };
 
 } // namespace MixDoctorator::Brain

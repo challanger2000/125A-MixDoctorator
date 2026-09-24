@@ -95,6 +95,17 @@ tresult PLUGIN_API Controller::initialize(FUnknown* c){
     parameters.addParameter(STR16("Coach Reason"),nullptr,15,0.0,ro,kCoachReason);
     parameters.addParameter(STR16("Coach Evidence"),nullptr,3,0.0,ro,kCoachEvidence);
 
+    // UIViewSwitchContainer is driven by a real controller parameter. Leaving
+    // the tag unbound creates a null-parameter listener path in VST3Editor
+    // when the button ends its edit, which is unsafe in some hosts.
+    parameters.addParameter(
+        STR16("View Mode"),
+        nullptr,
+        1,
+        0.0,
+        ParameterInfo::kIsHidden,
+        kViewMode);
+
     return kResultOk;
 }
 
