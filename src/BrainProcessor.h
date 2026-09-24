@@ -99,7 +99,7 @@ private:
     bool wasPlaying_{false};
     std::int64_t lastProjectSample_{-1};
 
-    double last_[49]{
+    double last_[51]{
         -1,-1,-1,-1,-1,-1,
         -1,-1,-1,-1,
         -1,-1,-1,-1,
@@ -111,7 +111,7 @@ private:
         -1,-1,-1,
         -1,-1,-1,
         -1,-1,-1,
-        -1,-1,-1,-1,-1,-1,-1
+        -1,-1,-1,-1,-1,-1,-1,-1,-1
     };
 
     void publishParam(
