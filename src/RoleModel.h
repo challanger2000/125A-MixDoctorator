@@ -99,17 +99,17 @@ inline void orderRolePairForDisplay(
 
 inline const char* roleName(IPC::Role role) noexcept {
     switch(role){
-        case IPC::Role::Drums: return "DRUMS";
+        case IPC::Role::Drums: return "SCHLAGZEUG";
         case IPC::Role::Bass: return "BASS";
-        case IPC::Role::ElectricGuitar: return "E-GUITAR";
+        case IPC::Role::ElectricGuitar: return "E-GITARRE";
         case IPC::Role::Kick: return "KICK";
         case IPC::Role::Snare: return "SNARE";
         case IPC::Role::Toms: return "TOMS";
-        case IPC::Role::Cymbals: return "CYMBALS / HI-HAT";
+        case IPC::Role::Cymbals: return "BECKEN / HI-HAT";
         case IPC::Role::Percussion: return "PERCUSSION";
-        case IPC::Role::AcousticGuitar: return "ACOUSTIC GUITAR";
-        case IPC::Role::LeadVocal: return "LEAD VOCAL";
-        case IPC::Role::BackingVocal: return "BACKING VOCAL";
+        case IPC::Role::AcousticGuitar: return "AKUSTIKGITARRE";
+        case IPC::Role::LeadVocal: return "LEAD-GESANG";
+        case IPC::Role::BackingVocal: return "BACKING-GESANG";
         case IPC::Role::PianoKeys: return "PIANO / KEYS";
         case IPC::Role::Synth: return "SYNTH";
         case IPC::Role::Pad: return "PAD";
