@@ -121,4 +121,15 @@ if(MIXDOCTORATOR_BUILD_TESTS)
     add_test(
         NAME TransportModelTests
         COMMAND TransportModelTests)
+
+    add_executable(PrimaryFindingTests
+        tests/PrimaryFindingTests.cpp)
+
+    target_compile_features(
+        PrimaryFindingTests
+        PRIVATE cxx_std_17)
+
+    add_test(
+        NAME PrimaryFindingTests
+        COMMAND PrimaryFindingTests)
 endif()

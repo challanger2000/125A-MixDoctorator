@@ -6,6 +6,7 @@
 #include "TransientInteraction.h"
 #include "AttackFinding.h"
 #include "TransportModel.h"
+#include "PrimaryFinding.h"
 
 #include "base/source/fstreamer.h"
 #include "pluginterfaces/vst/ivstparameterchanges.h"
@@ -592,6 +593,8 @@ void Processor::updateSessionFinding() noexcept{
                 p.masking;
             sessionFinding_.confidence=
                 p.confidence;
+            sessionFinding_.dominance=
+                p.dominance;
         }
     }
 }
@@ -740,21 +743,9 @@ tresult PLUGIN_API Processor::process(
 
     publishParam(
         data,
-        kDrumsLevel,
-        level(drums,drumsOk),
-        1);
-
-    publishParam(
-        data,
         kBassConnected,
         bassOk?1.0:0.0,
         2);
-
-    publishParam(
-        data,
-        kBassLevel,
-        level(bass,bassOk),
-        3);
 
     publishParam(
         data,
@@ -805,6 +796,18 @@ tresult PLUGIN_API Processor::process(
 
     publishParam(
         data,
+        kDrumsLevel,
+        level(drums,drumsOk),
+        1);
+
+    publishParam(
+        data,
+        kBassLevel,
+        level(bass,bassOk),
+        3);
+
+    publishParam(
+        data,
         kGuitarLevel,
         level(guitar,guitarOk),
         5);
@@ -847,40 +850,71 @@ tresult PLUGIN_API Processor::process(
 
     updateSessionFinding();
 
-    const double pairValue=
-        (best<0)
+    // The session entry is a previously observed finding, not a current
+    // masking measurement. Only use it when there is no eligible current one.
+    const auto selection=
+        Analysis::selectPrimaryFinding(
+            best,
+            sessionFinding_.pair);
+
+    const int displayPair=
+        selection.pair;
+
+    const bool useCurrent=
+        selection.current;
+
+    const int displayBand=
+        displayPair<0
+        ? 0
+        : useCurrent
+            ? pairStates_[best].dominantBand
+            : sessionFinding_.band;
+
+    const double displayDominance=
+        displayPair<0
         ? 0.0
-        : static_cast<double>(best+1)/3.0;
+        : useCurrent
+            ? pairStates_[best].dominance
+            : sessionFinding_.dominance;
+
+    const double pairValue=
+        displayPair<0
+        ? 0.0
+        : static_cast<double>(displayPair+1)/3.0;
 
     const double scoreValue=
-        (best<0)
+        displayPair<0
         ? 0.0
-        : pairStates_[best].masking;
+        : useCurrent
+            ? pairStates_[best].masking
+            : sessionFinding_.score;
 
     const double bandValue=
-        (best<0)
+        displayPair<0
         ? 0.0
         : static_cast<double>(
-            pairStates_[best].dominantBand)/8.0;
+            displayBand)/8.0;
 
     const double dominanceValue=
-        (best<0)
+        displayPair<0
         ? 0.5
         : dominanceParam(
-            pairStates_[best].dominance);
+            displayDominance);
 
     const double confidenceValue=
-        (best<0)
+        displayPair<0
         ? 0.0
-        : pairStates_[best].confidence;
+        : useCurrent
+            ? pairStates_[best].confidence
+            : sessionFinding_.confidence;
 
     const int advice=
-        (best<0)
+        displayPair<0
         ? 0
         : adviceFor(
-            best,
-            pairStates_[best].dominantBand,
-            pairStates_[best].dominance);
+            displayPair,
+            displayBand,
+            displayDominance);
 
     const double adviceValue=
         static_cast<double>(advice)/15.0;

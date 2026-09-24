@@ -75,7 +75,7 @@
     <view class="CParamDisplay" origin="486,352" size="250,28" control-tag="DrumsGuitarBand" font-size="14" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
     <view class="CParamDisplay" origin="748,352" size="145,28" control-tag="DrumsGuitarStatus" font-size="14" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
 
-    <view class="CTextLabel" origin="20,410" size="940,28" title="TOP MASKING FINDING - CURRENT" font-size="15" font-color="#ccccccff" transparent="true"/>
+    <view class="CTextLabel" origin="20,410" size="940,28" title="PRIMARY MASKING FINDING - CURRENT OR SESSION" font-size="15" font-color="#ccccccff" transparent="true"/>
     <view class="CParamDisplay" origin="20,445" size="210,32" control-tag="TopPair" font-size="14" font-color="#ffffffff" back-color="#303030ff" frame-color="#777777ff"/>
     <view class="CParamDisplay" origin="245,445" size="90,32" control-tag="TopScore" font-size="14" font-color="#ffffffff" back-color="#303030ff" frame-color="#777777ff"/>
     <view class="CParamDisplay" origin="350,445" size="250,32" control-tag="TopBand" font-size="14" font-color="#ffffffff" back-color="#303030ff" frame-color="#777777ff"/>
@@ -87,7 +87,7 @@
     <view class="CParamDisplay" origin="245,535" size="90,32" control-tag="TopAttackScore" font-size="14" font-color="#ffffffff" back-color="#303030ff" frame-color="#777777ff"/>
     <view class="CParamDisplay" origin="350,535" size="570,32" control-tag="TopAttackAdvice" font-size="14" font-color="#ffffffff" back-color="#303030ff" frame-color="#777777ff"/>
 
-    <view class="CTextLabel" origin="20,590" size="940,28" title="STRONGEST CONFIDENT MASKING FINDING - SESSION" font-size="15" font-color="#ccccccff" transparent="true"/>
+    <view class="CTextLabel" origin="20,590" size="940,28" title="STRONGEST OBSERVED MASKING FINDING - SESSION" font-size="15" font-color="#ccccccff" transparent="true"/>
     <view class="CParamDisplay" origin="20,625" size="250,32" control-tag="SessionPair" font-size="14" font-color="#ffffffff" back-color="#262626ff" frame-color="#666666ff"/>
     <view class="CParamDisplay" origin="285,625" size="100,32" control-tag="SessionScore" font-size="14" font-color="#ffffffff" back-color="#262626ff" frame-color="#666666ff"/>
     <view class="CParamDisplay" origin="400,625" size="270,32" control-tag="SessionBand" font-size="14" font-color="#ffffffff" back-color="#262626ff" frame-color="#666666ff"/>
@@ -95,6 +95,6 @@
     <view class="CTextLabel" origin="20,680" size="940,28" title="SUGGESTED MASKING CHECK" font-size="15" font-color="#ccccccff" transparent="true"/>
     <view class="CParamDisplay" origin="20,715" size="940,38" control-tag="TopAdvice" font-size="14" font-color="#ffffffff" back-color="#303030ff" frame-color="#777777ff"/>
 
-    <view class="CTextLabel" origin="20,815" size="940,24" title="Masking and attack findings are measured independently; overlap alone is not treated as a mix error." font-size="13" font-color="#a0a0a0ff" transparent="true"/>
+    <view class="CTextLabel" origin="20,815" size="940,24" title="Scores are experimental indicators, not calibrated masking probabilities. Session findings may be historical." font-size="13" font-color="#a0a0a0ff" transparent="true"/>
   </template>
 </vstgui-ui-description>

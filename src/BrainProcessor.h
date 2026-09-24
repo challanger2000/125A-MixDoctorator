@@ -42,6 +42,7 @@ private:
         int band{0};
         double score{0.0};
         double confidence{0.0};
+        double dominance{0.0};
     };
 
     IPC::SharedMemory ipc_;
