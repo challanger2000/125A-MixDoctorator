@@ -185,6 +185,22 @@ inline int recommendationActionCode(
 constexpr int kRecommendationTargetCodeCount=
     IPC::kRoleCount+1;
 
+constexpr int kRecommendationBandCodeCount=
+    IPC::kBandCount;
+
+inline int recommendationBandCode(
+    const Recommendation& recommendation) noexcept {
+
+    if(!recommendation.valid)
+        return 0;
+
+    return
+        std::clamp(
+            recommendation.band,
+            0,
+            IPC::kBandCount-1)+1;
+}
+
 inline int recommendationTargetCode(
     const Recommendation& recommendation) noexcept {
 
