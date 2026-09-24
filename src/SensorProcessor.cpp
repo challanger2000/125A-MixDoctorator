@@ -11,6 +11,10 @@
 #include <type_traits>
 
 namespace MixDoctorator::Sensor {
+static_assert(
+    Analysis::SpectralAnalyzer::kBandCount==IPC::kBandCount,
+    "Sensor spectral band count must match IPC");
+
 using namespace Steinberg;
 using namespace Steinberg::Vst;
 

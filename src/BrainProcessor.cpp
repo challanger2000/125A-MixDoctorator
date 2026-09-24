@@ -12,6 +12,10 @@
 #include <type_traits>
 
 namespace MixDoctorator::Brain {
+static_assert(
+    Analysis::kBandCount==IPC::kBandCount,
+    "Brain masking band count must match IPC");
+
 using namespace Steinberg;
 using namespace Steinberg::Vst;
 
