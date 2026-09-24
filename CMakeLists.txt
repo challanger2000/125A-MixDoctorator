@@ -188,6 +188,29 @@ if(MIXDOCTORATOR_BUILD_TESTS)
         NAME CoachModelTests
         COMMAND CoachModelTests)
 
+
+    add_executable(RoleModelTests
+        tests/RoleModelTests.cpp)
+
+    target_compile_features(
+        RoleModelTests
+        PRIVATE cxx_std_17)
+
+    add_test(
+        NAME RoleModelTests
+        COMMAND RoleModelTests)
+
+    add_executable(RecommendationEngineTests
+        tests/RecommendationEngineTests.cpp)
+
+    target_compile_features(
+        RecommendationEngineTests
+        PRIVATE cxx_std_17)
+
+    add_test(
+        NAME RecommendationEngineTests
+        COMMAND RecommendationEngineTests)
+
     add_executable(SpscQueueTests
         tests/SpscQueueTests.cpp)
 
@@ -217,6 +240,8 @@ if(MIXDOCTORATOR_BUILD_TESTS)
         TestBuildModeTests
         AudioSafetyTests
         CoachModelTests
+        RoleModelTests
+        RecommendationEngineTests
         SpscQueueTests)
 
     foreach(test_target IN LISTS MIXDOCTORATOR_TEST_TARGETS)
