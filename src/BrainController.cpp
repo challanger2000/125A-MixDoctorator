@@ -1,5 +1,6 @@
 #include "BrainController.h"
 #include "BrainIDs.h"
+#include "RoleModel.h"
 
 #include "base/source/fstreamer.h"
 #include "pluginterfaces/base/ustring.h"
@@ -89,11 +90,13 @@ tresult PLUGIN_API Controller::initialize(FUnknown* c){
     parameters.addParameter(STR16("Top Attack Index"),STR16("%"),0,0.0,ro,kTopAttackScore);
     parameters.addParameter(STR16("Top Attack Advice"),nullptr,3,0.0,ro,kTopAttackAdvice);
 
-    parameters.addParameter(STR16("Coach Headline"),nullptr,15,0.0,ro,kCoachHeadline);
-    parameters.addParameter(STR16("Coach Action"),nullptr,15,0.0,ro,kCoachAction);
-    parameters.addParameter(STR16("Coach Listen"),nullptr,15,0.0,ro,kCoachListen);
-    parameters.addParameter(STR16("Coach Reason"),nullptr,15,0.0,ro,kCoachReason);
+    parameters.addParameter(STR16("Coach Headline"),nullptr,6,0.0,ro,kCoachHeadline);
+    parameters.addParameter(STR16("Coach Action"),nullptr,6,0.0,ro,kCoachAction);
+    parameters.addParameter(STR16("Coach Listen"),nullptr,6,0.0,ro,kCoachListen);
+    parameters.addParameter(STR16("Coach Reason"),nullptr,6,0.0,ro,kCoachReason);
     parameters.addParameter(STR16("Coach Evidence"),nullptr,3,0.0,ro,kCoachEvidence);
+    parameters.addParameter(STR16("Coach Pair"),nullptr,Analysis::kRolePairCount,0.0,ro,kCoachPair);
+    parameters.addParameter(STR16("Coach Band"),nullptr,8,0.0,ro,kCoachBand);
 
     // UIViewSwitchContainer is driven by a real controller parameter. Leaving
     // the tag unbound creates a null-parameter listener path in VST3Editor
@@ -242,7 +245,8 @@ tresult PLUGIN_API Controller::getParamStringByValue(
        id==kBassGuitarBand ||
        id==kDrumsGuitarBand ||
        id==kTopBand ||
-       id==kSessionBand){
+       id==kSessionBand ||
+       id==kCoachBand){
 
         static const char* names[9]={
             "SUB 20-80",
@@ -387,84 +391,48 @@ tresult PLUGIN_API Controller::getParamStringByValue(
                     std::lround(
                         std::clamp(
                             v,0.0,1.0)*
-                        15.0)),
+                        6.0)),
                 0,
-                15);
+                6);
 
-        static const char* headline[16]={
-            "No reliable masking problem yet",
-            "Drums and bass may be fighting for the deepest lows",
-            "Bass may be covering the drum low end",
-            "Drums and bass share too much of the low end",
-            "Drums and bass may be building up in the low-mids",
-            "Drum attack may be hiding bass definition",
-            "Bass may be too strong below the guitars",
-            "Guitars may be too heavy below the bass",
-            "Bass and guitars share too much low-end space",
-            "Bass harmonics may be masking guitar definition",
-            "Guitar top end may be masking bass articulation",
-            "Guitar low end may be crowding kick or toms",
-            "Drums may be covering guitar mids or presence",
-            "Guitars may be covering drum mids or presence",
-            "Drums and guitars may be competing for presence",
-            "Cymbals and guitars may be sharing too much top end"
+        static const char* headline[7]={
+            "No reliable mix problem yet",
+            "Two sources may be competing for low-end ownership",
+            "Low-mid buildup may be reducing separation",
+            "Midrange overlap may be blurring separation",
+            "Presence overlap may be masking definition",
+            "Upper-frequency overlap may be crowding the mix",
+            "Two sources may be competing in their attacks"
         };
 
-        static const char* action[16]={
-            "Keep the mix playing. Do not change EQ just to make a meter move.",
-            "Open the drum EQ. In the shown range, try a small 1-2 dB cut only if the bass becomes clearer.",
-            "Open the bass EQ. In the shown range, try a small 1-2 dB cut only if the kick becomes clearer.",
-            "Choose which source should own the shown range, then try a gentle 1-2 dB cut on the other source.",
-            "Compare both sources in the shown range. Start with a 1-2 dB cut on the muddier one.",
-            "Check the shown range on drums first. Reduce only enough to reveal bass definition.",
-            "Check the bass in the shown range. Try a gentle 1-2 dB cut before boosting the guitars.",
-            "Check the guitars in the shown range. Try a gentle low-cut or 1-2 dB reduction first.",
-            "Choose whether bass or guitars should lead in the shown range, then trim the other source gently.",
-            "Check bass harmonics in the shown range. Try a 1-2 dB cut before adding more guitar presence.",
-            "Do not boost the bass first. Trim the guitars slightly in the shown range and compare in the full mix.",
-            "Check the guitars first. Remove only unnecessary low end in the shown range.",
-            "Check drum or cymbal emphasis in the shown range. Try a small cut before boosting the guitars.",
-            "Check guitar bite in the shown range. Try a small cut before making the drums louder.",
-            "Choose the more important attack source, then make a small cut in the shown range on the other source.",
-            "Compare cymbals and guitars in the shown range. Reduce the harsher source by about 1-2 dB first."
+        static const char* action[7]={
+            "Keep the mix playing. Do not change anything until the finding becomes stable.",
+            "Decide which shown source should own this low range. On the other source, try a gentle cut or high-pass only if the mix improves.",
+            "Compare the two shown sources in this range. Try a small 1-2 dB cut on the muddier one first.",
+            "Choose which shown source needs to stay clearer here. Try a small 1-2 dB cut on the less important source.",
+            "Before boosting presence, try a small cut on the shown source that can give up a little definition in this range.",
+            "Compare the two shown sources and reduce the harsher or less important one by about 1-2 dB first.",
+            "Check envelope, transient emphasis, timing or gentle ducking between the two shown sources before reaching for large EQ moves."
         };
 
-        static const char* listen[16]={
+        static const char* listen[7]={
             "Wait for a stable finding. A moving value alone is not a reason to change the mix.",
-            "Keep it only if bass notes become clearer without making the drums weak.",
-            "Keep it only if the kick is easier to hear without making the bass thin.",
-            "Listen for separation and punch. If the low end loses weight, undo the change.",
+            "Listen for clearer low-end roles without losing weight or punch. Undo the change if the bottom becomes thin.",
             "Listen for less mud and clearer notes without making either source hollow.",
-            "Listen for clearer bass notes while the drums still keep their attack.",
-            "Listen for clearer guitars without losing the weight the bass should provide.",
-            "Listen for clearer bass while the guitars still sound full enough.",
-            "Listen for two distinct roles instead of one thick low-end block.",
-            "Listen for clearer guitar notes without making the bass disappear.",
-            "Listen for clearer bass articulation without making the guitars dull.",
-            "Listen for cleaner kick and tom impact while the guitars stay powerful.",
-            "Listen for clearer guitars while the drums still sound natural.",
-            "Listen for clearer drums without making the guitars lose their character.",
-            "Listen for clearer attacks. If both sources just get thinner, undo the change.",
-            "Listen for less harshness and better separation without losing useful brightness."
+            "Listen for two distinct parts instead of one blurred midrange block. Undo the change if either source loses character.",
+            "Listen for clearer definition without making the mix dull or pushing the other source too far forward.",
+            "Listen for less harshness or crowding while keeping useful brightness and air.",
+            "Listen for clearer attacks and groove. If the mix only gets weaker or unnatural, undo the change."
         };
 
-        static const char* reason[16]={
-            "No stable conflict has been measured yet.",
-            "Drums and bass overlap mainly in the deepest low range.",
-            "Bass energy is stronger than the drums in the measured low range.",
-            "Drums and bass are similarly strong in the measured low range.",
-            "Drums and bass overlap mainly in the low-mid or body range.",
-            "Drum and bass interaction is strongest around definition and attack.",
-            "Bass energy is stronger than guitar energy in the measured low range.",
-            "Guitar energy is stronger than bass energy in the measured low range.",
-            "Bass and guitars are similarly strong in the measured low range.",
-            "Bass and guitars overlap mainly through body, mids or harmonics.",
-            "Bass articulation and guitar top end overlap in the measured range.",
-            "Guitar low end overlaps with kick or tom energy.",
-            "Drum energy is stronger in the measured mid or presence range.",
-            "Guitar energy is stronger in the measured mid or presence range.",
-            "Drums and guitars are similarly strong in the measured presence range.",
-            "Cymbal and guitar energy overlap mainly in the upper range."
+        static const char* reason[7]={
+            "No sufficiently stable conflict has been measured yet.",
+            "The two shown sources overlap most strongly in the sub or bass range.",
+            "The two shown sources overlap most strongly in the low-mid or body range.",
+            "The two shown sources overlap most strongly in the midrange.",
+            "The two shown sources overlap most strongly in the presence range.",
+            "The two shown sources overlap most strongly in the treble or air range.",
+            "The measured overlap also contains sustained transient competition."
         };
 
         const char* text=
@@ -502,6 +470,50 @@ tresult PLUGIN_API Controller::getParamStringByValue(
 
         UString128 s;
         s.fromAscii(evidence[index]);
+        s.copyTo(out,128);
+        return kResultTrue;
+    }
+
+    if(id==kCoachPair){
+        const int encoded=
+            std::clamp(
+                static_cast<int>(
+                    std::lround(
+                        std::clamp(v,0.0,1.0)*
+                        static_cast<double>(
+                            Analysis::kRolePairCount))),
+                0,
+                Analysis::kRolePairCount);
+
+        if(encoded==0){
+            UString128 s;
+            s.fromAscii("NONE");
+            s.copyTo(out,128);
+            return kResultTrue;
+        }
+
+        IPC::Role first=IPC::Role::Unknown;
+        IPC::Role second=IPC::Role::Unknown;
+
+        char b[96]{};
+
+        if(Analysis::decodeRolePair(
+               encoded-1,
+               first,
+               second)){
+            std::snprintf(
+                b,sizeof(b),
+                "%s - %s",
+                Analysis::roleName(first),
+                Analysis::roleName(second));
+        }else{
+            std::snprintf(
+                b,sizeof(b),
+                "NONE");
+        }
+
+        UString128 s;
+        s.fromAscii(b);
         s.copyTo(out,128);
         return kResultTrue;
     }
