@@ -65,6 +65,38 @@ inline bool decodeRolePair(
     return false;
 }
 
+inline int roleDisplayRank(IPC::Role role) noexcept {
+    switch(role){
+        case IPC::Role::Kick: return 10;
+        case IPC::Role::Bass: return 20;
+        case IPC::Role::Snare: return 30;
+        case IPC::Role::Toms: return 40;
+        case IPC::Role::Drums: return 50;
+        case IPC::Role::Cymbals: return 60;
+        case IPC::Role::Percussion: return 70;
+        case IPC::Role::ElectricGuitar: return 80;
+        case IPC::Role::AcousticGuitar: return 90;
+        case IPC::Role::LeadVocal: return 100;
+        case IPC::Role::BackingVocal: return 110;
+        case IPC::Role::PianoKeys: return 120;
+        case IPC::Role::Synth: return 130;
+        case IPC::Role::Pad: return 140;
+        default: return 1000;
+    }
+}
+
+inline void orderRolePairForDisplay(
+    IPC::Role& first,
+    IPC::Role& second) noexcept {
+
+    if(roleDisplayRank(second)<
+       roleDisplayRank(first)){
+        const auto tmp=first;
+        first=second;
+        second=tmp;
+    }
+}
+
 inline const char* roleName(IPC::Role role) noexcept {
     switch(role){
         case IPC::Role::Drums: return "DRUMS";
