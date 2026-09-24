@@ -28,8 +28,8 @@ tresult PLUGIN_API Controller::initialize(FUnknown* c){
     role->appendString(STR16("Becken / Hi-Hat"));
     role->appendString(STR16("Percussion"));
     role->appendString(STR16("Akustikgitarre"));
-    role->appendString(STR16("Lead-Gesang"));
-    role->appendString(STR16("Backing-Gesang"));
+    role->appendString(STR16("Hauptgesang"));
+    role->appendString(STR16("Hintergrundgesang"));
     role->appendString(STR16("Piano / Keys"));
     role->appendString(STR16("Synth"));
     role->appendString(STR16("Pad"));
