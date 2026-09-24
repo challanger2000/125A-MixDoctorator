@@ -171,13 +171,25 @@ inline int recommendationActionCode(
     return static_cast<int>(context);
 }
 
+inline int recommendationActionCode(
+    const Recommendation& recommendation) noexcept {
+
+    if(!recommendation.valid ||
+       recommendation.confidence<0.30)
+        return 0;
+
+    return recommendationActionCode(
+        recommendation.context);
+}
+
 constexpr int kRecommendationTargetCodeCount=
     IPC::kRoleCount+1;
 
 inline int recommendationTargetCode(
     const Recommendation& recommendation) noexcept {
 
-    if(!recommendation.valid)
+    if(!recommendation.valid ||
+       recommendation.confidence<0.30)
         return 0;
 
     if(recommendation.adjustRole==
