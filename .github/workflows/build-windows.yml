@@ -45,6 +45,12 @@ jobs:
       - name: Report Coach performance measurement
         run: ctest --test-dir build -C Release -R CoachPerformanceTests -V
 
+      - name: Report spectral accuracy measurements
+        run: ctest --test-dir build -C Release -R SpectralSampleRateTests -V
+
+      - name: Report spectral realtime measurement
+        run: ctest --test-dir build -C Release -R SpectralRealtimeTests -V
+
       - name: Run Steinberg VST3 validator
         shell: pwsh
         run: |
