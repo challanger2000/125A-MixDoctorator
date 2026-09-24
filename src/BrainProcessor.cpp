@@ -10,6 +10,7 @@
 #include "PrimaryFinding.h"
 #include "AudioSafety.h"
 #include "CoachModel.h"
+#include "CoachMaskingModel.h"
 #include "RecommendationEngine.h"
 #include "FindingRanking.h"
 #include "PairUpdateRates.h"
@@ -369,6 +370,7 @@ void Processor::updatePair(
     const IPC::Snapshot& b,
     PairState& state,
     const Analysis::PairUpdateRates& rates,
+    bool coachMasking,
     int32 numSamples,
     std::int64_t currentSamplePosition) noexcept{
 
@@ -400,7 +402,15 @@ void Processor::updatePair(
                 state.observedSeconds+dt);
 
         const auto metrics=
-            Analysis::evaluatePair(
+            coachMasking
+            ? Analysis::evaluateCoachMasking(
+                a.rmsDb,
+                a.activity,
+                a.bands,
+                b.rmsDb,
+                b.activity,
+                b.bands)
+            : Analysis::evaluatePair(
                 a.rmsDb,
                 a.activity,
                 a.bands,
@@ -940,6 +950,7 @@ tresult PLUGIN_API Processor::process(
             drums,bass,
             pairStates_[0],
             pairRates,
+            false,
             data.numSamples,
             currentSamplePosition);
 
@@ -947,6 +958,7 @@ tresult PLUGIN_API Processor::process(
             bass,guitar,
             pairStates_[1],
             pairRates,
+            false,
             data.numSamples,
             currentSamplePosition);
 
@@ -954,6 +966,7 @@ tresult PLUGIN_API Processor::process(
             drums,guitar,
             pairStates_[2],
             pairRates,
+            false,
             data.numSamples,
             currentSamplePosition);
 
@@ -1015,6 +1028,7 @@ tresult PLUGIN_API Processor::process(
                     latestIpc_.roles[b],
                     state,
                     pairRates,
+                    true,
                     data.numSamples,
                     currentSamplePosition);
             }
