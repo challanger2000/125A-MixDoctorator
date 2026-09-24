@@ -100,6 +100,8 @@ tresult PLUGIN_API Controller::initialize(FUnknown* c){
     parameters.addParameter(STR16("Coach Target"),nullptr,IPC::kRoleCount,0.0,ro,kCoachTarget);
     parameters.addParameter(STR16("Coach Attack Pair"),nullptr,Analysis::kRolePairCount,0.0,ro,kCoachAttackPair);
     parameters.addParameter(STR16("Coach Attack Advice"),nullptr,1,0.0,ro,kCoachAttackAdvice);
+    parameters.addParameter(STR16("All Sensor Count"),nullptr,0,0.0,ro,kAllSensorCount);
+    parameters.addParameter(STR16("All Role Count"),nullptr,0,0.0,ro,kAllRoleCount);
 
     // UIViewSwitchContainer is driven by a real controller parameter. Leaving
     // the tag unbound creates a null-parameter listener path in VST3Editor
@@ -165,6 +167,36 @@ tresult PLUGIN_API Controller::getParamStringByValue(
             v>=0.5
             ? "VERBUNDEN"
             : "OFFLINE");
+        s.copyTo(out,128);
+        return kResultTrue;
+    }
+
+    if(id==kAllSensorCount ||
+       id==kAllRoleCount){
+
+        const int maximum=
+            id==kAllSensorCount
+            ? IPC::kSensorSlotCount
+            : IPC::kRoleCount;
+
+        const int count=
+            std::clamp(
+                static_cast<int>(
+                    std::lround(
+                        std::clamp(v,0.0,1.0)*
+                        static_cast<double>(
+                            maximum))),
+                0,
+                maximum);
+
+        char b[32]{};
+        std::snprintf(
+            b,sizeof(b),
+            "%d",
+            count);
+
+        UString128 s;
+        s.fromAscii(b);
         s.copyTo(out,128);
         return kResultTrue;
     }
