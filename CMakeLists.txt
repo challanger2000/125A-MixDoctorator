@@ -23,6 +23,17 @@ option(MIXDOCTORATOR_BUILD_TESTS "Build lightweight analysis tests" OFF)
 if(MIXDOCTORATOR_BUILD_TESTS)
     enable_testing()
 
+    add_executable(NeighborMaskingModelTests
+        tests/NeighborMaskingModelTests.cpp)
+
+    target_compile_features(
+        NeighborMaskingModelTests
+        PRIVATE cxx_std_17)
+
+    add_test(
+        NAME NeighborMaskingModelTests
+        COMMAND NeighborMaskingModelTests)
+
     add_executable(MaskingSweepTests
         tests/MaskingSweepTests.cpp)
 
@@ -291,6 +302,7 @@ if(MIXDOCTORATOR_BUILD_TESTS)
     # CI builds tests in Release. Keep assert()-based regression checks active;
     # otherwise NDEBUG would compile most existing test assertions away.
     set(MIXDOCTORATOR_TEST_TARGETS
+        NeighborMaskingModelTests
         MaskingSweepTests
         MaskingModelTests
         SpectralAnalyzerTests
