@@ -452,7 +452,7 @@ tresult PLUGIN_API Controller::getParamStringByValue(
 
         static const char* action[7]={
             "Mix weiterlaufen lassen. Erst etwas aendern, wenn der Hinweis stabil wird.",
-            "Beide Quellen im gezeigten Bereich vergleichen. Bei der stoerenderen Quelle vorsichtig Platz schaffen und im Mix gegenhoeren.",
+            "Beide Quellen im Bereich vergleichen. Bei der stoerenderen Quelle vorsichtig Platz schaffen und im Mix gegenhoeren.",
             "Kick und Bass getrennt beurteilen. Festlegen, wer die Tiefe traegt; bei der anderen Quelle vorsichtig Platz schaffen.",
             "Gesang als Bezugspunkt. Bei Synth, Keys, Pad oder Gitarre pruefen, ob eine kleine Absenkung die Stimme klaert.",
             "Becken nicht automatisch dumpf machen. Erst pruefen, ob Gitarre, Synth oder Keys im Hoehenbereich etwas Platz abgeben.",
