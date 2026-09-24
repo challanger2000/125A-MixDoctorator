@@ -44,7 +44,11 @@ enum ParamID : Steinberg::Vst::ParamID {
 
     kSessionPair,
     kSessionScore,
-    kSessionBand
+    kSessionBand,
+
+    kDrumsTransient,
+    kBassTransient,
+    kGuitarTransient
 };
 
 } // namespace MixDoctorator::Brain

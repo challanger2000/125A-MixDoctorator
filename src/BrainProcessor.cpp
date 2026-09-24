@@ -759,6 +759,30 @@ tresult PLUGIN_API Processor::process(
     publishParam(data,kSessionScore,sessionScore,25);
     publishParam(data,kSessionBand,sessionBand,26);
 
+    publishParam(
+        data,
+        kDrumsTransient,
+        drumsOk
+            ? std::clamp(drums.transient,0.0,1.0)
+            : 0.0,
+        27);
+
+    publishParam(
+        data,
+        kBassTransient,
+        bassOk
+            ? std::clamp(bass.transient,0.0,1.0)
+            : 0.0,
+        28);
+
+    publishParam(
+        data,
+        kGuitarTransient,
+        guitarOk
+            ? std::clamp(guitar.transient,0.0,1.0)
+            : 0.0,
+        29);
+
     return kResultOk;
 }
 

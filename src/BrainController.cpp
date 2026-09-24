@@ -73,6 +73,10 @@ tresult PLUGIN_API Controller::initialize(FUnknown* c){
     parameters.addParameter(STR16("Session Masking Risk"),STR16("%"),0,0.0,ro,kSessionScore);
     parameters.addParameter(STR16("Session Band"),nullptr,8,0.0,ro,kSessionBand);
 
+    parameters.addParameter(STR16("Drums Transient"),STR16("%"),0,0.0,ro,kDrumsTransient);
+    parameters.addParameter(STR16("Bass Transient"),STR16("%"),0,0.0,ro,kBassTransient);
+    parameters.addParameter(STR16("Guitar Transient"),STR16("%"),0,0.0,ro,kGuitarTransient);
+
     return kResultOk;
 }
 
@@ -158,7 +162,10 @@ tresult PLUGIN_API Controller::getParamStringByValue(
        id==kDrumsGuitarMasking ||
        id==kTopScore ||
        id==kTopConfidence ||
-       id==kSessionScore){
+       id==kSessionScore ||
+       id==kDrumsTransient ||
+       id==kBassTransient ||
+       id==kGuitarTransient){
 
         char b[32]{};
         std::snprintf(

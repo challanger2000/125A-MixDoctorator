@@ -52,12 +52,13 @@ private:
     bool wasPlaying_{false};
     std::int64_t lastProjectSample_{-1};
 
-    double last_[27]{
+    double last_[30]{
         -1,-1,-1,-1,-1,-1,
         -1,-1,-1,-1,
         -1,-1,-1,-1,
         -1,-1,-1,-1,
         -1,-1,-1,-1,-1,-1,
+        -1,-1,-1,
         -1,-1,-1
     };
 
