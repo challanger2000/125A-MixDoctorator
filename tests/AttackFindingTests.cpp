@@ -2,8 +2,10 @@
 
 #include <cassert>
 #include <iostream>
+#include <limits>
 
 using MixDoctorator::Analysis::chooseAttackFinding;
+using MixDoctorator::Analysis::chooseAttackFindingCount;
 
 int main(){
     {
@@ -42,6 +44,54 @@ int main(){
                 observed);
 
         assert(finding.pair==1);
+    }
+
+    {
+        const double scores[5]{
+            0.10,0.75,0.40,0.90,0.65
+        };
+        const double observed[5]{
+            10.0,10.0,10.0,0.5,10.0
+        };
+
+        const auto finding=
+            chooseAttackFindingCount(
+                scores,
+                observed,
+                5,
+                0.30,
+                2.0);
+
+        assert(finding.pair==1);
+        assert(finding.score>0.74);
+    }
+
+    {
+        const double nan=
+            std::numeric_limits<double>::
+            quiet_NaN();
+
+        const double inf=
+            std::numeric_limits<double>::
+            infinity();
+
+        const double scores[4]{
+            nan,inf,0.45,0.30
+        };
+        const double observed[4]{
+            10.0,10.0,nan,10.0
+        };
+
+        const auto finding=
+            chooseAttackFindingCount(
+                scores,
+                observed,
+                4,
+                0.22,
+                2.0);
+
+        assert(finding.pair==3);
+        assert(finding.score==0.30);
     }
 
     std::cout
