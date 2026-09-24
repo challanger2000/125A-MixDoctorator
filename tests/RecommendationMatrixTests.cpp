@@ -10,6 +10,7 @@ int main(){
     using namespace MixDoctorator::Analysis;
 
     int checked=0;
+    int suppressed=0;
 
     for(int a=0;a<IPC::kRoleCount;++a){
         for(int b=a+1;b<IPC::kRoleCount;++b){
@@ -27,10 +28,21 @@ int main(){
             assert(decodedA==first);
             assert(decodedB==second);
 
+            const bool comparable=
+                rolesComparableForCoach(
+                    first,
+                    second);
+
             for(int band=0;band<IPC::kBandCount;++band){
                 const auto normal=makeRecommendation(
                     first,second,band,
                     0.35,0.70,0.15,0.10);
+
+                if(!comparable){
+                    assert(!normal.valid);
+                    ++suppressed;
+                    continue;
+                }
 
                 assert(normal.valid);
                 assert(normal.band==band);
@@ -75,8 +87,10 @@ int main(){
         }
     }
 
-    assert(checked==kRolePairCount*IPC::kBandCount);
-    assert(checked==819);
+    assert(checked==86*IPC::kBandCount);
+    assert(checked==774);
+    assert(suppressed==5*IPC::kBandCount);
+    assert(suppressed==45);
 
     auto invalid=makeRecommendation(
         IPC::Role::Unknown,
@@ -124,7 +138,9 @@ int main(){
     std::cout
         << "Recommendation matrix tests passed: "
         << checked
-        << " role/band combinations\n";
+        << " valid role/band combinations, "
+        << suppressed
+        << " hierarchical comparisons suppressed\n";
 
     return 0;
 }
