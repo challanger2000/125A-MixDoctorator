@@ -21,6 +21,9 @@ jobs:
       - name: Check Release assert target coverage
         run: python tests/check_release_assert_targets.py
 
+      - name: Check Brain publication slot consistency
+        run: python tests/check_publish_slots.py
+
       - name: Configure
         run: cmake -S . -B build -G "Visual Studio 17 2022" -A x64 -DMIXDOCTORATOR_BUILD_TESTS=ON -DMIXDOCTORATOR_BUILD_VALIDATOR=ON
 
