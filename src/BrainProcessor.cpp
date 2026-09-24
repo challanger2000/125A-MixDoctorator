@@ -160,20 +160,12 @@ void Processor::ipcWorkerLoop() noexcept{
         response.samplePosition=
             newest.samplePosition;
 
-        for(int i=0;i<IPC::kRoleCount;++i){
-            const auto role=
-                Analysis::roleFromIndex(i);
-
-            response.roleOk[i]=
-                readRoleAggregate(
-                    response.session,
-                    role,
-                    newest.samplePosition,
-                    newest.numSamples,
-                    nowMs,
-                    response.roles[i],
-                    response.roleCount[i]);
-        }
+        readAllRoleAggregates(
+            response.session,
+            newest.samplePosition,
+            newest.numSamples,
+            nowMs,
+            response);
 
         response.drums=
             response.roles[
@@ -329,21 +321,29 @@ void Processor::publishParam(
         last_[slot]=v;
 }
 
-bool Processor::readRoleAggregate(
+void Processor::readAllRoleAggregates(
     int session,
-    IPC::Role role,
     std::int64_t currentSamplePosition,
     int32 numSamples,
     std::uint64_t nowMs,
-    IPC::Snapshot& out,
-    int& connectedCount) noexcept{
+    IpcResponse& response) noexcept {
 
-    Analysis::RoleAggregate aggregate;
-    aggregate.reset();
+    Analysis::RoleAggregate aggregates[
+        IPC::kRoleCount];
 
-    std::uint64_t freshestHeartbeat=0;
-    connectedCount=0;
+    std::uint64_t freshest[
+        IPC::kRoleCount]{};
 
+    for(int i=0;i<IPC::kRoleCount;++i){
+        aggregates[i].reset();
+        response.roleOk[i]=false;
+        response.roleCount[i]=0;
+        response.roles[i]=IPC::Snapshot{};
+    }
+
+    // Read each shared-memory slot once, then route the coherent snapshot to
+    // its role aggregate. This avoids scanning all 24 slots separately for
+    // every one of the 14 roles.
     for(int slot=0;
         slot<IPC::kSensorSlotCount;
         ++slot){
@@ -357,11 +357,18 @@ bool Processor::readRoleAggregate(
                nowMs))
             continue;
 
-        if(!source.connected ||
-           source.role!=role)
+        if(!source.connected)
             continue;
 
-        ++connectedCount;
+        const int roleIndex=
+            Analysis::roleToIndex(
+                source.role);
+
+        if(roleIndex<0 ||
+           roleIndex>=IPC::kRoleCount)
+            continue;
+
+        ++response.roleCount[roleIndex];
 
         if(!Analysis::samplePositionsCoherent(
                currentSamplePosition,
@@ -370,52 +377,50 @@ bool Processor::readRoleAggregate(
                numSamples))
             continue;
 
-        aggregate.add(
+        aggregates[roleIndex].add(
             source.rmsDb,
             source.peakDb,
             source.activity,
             source.transient,
             source.bands);
 
-        freshestHeartbeat=
+        freshest[roleIndex]=
             std::max(
-                freshestHeartbeat,
+                freshest[roleIndex],
                 source.heartbeatMs);
     }
 
-    const auto result=
-        aggregate.result();
+    for(int i=0;i<IPC::kRoleCount;++i){
+        const auto result=
+            aggregates[i].result();
 
-    if(!result.valid)
-        return false;
+        if(!result.valid)
+            continue;
 
-    out=IPC::Snapshot{};
-    out.role=role;
-    out.connected=true;
-    out.heartbeatMs=
-        freshestHeartbeat;
-    out.samplePosition=
-        currentSamplePosition;
-    out.rmsDb=
-        result.rmsDb;
-    out.peakDb=
-        result.peakDb;
-    out.activity=
-        result.activity;
-    out.transient=
-        result.transient;
-    // COUNT represents live Sensor instances of this role, not only
-    // the subset whose most recent block is sample-position coherent.
-    out.aggregateCount=
-        connectedCount;
+        auto& out=response.roles[i];
 
-    for(int i=0;
-        i<IPC::kBandCount;
-        ++i)
-        out.bands[i]=
-            result.bands[i];
+        out=IPC::Snapshot{};
+        out.role=
+            Analysis::roleFromIndex(i);
+        out.connected=true;
+        out.heartbeatMs=freshest[i];
+        out.samplePosition=
+            currentSamplePosition;
+        out.rmsDb=result.rmsDb;
+        out.peakDb=result.peakDb;
+        out.activity=result.activity;
+        out.transient=result.transient;
+        out.aggregateCount=
+            response.roleCount[i];
 
-    return true;
+        for(int band=0;
+            band<IPC::kBandCount;
+            ++band)
+            out.bands[band]=
+                result.bands[band];
+
+        response.roleOk[i]=true;
+    }
 }
 
 void Processor::updatePair(
