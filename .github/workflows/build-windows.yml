@@ -39,6 +39,9 @@ jobs:
       - name: Run analysis tests
         run: ctest --test-dir build -C Release --output-on-failure
 
+      - name: Report Coach performance measurement
+        run: ctest --test-dir build -C Release -R CoachPerformanceTests -V
+
       - name: Run Steinberg VST3 validator
         shell: pwsh
         run: |
