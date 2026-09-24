@@ -321,6 +321,17 @@ if(MIXDOCTORATOR_BUILD_TESTS)
         NAME RecommendationMatrixTests
         COMMAND RecommendationMatrixTests)
 
+    add_executable(CoachPerformanceTests
+        tests/CoachPerformanceTests.cpp)
+
+    target_compile_features(
+        CoachPerformanceTests
+        PRIVATE cxx_std_17)
+
+    add_test(
+        NAME CoachPerformanceTests
+        COMMAND CoachPerformanceTests)
+
     add_executable(SpscQueueTests
         tests/SpscQueueTests.cpp)
 
@@ -362,6 +373,7 @@ if(MIXDOCTORATOR_BUILD_TESTS)
         RecommendationScenarioTests
         CoachMaskingModelTests
         RecommendationMatrixTests
+        CoachPerformanceTests
         SpscQueueTests)
 
     foreach(test_target IN LISTS MIXDOCTORATOR_TEST_TARGETS)
