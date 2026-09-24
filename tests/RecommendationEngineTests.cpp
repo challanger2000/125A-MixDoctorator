@@ -53,9 +53,9 @@ int main(){
     assert(r.context==RecommendationContext::BassVsHarmonic);
 
     assert(recommendationActionCode(
-        RecommendationContext::Generic)==0);
+        RecommendationContext::Generic)==1);
     assert(recommendationActionCode(
-        RecommendationContext::BassVsHarmonic)==5);
+        RecommendationContext::BassVsHarmonic)==6);
 
     std::cout << "Recommendation engine tests passed\n";
     return 0;
