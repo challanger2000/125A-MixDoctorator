@@ -261,12 +261,6 @@ private:
             bin<=kFftSize/2;
             ++bin){
 
-            const double hz=
-                static_cast<double>(bin)*
-                sampleRate_/
-                static_cast<double>(
-                    kFftSize);
-
             const double power=
                 std::norm(
                     fft_[bin]);
