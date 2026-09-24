@@ -72,6 +72,8 @@ enum ParamID : Steinberg::Vst::ParamID {
     kCoachTarget,
     kCoachAttackPair,
     kCoachAttackAdvice,
+    kAllSensorCount,
+    kAllRoleCount,
 
     // Controller/UI-only parameter used by the details toggle.
     kViewMode=9000
