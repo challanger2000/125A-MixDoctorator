@@ -17,7 +17,8 @@ enum class RecommendationKind {
 };
 
 enum class RecommendationContext {
-    Generic=0,
+    None=0,
+    Generic,
     KickBass,
     VocalVsHarmonic,
     CymbalVsHarmonic,
@@ -28,7 +29,7 @@ enum class RecommendationContext {
 struct Recommendation {
     bool valid{false};
     RecommendationKind kind{RecommendationKind::None};
-    RecommendationContext context{RecommendationContext::Generic};
+    RecommendationContext context{RecommendationContext::None};
     IPC::Role first{IPC::Role::Unknown};
     IPC::Role second{IPC::Role::Unknown};
     int band{0};
