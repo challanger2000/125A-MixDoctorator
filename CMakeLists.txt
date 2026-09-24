@@ -76,4 +76,15 @@ if(MIXDOCTORATOR_BUILD_TESTS)
     add_test(
         NAME RoleAggregateTests
         COMMAND RoleAggregateTests)
+
+    add_executable(IPCModelTests
+        tests/IPCModelTests.cpp)
+
+    target_compile_features(
+        IPCModelTests
+        PRIVATE cxx_std_17)
+
+    add_test(
+        NAME IPCModelTests
+        COMMAND IPCModelTests)
 endif()
