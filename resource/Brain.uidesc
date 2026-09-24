@@ -17,6 +17,7 @@
     <control-tag name="CoachHeadline" tag="239"/><control-tag name="CoachAction" tag="240"/><control-tag name="CoachListen" tag="241"/>
     <control-tag name="CoachReason" tag="242"/><control-tag name="CoachEvidence" tag="243"/>
     <control-tag name="CoachPair" tag="244"/><control-tag name="CoachBand" tag="245"/>
+    <control-tag name="CoachAttackPair" tag="246"/><control-tag name="CoachAttackAdvice" tag="247"/>
     <control-tag name="ViewMode" tag="9000"/>
   </control-tags>
 
@@ -25,22 +26,22 @@
     <view class="CTextLabel" origin="690,18" size="75,24" title="SESSION" font-size="12" font-color="#a0a0a0ff" transparent="true"/>
     <view class="COptionMenu" origin="775,14" size="120,32" control-tag="Session" font-size="14" back-color="#303030ff" font-color="#ffffffff" frame-color="#777777ff"/>
 
-    <view class="CTextLabel" origin="20,62" size="90,22" title="DRUMS" font-size="13" font-color="#ccccccff" transparent="true"/>
+    <view class="CTextLabel" origin="20,62" size="90,22" title="DETAIL DRUMS" font-size="11" font-color="#ccccccff" transparent="true"/>
     <view class="CParamDisplay" origin="105,58" size="120,30" control-tag="DrumsConnected" font-size="13" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
     <view class="CTextLabel" origin="235,62" size="45,22" title="x" font-size="13" font-color="#888888ff" transparent="true"/>
     <view class="CParamDisplay" origin="252,58" size="45,30" control-tag="DrumsCount" font-size="13" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
 
-    <view class="CTextLabel" origin="330,62" size="70,22" title="BASS" font-size="13" font-color="#ccccccff" transparent="true"/>
+    <view class="CTextLabel" origin="330,62" size="70,22" title="DETAIL BASS" font-size="11" font-color="#ccccccff" transparent="true"/>
     <view class="CParamDisplay" origin="395,58" size="120,30" control-tag="BassConnected" font-size="13" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
     <view class="CTextLabel" origin="525,62" size="45,22" title="x" font-size="13" font-color="#888888ff" transparent="true"/>
     <view class="CParamDisplay" origin="542,58" size="45,30" control-tag="BassCount" font-size="13" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
 
-    <view class="CTextLabel" origin="620,62" size="90,22" title="E-GUITAR" font-size="13" font-color="#ccccccff" transparent="true"/>
+    <view class="CTextLabel" origin="620,62" size="90,22" title="DETAIL E-GUITAR" font-size="11" font-color="#ccccccff" transparent="true"/>
     <view class="CParamDisplay" origin="705,58" size="120,30" control-tag="GuitarConnected" font-size="13" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
     <view class="CTextLabel" origin="835,62" size="45,22" title="x" font-size="13" font-color="#888888ff" transparent="true"/>
     <view class="CParamDisplay" origin="852,58" size="45,30" control-tag="GuitarCount" font-size="13" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
 
-    <view class="CTextLabel" origin="20,108" size="520,24" title="COACH VIEW: clear next steps. DETAILS: full measurements." font-size="12" font-color="#888888ff" transparent="true"/>
+    <view class="CTextLabel" origin="20,108" size="520,24" title="STATUS ABOVE: fixed detail roles only. COACH BELOW: all configured roles." font-size="12" font-color="#888888ff" transparent="true"/>
     <view class="CTextButton" origin="720,100" size="240,36" title="SHOW / HIDE DETAILS" control-tag="ViewMode" kick-style="false" font-size="13" text-color="#ffffffff" text-color-highlighted="#ffffffff" frame-color="#666666ff" frame-color-highlighted="#aaaaaaff" round-radius="5" frame-width="1"/>
 
     <view class="UIViewSwitchContainer" origin="20,150" size="940,700" template-names="CoachView,TechnicalView" template-switch-control="ViewMode" animation-style="fade" animation-time="100"/>
@@ -70,12 +71,12 @@
     <view class="CMultiLineTextLabel" origin="0,498" size="940,64" title="Undo the change. A measured overlap is not automatically a mix problem, and MixDoctorator should never replace listening." font-size="15" font-color="#ffffffff" back-color="#252525ff" frame-color="#555555ff" line-layout="wrap" vertical-centered="true"/>
 
     <view class="CTextLabel" origin="0,590" size="940,22" title="SECONDARY CHECK: ATTACK / TRANSIENT SPACE" font-size="12" font-color="#888888ff" transparent="true"/>
-    <view class="CParamDisplay" origin="0,618" size="220,34" control-tag="TopAttackPair" font-size="13" font-color="#ffffffff" back-color="#202020ff" frame-color="#555555ff"/>
-    <view class="CParamDisplay" origin="232,618" size="708,34" control-tag="TopAttackAdvice" font-size="13" font-color="#ffffffff" back-color="#202020ff" frame-color="#555555ff"/>
+    <view class="CParamDisplay" origin="0,618" size="300,34" control-tag="CoachAttackPair" font-size="13" font-color="#ffffffff" back-color="#202020ff" frame-color="#555555ff"/>
+    <view class="CParamDisplay" origin="312,618" size="628,34" control-tag="CoachAttackAdvice" font-size="13" font-color="#ffffffff" back-color="#202020ff" frame-color="#555555ff"/>
   </template>
 
   <template name="TechnicalView" class="CViewContainer" origin="0,0" size="940,700" background-color="#171717ff">
-    <view class="CTextLabel" origin="0,4" size="940,24" title="TECHNICAL MEASUREMENTS" font-size="16" font-color="#ccccccff" transparent="true"/>
+    <view class="CTextLabel" origin="0,4" size="940,24" title="TECHNICAL DETAIL: DRUMS / BASS / E-GUITAR" font-size="16" font-color="#ccccccff" transparent="true"/>
 
     <view class="CTextLabel" origin="0,36" size="125,20" title="SOURCE" font-size="11" font-color="#888888ff" transparent="true"/>
     <view class="CTextLabel" origin="140,36" size="125,20" title="LEVEL" font-size="11" font-color="#888888ff" transparent="true"/>
