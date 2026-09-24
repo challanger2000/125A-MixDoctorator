@@ -173,12 +173,14 @@ bool Processor::readRoleAggregate(
     IPC::Role role,
     std::int64_t currentSamplePosition,
     int32 numSamples,
-    IPC::Snapshot& out) noexcept{
+    IPC::Snapshot& out,
+    int& connectedCount) noexcept{
 
     Analysis::RoleAggregate aggregate;
     aggregate.reset();
 
     std::uint64_t freshestHeartbeat=0;
+    connectedCount=0;
 
     for(int slot=0;
         slot<IPC::kSensorSlotCount;
@@ -195,6 +197,8 @@ bool Processor::readRoleAggregate(
         if(!source.connected ||
            source.role!=role)
             continue;
+
+        ++connectedCount;
 
         if(!Analysis::samplePositionsCoherent(
                currentSamplePosition,
@@ -237,8 +241,10 @@ bool Processor::readRoleAggregate(
         result.activity;
     out.transient=
         result.transient;
+    // COUNT represents live Sensor instances of this role, not only
+    // the subset whose most recent block is sample-position coherent.
     out.aggregateCount=
-        result.count;
+        connectedCount;
 
     for(int i=0;
         i<IPC::kBandCount;
@@ -701,27 +707,33 @@ tresult PLUGIN_API Processor::process(
             currentSamplePosition;
 
     IPC::Snapshot drums,bass,guitar;
+    int drumsCount=0;
+    int bassCount=0;
+    int guitarCount=0;
 
     const bool drumsOk=
         readRoleAggregate(
             IPC::Role::Drums,
             currentSamplePosition,
             data.numSamples,
-            drums);
+            drums,
+            drumsCount);
 
     const bool bassOk=
         readRoleAggregate(
             IPC::Role::Bass,
             currentSamplePosition,
             data.numSamples,
-            bass);
+            bass,
+            bassCount);
 
     const bool guitarOk=
         readRoleAggregate(
             IPC::Role::ElectricGuitar,
             currentSamplePosition,
             data.numSamples,
-            guitar);
+            guitar,
+            guitarCount);
 
     auto level=[](
         const IPC::Snapshot& s,
@@ -738,27 +750,27 @@ tresult PLUGIN_API Processor::process(
     publishParam(
         data,
         kDrumsConnected,
-        drumsOk?1.0:0.0,
+        drumsCount>0?1.0:0.0,
         0);
 
     publishParam(
         data,
         kBassConnected,
-        bassOk?1.0:0.0,
+        bassCount>0?1.0:0.0,
         2);
 
     publishParam(
         data,
         kGuitarConnected,
-        guitarOk?1.0:0.0,
+        guitarCount>0?1.0:0.0,
         4);
 
     publishParam(
         data,
         kDrumsCount,
-        drumsOk
+        drumsCount>0
             ? std::clamp(
-                static_cast<double>(drums.aggregateCount)/
+                static_cast<double>(drumsCount)/
                 static_cast<double>(IPC::kSensorSlotCount),
                 0.0,
                 1.0)
@@ -768,9 +780,9 @@ tresult PLUGIN_API Processor::process(
     publishParam(
         data,
         kBassCount,
-        bassOk
+        bassCount>0
             ? std::clamp(
-                static_cast<double>(bass.aggregateCount)/
+                static_cast<double>(bassCount)/
                 static_cast<double>(IPC::kSensorSlotCount),
                 0.0,
                 1.0)
@@ -780,9 +792,9 @@ tresult PLUGIN_API Processor::process(
     publishParam(
         data,
         kGuitarCount,
-        guitarOk
+        guitarCount>0
             ? std::clamp(
-                static_cast<double>(guitar.aggregateCount)/
+                static_cast<double>(guitarCount)/
                 static_cast<double>(IPC::kSensorSlotCount),
                 0.0,
                 1.0)

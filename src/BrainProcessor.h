@@ -77,7 +77,8 @@ private:
         IPC::Role,
         std::int64_t,
         Steinberg::int32,
-        IPC::Snapshot&) noexcept;
+        IPC::Snapshot&,
+        int&) noexcept;
 
     void updatePair(
         const IPC::Snapshot&,
