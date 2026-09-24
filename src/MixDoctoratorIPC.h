@@ -189,8 +189,9 @@ public:
         const double* bands) noexcept {
 
 #ifdef _WIN32
-        if(!block_ &&
-           !open())
+        // Real-time path: never create/map OS resources here.
+        // initialize() must have opened the shared block already.
+        if(!block_)
             return false;
 
         const int idx=
@@ -257,8 +258,9 @@ public:
         Snapshot& out) noexcept {
 
 #ifdef _WIN32
-        if(!block_ &&
-           !open())
+        // Real-time path: never create/map OS resources here.
+        // initialize() must have opened the shared block already.
+        if(!block_)
             return false;
 
         const int idx=
