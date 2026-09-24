@@ -96,6 +96,7 @@ int main(){
     Recommendation noAction;
     assert(recommendationTargetCode(noAction)==0);
     assert(recommendationActionCode(noAction)==0);
+    assert(recommendationBandCode(noAction)==0);
 
     auto earlyHint=makeRecommendation(
         IPC::Role::LeadVocal,
@@ -113,6 +114,7 @@ int main(){
     assert(compareBoth.valid);
     assert(compareBoth.adjustRole==IPC::Role::Unknown);
     assert(recommendationTargetCode(compareBoth)==1);
+    assert(recommendationBandCode(compareBoth)==2);
     assert(recommendationActionCode(compareBoth)==
            recommendationActionCode(
                RecommendationContext::KickBass));
@@ -123,6 +125,7 @@ int main(){
         6,0.40,0.70,0.0,0.0);
     assert(targeted.valid);
     assert(targeted.adjustRole==IPC::Role::Synth);
+    assert(recommendationBandCode(targeted)==7);
     assert(recommendationTargetCode(targeted)==
            static_cast<int>(IPC::Role::Synth)+1);
 
