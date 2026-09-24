@@ -2,6 +2,7 @@
 #include "MixDoctoratorIPC.h"
 #include "RoleModel.h"
 #include <algorithm>
+#include <cmath>
 
 namespace MixDoctorator::Analysis {
 
@@ -39,9 +40,30 @@ inline Recommendation makeRecommendation(
     out.first=first;
     out.second=second;
     out.band=std::clamp(band,0,IPC::kBandCount-1);
-    out.score=std::clamp(masking,0.0,1.0);
-    out.confidence=std::clamp(confidence,0.0,1.0);
-    out.dominance=std::clamp(dominance,-1.0,1.0);
+
+    const double safeMasking=
+        std::isfinite(masking)
+        ? masking
+        : 0.0;
+
+    const double safeConfidence=
+        std::isfinite(confidence)
+        ? confidence
+        : 0.0;
+
+    const double safeDominance=
+        std::isfinite(dominance)
+        ? dominance
+        : 0.0;
+
+    const double safeTransientCompetition=
+        std::isfinite(transientCompetition)
+        ? transientCompetition
+        : 0.0;
+
+    out.score=std::clamp(safeMasking,0.0,1.0);
+    out.confidence=std::clamp(safeConfidence,0.0,1.0);
+    out.dominance=std::clamp(safeDominance,-1.0,1.0);
 
     if(first==IPC::Role::Unknown ||
        second==IPC::Role::Unknown ||
@@ -55,7 +77,7 @@ inline Recommendation makeRecommendation(
         isTransientRole(second);
 
     if(transientPair &&
-       transientCompetition>=0.35 &&
+       safeTransientCompetition>=0.35 &&
        out.band>=2 &&
        out.band<=7){
         out.kind=RecommendationKind::AttackSeparation;
