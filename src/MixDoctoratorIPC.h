@@ -15,15 +15,26 @@ enum class Role : std::uint32_t {
     Unknown=0,
     Drums=1,
     Bass=2,
-    ElectricGuitar=3
+    ElectricGuitar=3,
+    Kick=4,
+    Snare=5,
+    Toms=6,
+    Cymbals=7,
+    Percussion=8,
+    AcousticGuitar=9,
+    LeadVocal=10,
+    BackingVocal=11,
+    PianoKeys=12,
+    Synth=13,
+    Pad=14
 };
 
-constexpr int kRoleCount=3;
+constexpr int kRoleCount=14;
 constexpr int kBandCount=9;
 constexpr int kSessionCount=8;
 constexpr int kSensorSlotCount=24;
 constexpr std::uint32_t kMagic=0x4D445038u;
-constexpr std::uint32_t kVersion=8u;
+constexpr std::uint32_t kVersion=9u;
 
 inline int clampSession(int session) noexcept {
     return std::clamp(session,0,kSessionCount-1);
@@ -100,7 +111,7 @@ public:
             std::swprintf(
                 name,
                 sizeof(name)/sizeof(name[0]),
-                L"Local\\125A_MixDoctorator_POC_v8_S%d",
+                L"Local\\125A_MixDoctorator_POC_v9_S%d",
                 session+1);
 
             mapping_[session]=CreateFileMappingW(
