@@ -1,5 +1,6 @@
 #pragma once
 #include <algorithm>
+#include <cmath>
 
 namespace MixDoctorator::Analysis {
 
@@ -8,21 +9,43 @@ struct AttackFinding {
     double score{0.0};
 };
 
-inline AttackFinding chooseAttackFinding(
+inline AttackFinding chooseAttackFindingCount(
     const double* scores,
     const double* observedSeconds,
+    int count,
     double minimumScore=0.22,
     double minimumObservation=2.0) noexcept {
 
     AttackFinding out;
 
     if(!scores ||
-       !observedSeconds)
+       !observedSeconds ||
+       count<=0)
         return out;
 
-    for(int i=0;i<3;++i){
-        if(observedSeconds[i]<
-           minimumObservation)
+    minimumScore=
+        std::clamp(
+            std::isfinite(minimumScore)
+            ? minimumScore
+            : 0.22,
+            0.0,
+            1.0);
+
+    minimumObservation=
+        std::max(
+            0.0,
+            std::isfinite(minimumObservation)
+            ? minimumObservation
+            : 2.0);
+
+    for(int i=0;i<count;++i){
+        if(!std::isfinite(
+               observedSeconds[i]) ||
+           observedSeconds[i]<
+               minimumObservation)
+            continue;
+
+        if(!std::isfinite(scores[i]))
             continue;
 
         const double score=
@@ -41,6 +64,20 @@ inline AttackFinding chooseAttackFinding(
     }
 
     return out;
+}
+
+inline AttackFinding chooseAttackFinding(
+    const double* scores,
+    const double* observedSeconds,
+    double minimumScore=0.22,
+    double minimumObservation=2.0) noexcept {
+
+    return chooseAttackFindingCount(
+        scores,
+        observedSeconds,
+        3,
+        minimumScore,
+        minimumObservation);
 }
 
 } // namespace MixDoctorator::Analysis
