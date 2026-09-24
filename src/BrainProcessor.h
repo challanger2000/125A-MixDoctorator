@@ -133,6 +133,7 @@ private:
         const IPC::Snapshot&,
         PairState&,
         const Analysis::PairUpdateRates&,
+        bool,
         Steinberg::int32,
         std::int64_t) noexcept;
 
