@@ -122,9 +122,7 @@ void Processor::readParameters(
             changes->
             getParameterData(i);
 
-        if(!q ||
-           q->getPointCount()<=0 ||
-           q->getParameterId()!=kRole)
+        if(!q || q->getPointCount()<=0)
             continue;
 
         int32 off=0;
@@ -136,17 +134,25 @@ void Processor::readParameters(
                v)!=kResultTrue)
             continue;
 
-        const int index=
-            std::clamp(
-                static_cast<int>(
-                    std::lround(
-                        v*2.0)),
-                0,
-                2);
+        if(q->getParameterId()==kRole){
+            const int index=
+                std::clamp(
+                    static_cast<int>(
+                        std::lround(v*2.0)),
+                    0,
+                    2);
 
-        role_=
-            static_cast<IPC::Role>(
-                index+1);
+            role_=
+                static_cast<IPC::Role>(
+                    index+1);
+        }else if(q->getParameterId()==kSession){
+            session_=
+                std::clamp(
+                    static_cast<int>(
+                        std::lround(v*7.0)),
+                    0,
+                    7);
+        }
     }
 }
 
@@ -283,6 +289,7 @@ tresult PLUGIN_API Processor::process(
         : -1;
 
     ipc_.publish(
+        session_,
         role_,
         samplePosition,
         rmsDb,
@@ -310,10 +317,14 @@ tresult PLUGIN_API Processor::setState(
 
     role_=
         static_cast<IPC::Role>(
-            std::clamp(
-                r,
-                1,
-                3));
+            std::clamp(r,1,3));
+
+    int32 session=0;
+
+    if(s.readInt32(session))
+        session_=std::clamp(session,0,7);
+    else
+        session_=0;
 
     return kResultOk;
 }
@@ -328,10 +339,15 @@ tresult PLUGIN_API Processor::getState(
         state,
         kLittleEndian);
 
+    if(!s.writeInt32(
+           static_cast<int32>(
+               role_)))
+        return kResultFalse;
+
     return
         s.writeInt32(
             static_cast<int32>(
-                role_))
+                session_))
         ? kResultOk
         : kResultFalse;
 }

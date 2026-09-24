@@ -24,23 +24,18 @@ public:
     Steinberg::tresult PLUGIN_API setState(Steinberg::IBStream*) override;
     Steinberg::tresult PLUGIN_API getState(Steinberg::IBStream*) override;
 
-    void analyzeStereoSample(
-        double left,
-        double right) noexcept {
-
+    void analyzeStereoSample(double left,double right) noexcept {
         analyzerLeft_.push(left);
         analyzerRight_.push(right);
     }
 
 private:
-    void readParameters(
-        Steinberg::Vst::IParameterChanges*);
+    void readParameters(Steinberg::Vst::IParameterChanges*);
 
-    IPC::Role role_{
-        IPC::Role::Drums};
+    IPC::Role role_{IPC::Role::Drums};
+    int session_{0};
 
     IPC::SharedMemory ipc_;
-
     Analysis::SpectralAnalyzer analyzerLeft_;
     Analysis::SpectralAnalyzer analyzerRight_;
     double sampleRate_{44100.0};
