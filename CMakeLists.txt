@@ -48,6 +48,17 @@ if(MIXDOCTORATOR_BUILD_TESTS)
     add_executable(MaskingSweepTests
         tests/MaskingSweepTests.cpp)
 
+    add_executable(MaskingFalsePositiveTests
+        tests/MaskingFalsePositiveTests.cpp)
+
+    target_compile_features(
+        MaskingFalsePositiveTests
+        PRIVATE cxx_std_17)
+
+    add_test(
+        NAME MaskingFalsePositiveTests
+        COMMAND MaskingFalsePositiveTests)
+
     target_compile_features(
         MaskingSweepTests
         PRIVATE cxx_std_17)
@@ -371,6 +382,7 @@ if(MIXDOCTORATOR_BUILD_TESTS)
         NeighborMaskingSweepTests
         NeighborMaskingModelTests
         MaskingSweepTests
+        MaskingFalsePositiveTests
         MaskingModelTests
         SpectralAnalyzerTests
         SpectralSampleRateTests
