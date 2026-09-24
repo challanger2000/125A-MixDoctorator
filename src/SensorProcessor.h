@@ -3,6 +3,7 @@
 #include "MixDoctoratorIPC.h"
 #include "SpectralAnalyzer.h"
 #include "TransientModel.h"
+#include <cstdint>
 
 namespace MixDoctorator::Sensor {
 
@@ -43,6 +44,10 @@ private:
 
     IPC::Role role_{IPC::Role::Drums};
     int session_{0};
+    std::uint64_t instanceId_{0};
+    int cachedSlot_[IPC::kSessionCount]{
+        -1,-1,-1,-1,-1,-1,-1,-1
+    };
 
     IPC::SharedMemory ipc_;
     Analysis::SpectralAnalyzer analyzerLeft_;
