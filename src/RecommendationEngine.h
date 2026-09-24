@@ -32,11 +32,78 @@ struct Recommendation {
     RecommendationContext context{RecommendationContext::None};
     IPC::Role first{IPC::Role::Unknown};
     IPC::Role second{IPC::Role::Unknown};
+    IPC::Role adjustRole{IPC::Role::Unknown};
     int band{0};
     double score{0.0};
     double confidence{0.0};
     double dominance{0.0};
 };
+
+inline IPC::Role recommendedAdjustmentRole(
+    IPC::Role first,
+    IPC::Role second,
+    RecommendationContext context,
+    double dominance) noexcept {
+
+    if(first==IPC::Role::Unknown ||
+       second==IPC::Role::Unknown ||
+       first==second)
+        return IPC::Role::Unknown;
+
+    // Lead-vocal intelligibility is usually the more useful reference point
+    // for a beginner-facing first check. Backing vocals are the safer first
+    // place to inspect when the pair is lead vs backing vocal.
+    if((first==IPC::Role::LeadVocal &&
+        second==IPC::Role::BackingVocal))
+        return IPC::Role::BackingVocal;
+
+    if((second==IPC::Role::LeadVocal &&
+        first==IPC::Role::BackingVocal))
+        return IPC::Role::BackingVocal;
+
+    if(context==RecommendationContext::VocalVsHarmonic){
+        const bool firstVocal=
+            roleFamily(first)==RoleFamily::Vocal;
+        const bool secondVocal=
+            roleFamily(second)==RoleFamily::Vocal;
+
+        if(firstVocal && !secondVocal)
+            return second;
+
+        if(secondVocal && !firstVocal)
+            return first;
+    }
+
+    // When bass conflicts with unnecessary lows from a harmonic source,
+    // checking the harmonic source first is a conservative beginner move.
+    if(context==RecommendationContext::BassVsHarmonic){
+        if(roleFamily(first)==RoleFamily::Bass &&
+           isHarmonicRole(second))
+            return second;
+
+        if(roleFamily(second)==RoleFamily::Bass &&
+           isHarmonicRole(first))
+            return first;
+    }
+
+    // Kick/bass ownership is musical/contextual. Do not pretend the analyzer
+    // knows which one should lead solely from level dominance.
+    if(context==RecommendationContext::KickBass)
+        return IPC::Role::Unknown;
+
+    const double safeDominance=
+        std::isfinite(dominance)
+        ? dominance
+        : 0.0;
+
+    if(safeDominance>0.20)
+        return first;
+
+    if(safeDominance<-0.20)
+        return second;
+
+    return IPC::Role::Unknown;
+}
 
 inline RecommendationContext recommendationContext(
     IPC::Role first,
@@ -171,6 +238,13 @@ inline Recommendation makeRecommendation(
             first,
             second,
             out.kind);
+
+    out.adjustRole=
+        recommendedAdjustmentRole(
+            first,
+            second,
+            out.context,
+            out.dominance);
 
     // Low-end ownership is especially meaningful for kick/bass style pairs,
     // but remains valid for other sources when measured evidence supports it.
