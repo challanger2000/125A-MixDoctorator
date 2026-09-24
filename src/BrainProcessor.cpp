@@ -1236,15 +1236,15 @@ tresult PLUGIN_API Processor::process(
                 recommendation.context))/6.0
         : 0.0;
 
+    const int coachTargetCode=
+        Analysis::recommendationTargetCode(
+            recommendation);
+
     const double coachTargetValue=
-        recommendation.valid &&
-        recommendation.adjustRole!=IPC::Role::Unknown
-        ? static_cast<double>(
-            static_cast<int>(
-                recommendation.adjustRole))/
-          static_cast<double>(
-            IPC::kRoleCount)
-        : 0.0;
+        static_cast<double>(
+            coachTargetCode)/
+        static_cast<double>(
+            Analysis::kRecommendationTargetCodeCount);
 
     publishParam(data,kCoachHeadline,coachAdviceValue,39);
     publishParam(data,kCoachAction,coachActionValue,40);
