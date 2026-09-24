@@ -952,10 +952,43 @@ tresult PLUGIN_API Processor::process(
                        second))
                     continue;
 
+                auto& state=
+                    coachPairStates_[pairIndex];
+
+                bool bandsIdle=true;
+
+                for(int band=0;
+                    band<IPC::kBandCount;
+                    ++band){
+                    if(std::abs(
+                           state.bandRisk[band])>
+                       1.0e-6){
+                        bandsIdle=false;
+                        break;
+                    }
+                }
+
+                const bool stateIdle=
+                    state.observedSeconds<=1.0e-6 &&
+                    std::abs(state.overlap)<=1.0e-6 &&
+                    std::abs(state.masking)<=1.0e-6 &&
+                    std::abs(
+                        state.transientCompetition)<=1.0e-6 &&
+                    std::abs(state.confidence)<=1.0e-6 &&
+                    bandsIdle;
+
+                const bool bothConnected=
+                    latestIpc_.roles[a].connected &&
+                    latestIpc_.roles[b].connected;
+
+                if(!bothConnected &&
+                   stateIdle)
+                    continue;
+
                 updatePair(
                     latestIpc_.roles[a],
                     latestIpc_.roles[b],
-                    coachPairStates_[pairIndex],
+                    state,
                     pairRates,
                     data.numSamples,
                     currentSamplePosition);
