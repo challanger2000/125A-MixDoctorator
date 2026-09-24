@@ -97,8 +97,8 @@ inline PairMetrics evaluatePair(
         // finding merely because two normalized spectra look alike. Keep a
         // small floor for continuity, but let real joint activity dominate.
         const double activityFactor=
-            0.08+
-            0.92*jointActivity;
+            0.04+
+            0.96*jointActivity;
 
         const double risk=
             common *
