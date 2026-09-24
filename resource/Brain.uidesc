@@ -49,8 +49,8 @@
 
     <view class="CTextLabel" origin="20,222" size="940,28" title="PAIR ANALYSIS" font-size="15" font-color="#ccccccff" transparent="true"/>
     <view class="CTextLabel" origin="195,244" size="85,20" title="OVERLAP" font-size="11" font-color="#a0a0a0ff" transparent="true"/>
-    <view class="CTextLabel" origin="292,244" size="85,20" title="MASKING" font-size="11" font-color="#a0a0a0ff" transparent="true"/>
-    <view class="CTextLabel" origin="389,244" size="85,20" title="ATTACK" font-size="11" font-color="#a0a0a0ff" transparent="true"/>
+    <view class="CTextLabel" origin="292,244" size="85,20" title="MASKING INDEX" font-size="11" font-color="#a0a0a0ff" transparent="true"/>
+    <view class="CTextLabel" origin="389,244" size="85,20" title="ATTACK INDEX" font-size="11" font-color="#a0a0a0ff" transparent="true"/>
     <view class="CTextLabel" origin="486,244" size="250,20" title="MAIN RANGE" font-size="11" font-color="#a0a0a0ff" transparent="true"/>
     <view class="CTextLabel" origin="748,244" size="145,20" title="STATUS" font-size="11" font-color="#a0a0a0ff" transparent="true"/>
 

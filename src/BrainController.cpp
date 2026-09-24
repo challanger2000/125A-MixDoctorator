@@ -63,14 +63,14 @@ tresult PLUGIN_API Controller::initialize(FUnknown* c){
     parameters.addParameter(STR16("Drums Guitar Attention"),nullptr,4,0.0,ro,kDrumsGuitarStatus);
 
     parameters.addParameter(STR16("Top Finding Pair"),nullptr,3,0.0,ro,kTopPair);
-    parameters.addParameter(STR16("Top Masking Risk"),STR16("%"),0,0.0,ro,kTopScore);
+    parameters.addParameter(STR16("Top Masking Index"),STR16("%"),0,0.0,ro,kTopScore);
     parameters.addParameter(STR16("Top Finding Band"),nullptr,8,0.0,ro,kTopBand);
     parameters.addParameter(STR16("Suggested Check"),nullptr,15,0.0,ro,kTopAdvice);
     parameters.addParameter(STR16("Dominant Source"),nullptr,2,0.5,ro,kTopDominance);
     parameters.addParameter(STR16("Confidence"),STR16("%"),0,0.0,ro,kTopConfidence);
 
     parameters.addParameter(STR16("Session Pair"),nullptr,3,0.0,ro,kSessionPair);
-    parameters.addParameter(STR16("Session Masking Risk"),STR16("%"),0,0.0,ro,kSessionScore);
+    parameters.addParameter(STR16("Session Masking Index"),STR16("%"),0,0.0,ro,kSessionScore);
     parameters.addParameter(STR16("Session Band"),nullptr,8,0.0,ro,kSessionBand);
 
     parameters.addParameter(STR16("Drums Transient"),STR16("%"),0,0.0,ro,kDrumsTransient);
@@ -86,7 +86,7 @@ tresult PLUGIN_API Controller::initialize(FUnknown* c){
     parameters.addParameter(STR16("Drums Guitar Transient Competition"),STR16("%"),0,0.0,ro,kDrumsGuitarTransientCompetition);
 
     parameters.addParameter(STR16("Top Attack Pair"),nullptr,3,0.0,ro,kTopAttackPair);
-    parameters.addParameter(STR16("Top Attack Score"),STR16("%"),0,0.0,ro,kTopAttackScore);
+    parameters.addParameter(STR16("Top Attack Index"),STR16("%"),0,0.0,ro,kTopAttackScore);
     parameters.addParameter(STR16("Top Attack Advice"),nullptr,3,0.0,ro,kTopAttackAdvice);
 
     return kResultOk;

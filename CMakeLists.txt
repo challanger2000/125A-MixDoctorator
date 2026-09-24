@@ -143,4 +143,15 @@ if(MIXDOCTORATOR_BUILD_TESTS)
     add_test(
         NAME AnalysisSafetyTests
         COMMAND AnalysisSafetyTests)
+
+    add_executable(IPCConcurrencyTests
+        tests/IPCConcurrencyTests.cpp)
+
+    target_compile_features(
+        IPCConcurrencyTests
+        PRIVATE cxx_std_17)
+
+    add_test(
+        NAME IPCConcurrencyTests
+        COMMAND IPCConcurrencyTests)
 endif()

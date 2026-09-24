@@ -77,7 +77,10 @@ struct Snapshot {
 };
 
 inline double dbFromAmplitude(double v) noexcept {
-    return 20.0*std::log10(std::max(v,1.0e-9));
+    if(!std::isfinite(v) || v<=1.0e-9)
+        return -180.0;
+
+    return 20.0*std::log10(v);
 }
 
 class SharedMemory {
