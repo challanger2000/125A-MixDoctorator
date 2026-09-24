@@ -1,5 +1,6 @@
 #include "SensorController.h"
 #include "SensorIDs.h"
+#include "MixDoctoratorIPC.h"
 
 #include "base/source/fstreamer.h"
 #include "public.sdk/source/vst/vstparameters.h"
