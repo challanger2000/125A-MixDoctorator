@@ -1259,8 +1259,15 @@ tresult PLUGIN_API Processor::process(
         ? recommendation.confidence
         : 0.0;
 
+    const double coachActionValue=
+        recommendation.valid
+        ? static_cast<double>(
+            Analysis::recommendationActionCode(
+                recommendation.context))/5.0
+        : 0.0;
+
     publishParam(data,kCoachHeadline,coachAdviceValue,39);
-    publishParam(data,kCoachAction,coachAdviceValue,40);
+    publishParam(data,kCoachAction,coachActionValue,40);
     publishParam(data,kCoachListen,coachAdviceValue,41);
     publishParam(data,kCoachReason,coachAdviceValue,42);
 
