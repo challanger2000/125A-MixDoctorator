@@ -12,6 +12,35 @@ if not size_match:
 
 slot_count = int(size_match.group(1))
 
+initializer_match = re.search(
+    r"double\s+last_\[\d+\]\s*\{(?P<body>.*?)\};",
+    hdr,
+    re.S,
+)
+
+if not initializer_match:
+    print("Publication slot check FAILED: last_ initializer not found")
+    sys.exit(1)
+
+initializer_values = re.findall(
+    r"(?<![A-Za-z0-9_])-?\d+(?:\.\d+)?",
+    initializer_match.group("body"),
+)
+
+if len(initializer_values) != slot_count:
+    print(
+        "Publication slot check FAILED: "
+        f"last_[{slot_count}] has {len(initializer_values)} explicit initializers"
+    )
+    sys.exit(1)
+
+if any(float(value) != -1.0 for value in initializer_values):
+    print(
+        "Publication slot check FAILED: "
+        "every last_ slot must initialize to -1"
+    )
+    sys.exit(1)
+
 calls = re.findall(
     r"publishParam\s*\((?P<body>.*?)\);",
     cpp,
