@@ -3,26 +3,38 @@ on:
   workflow_dispatch:
   push:
     branches: [ "poc/sensor-brain" ]
+
 jobs:
   build:
     runs-on: windows-2022
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Configure
-        run: cmake -S . -B build -G "Visual Studio 17 2022" -A x64
-      - name: Build
-        run: cmake --build build --config Release --target MixDoctoratorSensor MixDoctoratorBrain --parallel
+        run: cmake -S . -B build -G "Visual Studio 17 2022" -A x64 -DMIXDOCTORATOR_BUILD_TESTS=ON
+
+      - name: Build plugins and analysis tests
+        run: cmake --build build --config Release --target MixDoctoratorSensor MixDoctoratorBrain MaskingModelTests SpectralAnalyzerTests TimingModelTests --parallel
+
+      - name: Run analysis tests
+        run: ctest --test-dir build -C Release --output-on-failure
+
       - name: Stage VST3 bundles
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force -Path artifact | Out-Null
+
           $sensor = Get-ChildItem -Path build -Recurse -Directory -Filter "125A-MixDoctorator-Sensor.vst3" | Select-Object -First 1
           $brain  = Get-ChildItem -Path build -Recurse -Directory -Filter "125A-MixDoctorator-Brain.vst3" | Select-Object -First 1
+
           if (-not $sensor) { throw "Sensor VST3 bundle not found" }
           if (-not $brain)  { throw "Brain VST3 bundle not found" }
+
           Copy-Item $sensor.FullName artifact -Recurse -Force
           Copy-Item $brain.FullName artifact -Recurse -Force
+
       - name: Upload VST3 PoC
         uses: actions/upload-artifact@v4
         with:
