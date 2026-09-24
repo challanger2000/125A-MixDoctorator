@@ -64,7 +64,9 @@ enum ParamID : Steinberg::Vst::ParamID {
 
     kCoachHeadline,
     kCoachAction,
-    kCoachListen
+    kCoachListen,
+    kCoachReason,
+    kCoachEvidence
 };
 
 } // namespace MixDoctorator::Brain

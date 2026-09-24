@@ -4,6 +4,7 @@
 
 int main(){
     using MixDoctorator::Analysis::coachAdviceCode;
+    using MixDoctorator::Analysis::coachEvidenceBand;
 
     assert(coachAdviceCode(-1,0,0.0)==0);
     assert(coachAdviceCode(3,0,0.0)==0);
@@ -25,6 +26,13 @@ int main(){
     assert(coachAdviceCode(2,6,-0.3)==13);
     assert(coachAdviceCode(2,6,0.0)==14);
     assert(coachAdviceCode(2,8,0.0)==15);
+
+    assert(coachEvidenceBand(0.0)==0);
+    assert(coachEvidenceBand(0.119)==0);
+    assert(coachEvidenceBand(0.12)==1);
+    assert(coachEvidenceBand(0.30)==2);
+    assert(coachEvidenceBand(0.60)==3);
+    assert(coachEvidenceBand(1.0)==3);
 
     std::cout << "Coach model tests passed\n";
     return 0;

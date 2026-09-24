@@ -92,6 +92,8 @@ tresult PLUGIN_API Controller::initialize(FUnknown* c){
     parameters.addParameter(STR16("Coach Headline"),nullptr,15,0.0,ro,kCoachHeadline);
     parameters.addParameter(STR16("Coach Action"),nullptr,15,0.0,ro,kCoachAction);
     parameters.addParameter(STR16("Coach Listen"),nullptr,15,0.0,ro,kCoachListen);
+    parameters.addParameter(STR16("Coach Reason"),nullptr,15,0.0,ro,kCoachReason);
+    parameters.addParameter(STR16("Coach Evidence"),nullptr,3,0.0,ro,kCoachEvidence);
 
     return kResultOk;
 }
@@ -365,7 +367,8 @@ tresult PLUGIN_API Controller::getParamStringByValue(
 
     if(id==kCoachHeadline ||
        id==kCoachAction ||
-       id==kCoachListen){
+       id==kCoachListen ||
+       id==kCoachReason){
 
         const int index=
             std::clamp(
@@ -417,21 +420,40 @@ tresult PLUGIN_API Controller::getParamStringByValue(
 
         static const char* listen[16]={
             "Wait for a stable finding. A moving value alone is not a reason to change the mix.",
-            "Keep the change only if bass notes become clearer without making the drums weak.",
-            "Keep the change only if the kick becomes easier to hear without making the bass thin.",
+            "Keep it only if bass notes become clearer without making the drums weak.",
+            "Keep it only if the kick is easier to hear without making the bass thin.",
             "Listen for separation and punch. If the low end loses weight, undo the change.",
-            "Listen for less mud and better note definition without making either source hollow.",
-            "Listen for clearer bass notes while the kick and snare still keep their attack.",
-            "Listen for clearer guitars without losing the weight that the bass should provide.",
-            "Listen for a clearer bass while the guitars still sound full enough in the mix.",
+            "Listen for less mud and clearer notes without making either source hollow.",
+            "Listen for clearer bass notes while the drums still keep their attack.",
+            "Listen for clearer guitars without losing the weight the bass should provide.",
+            "Listen for clearer bass while the guitars still sound full enough.",
             "Listen for two distinct roles instead of one thick low-end block.",
             "Listen for clearer guitar notes without making the bass disappear.",
             "Listen for clearer bass articulation without making the guitars dull.",
-            "Listen for cleaner kick and tom impact while the guitars still feel powerful.",
-            "Listen for clearer guitars while the snare and cymbals still sound natural.",
+            "Listen for cleaner kick and tom impact while the guitars stay powerful.",
+            "Listen for clearer guitars while the drums still sound natural.",
             "Listen for clearer drums without making the guitars lose their character.",
-            "Listen for clearer attacks. If both sources simply get thinner, undo the change.",
-            "Listen for less harshness and better separation without removing useful brightness."
+            "Listen for clearer attacks. If both sources just get thinner, undo the change.",
+            "Listen for less harshness and better separation without losing useful brightness."
+        };
+
+        static const char* reason[16]={
+            "No stable conflict has been measured yet.",
+            "Drums and bass overlap mainly in the deepest low range.",
+            "Bass energy is stronger than the drums in the measured low range.",
+            "Drums and bass are similarly strong in the measured low range.",
+            "Drums and bass overlap mainly in the low-mid or body range.",
+            "Drum and bass interaction is strongest around definition and attack.",
+            "Bass energy is stronger than guitar energy in the measured low range.",
+            "Guitar energy is stronger than bass energy in the measured low range.",
+            "Bass and guitars are similarly strong in the measured low range.",
+            "Bass and guitars overlap mainly through body, mids or harmonics.",
+            "Bass articulation and guitar top end overlap in the measured range.",
+            "Guitar low end overlaps with kick or tom energy.",
+            "Drum energy is stronger in the measured mid or presence range.",
+            "Guitar energy is stronger in the measured mid or presence range.",
+            "Drums and guitars are similarly strong in the measured presence range.",
+            "Cymbal and guitar energy overlap mainly in the upper range."
         };
 
         const char* text=
@@ -439,10 +461,36 @@ tresult PLUGIN_API Controller::getParamStringByValue(
             ? headline[index]
             : id==kCoachAction
                 ? action[index]
-                : listen[index];
+                : id==kCoachListen
+                    ? listen[index]
+                    : reason[index];
 
         UString128 s;
         s.fromAscii(text);
+        s.copyTo(out,128);
+        return kResultTrue;
+    }
+
+    if(id==kCoachEvidence){
+        static const char* evidence[4]={
+            "WAITING",
+            "EARLY HINT",
+            "STABLE HINT",
+            "STRONG HINT"
+        };
+
+        const int index=
+            std::clamp(
+                static_cast<int>(
+                    std::lround(
+                        std::clamp(
+                            v,0.0,1.0)*
+                        3.0)),
+                0,
+                3);
+
+        UString128 s;
+        s.fromAscii(evidence[index]);
         s.copyTo(out,128);
         return kResultTrue;
     }

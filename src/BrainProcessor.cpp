@@ -1055,6 +1055,14 @@ tresult PLUGIN_API Processor::process(
     publishParam(data,kCoachHeadline,adviceValue,39);
     publishParam(data,kCoachAction,adviceValue,40);
     publishParam(data,kCoachListen,adviceValue,41);
+    publishParam(data,kCoachReason,adviceValue,42);
+
+    const double evidenceValue=
+        static_cast<double>(
+            Analysis::coachEvidenceBand(
+                confidenceValue))/3.0;
+
+    publishParam(data,kCoachEvidence,evidenceValue,43);
 
     const double sessionPair=
         (sessionFinding_.pair<0)

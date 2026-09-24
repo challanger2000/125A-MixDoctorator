@@ -54,4 +54,14 @@ inline int coachAdviceCode(
     return 15;
 }
 
+inline int coachEvidenceBand(double confidence) noexcept {
+    if(confidence<0.12)
+        return 0;
+    if(confidence<0.30)
+        return 1;
+    if(confidence<0.60)
+        return 2;
+    return 3;
+}
+
 } // namespace MixDoctorator::Analysis

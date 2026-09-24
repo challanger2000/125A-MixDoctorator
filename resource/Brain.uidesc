@@ -15,6 +15,7 @@
     <control-tag name="DrumsBassTransientCompetition" tag="233"/><control-tag name="BassGuitarTransientCompetition" tag="234"/><control-tag name="DrumsGuitarTransientCompetition" tag="235"/>
     <control-tag name="TopAttackPair" tag="236"/><control-tag name="TopAttackScore" tag="237"/><control-tag name="TopAttackAdvice" tag="238"/>
     <control-tag name="CoachHeadline" tag="239"/><control-tag name="CoachAction" tag="240"/><control-tag name="CoachListen" tag="241"/>
+    <control-tag name="CoachReason" tag="242"/><control-tag name="CoachEvidence" tag="243"/>
     <control-tag name="ViewMode" tag="9000"/>
   </control-tags>
 
@@ -49,21 +50,19 @@
 
     <view class="CParamDisplay" origin="0,54" size="940,46" control-tag="CoachHeadline" font-size="18" font-color="#ffffffff" back-color="#252525ff" frame-color="#777777ff"/>
 
-    <view class="CTextLabel" origin="0,118" size="120,22" title="WHY?" font-size="12" font-color="#a0a0a0ff" transparent="true"/>
-    <view class="CParamDisplay" origin="0,143" size="245,34" control-tag="TopPair" font-size="14" font-color="#ffffffff" back-color="#202020ff" frame-color="#555555ff"/>
-    <view class="CParamDisplay" origin="258,143" size="270,34" control-tag="TopBand" font-size="14" font-color="#ffffffff" back-color="#202020ff" frame-color="#555555ff"/>
-    <view class="CTextLabel" origin="545,148" size="95,22" title="EVIDENCE" font-size="11" font-color="#888888ff" transparent="true"/>
-    <view class="CParamDisplay" origin="640,143" size="95,34" control-tag="TopConfidence" font-size="14" font-color="#ffffffff" back-color="#202020ff" frame-color="#555555ff"/>
-    <view class="CParamDisplay" origin="748,143" size="192,34" control-tag="TopDominance" font-size="14" font-color="#ffffffff" back-color="#202020ff" frame-color="#555555ff"/>
+    <view class="CTextLabel" origin="0,118" size="240,22" title="WHY MIXDOCTORATOR SAYS THIS" font-size="12" font-color="#a0a0a0ff" transparent="true"/>
+    <view class="CMultiLineTextLabel" origin="0,143" size="740,54" control-tag="CoachReason" font-size="14" font-color="#ffffffff" back-color="#202020ff" frame-color="#555555ff" line-layout="wrap" vertical-centered="true"/>
+    <view class="CTextLabel" origin="755,123" size="185,18" title="EVIDENCE" font-size="11" font-color="#888888ff" transparent="true"/>
+    <view class="CParamDisplay" origin="755,143" size="185,54" control-tag="CoachEvidence" font-size="14" font-color="#ffffffff" back-color="#202020ff" frame-color="#555555ff"/>
 
     <view class="CTextLabel" origin="0,208" size="940,24" title="TRY THIS FIRST" font-size="14" font-color="#ccccccff" transparent="true"/>
-    <view class="CParamDisplay" origin="0,238" size="940,72" control-tag="CoachAction" font-size="15" font-color="#ffffffff" back-color="#303030ff" frame-color="#777777ff"/>
+    <view class="CMultiLineTextLabel" origin="0,238" size="940,72" control-tag="CoachAction" font-size="15" font-color="#ffffffff" back-color="#303030ff" frame-color="#777777ff" line-layout="wrap" vertical-centered="true"/>
 
     <view class="CTextLabel" origin="0,338" size="940,24" title="LISTEN FOR THIS" font-size="14" font-color="#ccccccff" transparent="true"/>
-    <view class="CParamDisplay" origin="0,368" size="940,72" control-tag="CoachListen" font-size="15" font-color="#ffffffff" back-color="#292929ff" frame-color="#666666ff"/>
+    <view class="CMultiLineTextLabel" origin="0,368" size="940,72" control-tag="CoachListen" font-size="15" font-color="#ffffffff" back-color="#292929ff" frame-color="#666666ff" line-layout="wrap" vertical-centered="true"/>
 
     <view class="CTextLabel" origin="0,468" size="940,24" title="IF IT DOES NOT SOUND BETTER" font-size="14" font-color="#ccccccff" transparent="true"/>
-    <view class="CTextLabel" origin="0,498" size="940,64" title="Undo the change. A measured overlap is not automatically a mix problem, and MixDoctorator should never replace listening." font-size="15" font-color="#ffffffff" back-color="#252525ff" frame-color="#555555ff"/>
+    <view class="CMultiLineTextLabel" origin="0,498" size="940,64" title="Undo the change. A measured overlap is not automatically a mix problem, and MixDoctorator should never replace listening." font-size="15" font-color="#ffffffff" back-color="#252525ff" frame-color="#555555ff" line-layout="wrap" vertical-centered="true"/>
 
     <view class="CTextLabel" origin="0,590" size="940,22" title="SECONDARY CHECK: ATTACK / TRANSIENT SPACE" font-size="12" font-color="#888888ff" transparent="true"/>
     <view class="CParamDisplay" origin="0,618" size="220,34" control-tag="TopAttackPair" font-size="13" font-color="#ffffffff" back-color="#202020ff" frame-color="#555555ff"/>
