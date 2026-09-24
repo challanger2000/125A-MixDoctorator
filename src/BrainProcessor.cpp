@@ -909,21 +909,29 @@ tresult PLUGIN_API Processor::process(
     // one response behind (especially across a cycle wrap). A fresh response
     // with a genuinely disconnected source still drives the normal decay path.
     if(responseFresh){
+        const auto pairRates=
+            Analysis::makePairUpdateRates(
+                data.numSamples,
+                sampleRate_);
+
         updatePair(
             drums,bass,
             pairStates_[0],
+            pairRates,
             data.numSamples,
             currentSamplePosition);
 
         updatePair(
             bass,guitar,
             pairStates_[1],
+            pairRates,
             data.numSamples,
             currentSamplePosition);
 
         updatePair(
             drums,guitar,
             pairStates_[2],
+            pairRates,
             data.numSamples,
             currentSamplePosition);
 
@@ -948,6 +956,7 @@ tresult PLUGIN_API Processor::process(
                     latestIpc_.roles[a],
                     latestIpc_.roles[b],
                     coachPairStates_[pairIndex],
+                    pairRates,
                     data.numSamples,
                     currentSamplePosition);
             }
