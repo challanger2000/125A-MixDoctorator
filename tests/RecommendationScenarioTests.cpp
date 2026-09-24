@@ -137,6 +137,29 @@ int main(){
         assert(rec.context==RecommendationContext::RhythmVsHarmonic);
     }
 
+    {
+        const auto drums=oneBand(1);
+        const auto kick=oneBand(1);
+
+        const auto pair=evaluatePair(
+            -10.0,0.9,drums.data(),
+            -11.0,0.9,kick.data());
+
+        assert(pair.masking>0.5);
+
+        const auto rec=makeRecommendation(
+            IPC::Role::Drums,
+            IPC::Role::Kick,
+            pair.dominantBand,
+            pair.masking,
+            0.90,
+            pair.dominance,
+            0.50);
+
+        assert(!rec.valid);
+        assert(rec.context==RecommendationContext::None);
+    }
+
     std::cout
         << "Recommendation scenario integration tests passed\n";
 
