@@ -3,6 +3,7 @@
 #include "MaskingModel.h"
 #include "TimingModel.h"
 
+#include "base/source/fstreamer.h"
 #include "pluginterfaces/vst/ivstparameterchanges.h"
 #include "pluginterfaces/vst/ivstprocesscontext.h"
 #include "pluginterfaces/vst/vstspeaker.h"
@@ -93,6 +94,43 @@ tresult PLUGIN_API Processor::setProcessing(TBool state){
 
     AudioEffect::setProcessing(state);
     return kResultTrue;
+}
+
+void Processor::readParameters(
+    IParameterChanges* changes) noexcept{
+
+    if(!changes)
+        return;
+
+    for(int32 i=0;i<changes->getParameterCount();++i){
+        auto* q=changes->getParameterData(i);
+
+        if(!q ||
+           q->getPointCount()<=0 ||
+           q->getParameterId()!=kSession)
+            continue;
+
+        int32 off=0;
+        ParamValue v=0.0;
+
+        if(q->getPoint(
+               q->getPointCount()-1,
+               off,
+               v)!=kResultTrue)
+            continue;
+
+        const int newSession=
+            std::clamp(
+                static_cast<int>(
+                    std::lround(v*7.0)),
+                0,
+                7);
+
+        if(newSession!=session_){
+            session_=newSession;
+            resetAnalysisState();
+        }
+    }
 }
 
 void Processor::publishParam(
@@ -485,6 +523,9 @@ static void pass(
 tresult PLUGIN_API Processor::process(
     ProcessData& data){
 
+    readParameters(
+        data.inputParameterChanges);
+
     if(data.numInputs>0 &&
        data.numOutputs>0 &&
        data.numSamples>0){
@@ -547,18 +588,21 @@ tresult PLUGIN_API Processor::process(
 
     const bool drumsOk=
         ipc_.read(
+            session_,
             IPC::Role::Drums,
             drums) &&
         drums.connected;
 
     const bool bassOk=
         ipc_.read(
+            session_,
             IPC::Role::Bass,
             bass) &&
         bass.connected;
 
     const bool guitarOk=
         ipc_.read(
+            session_,
             IPC::Role::ElectricGuitar,
             guitar) &&
         guitar.connected;
@@ -716,6 +760,39 @@ tresult PLUGIN_API Processor::process(
     publishParam(data,kSessionBand,sessionBand,26);
 
     return kResultOk;
+}
+
+tresult PLUGIN_API Processor::setState(
+    IBStream* state){
+
+    if(!state)
+        return kInvalidArgument;
+
+    IBStreamer s(state,kLittleEndian);
+    int32 session=0;
+
+    if(s.readInt32(session))
+        session_=std::clamp(session,0,7);
+    else
+        session_=0;
+
+    resetAnalysisState();
+    return kResultOk;
+}
+
+tresult PLUGIN_API Processor::getState(
+    IBStream* state){
+
+    if(!state)
+        return kInvalidArgument;
+
+    IBStreamer s(state,kLittleEndian);
+
+    return
+        s.writeInt32(
+            static_cast<int32>(session_))
+        ? kResultOk
+        : kResultFalse;
 }
 
 } // namespace MixDoctorator::Brain

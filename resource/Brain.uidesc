@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <vstgui-ui-description version="1">
   <control-tags>
+    <control-tag name="Session" tag="199"/>
     <control-tag name="DrumsConnected" tag="200"/><control-tag name="DrumsLevel" tag="201"/>
     <control-tag name="BassConnected" tag="202"/><control-tag name="BassLevel" tag="203"/>
     <control-tag name="GuitarConnected" tag="204"/><control-tag name="GuitarLevel" tag="205"/>
@@ -14,7 +15,9 @@
   </control-tags>
 
   <template name="view" class="CViewContainer" origin="0,0" size="980,760" background-color="#171717ff">
-    <view class="CTextLabel" origin="20,16" size="940,34" title="125A MIXDOCTORATOR BRAIN" font-size="22" font-color="#ffffffff" transparent="true"/>
+    <view class="CTextLabel" origin="20,16" size="620,34" title="125A MIXDOCTORATOR BRAIN" font-size="22" font-color="#ffffffff" transparent="true"/>
+    <view class="CTextLabel" origin="690,20" size="80,24" title="SESSION" font-size="13" font-color="#ccccccff" transparent="true"/>
+    <view class="COptionMenu" origin="775,16" size="120,32" control-tag="Session" font-size="14" back-color="#303030ff" font-color="#ffffffff" frame-color="#777777ff"/>
 
     <view class="CTextLabel" origin="20,62" size="140,28" title="DRUMS" font-size="16" font-color="#ffffffff" transparent="true"/>
     <view class="CParamDisplay" origin="170,62" size="160,28" control-tag="DrumsConnected" font-size="14" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>

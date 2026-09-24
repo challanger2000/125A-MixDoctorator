@@ -11,6 +11,8 @@ static const Steinberg::FUID kControllerUID(
     0xA125D012,0x10114A01,0xB0010011,0x125A0012);
 
 enum ParamID : Steinberg::Vst::ParamID {
+    kSession=199,
+
     kDrumsConnected=200,
     kDrumsLevel,
     kBassConnected,

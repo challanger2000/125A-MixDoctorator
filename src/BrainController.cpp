@@ -1,6 +1,7 @@
 #include "BrainController.h"
 #include "BrainIDs.h"
 
+#include "base/source/fstreamer.h"
 #include "pluginterfaces/base/ustring.h"
 #include "public.sdk/source/vst/vstparameters.h"
 #include "vstgui/plugin-bindings/vst3editor.h"
@@ -22,6 +23,22 @@ tresult PLUGIN_API Controller::initialize(FUnknown* c){
 
     constexpr int32 ro=
         ParameterInfo::kIsReadOnly;
+
+    auto* session=new StringListParameter(
+        STR16("Session"),
+        kSession,
+        nullptr,
+        0);
+
+    session->appendString(STR16("A"));
+    session->appendString(STR16("B"));
+    session->appendString(STR16("C"));
+    session->appendString(STR16("D"));
+    session->appendString(STR16("E"));
+    session->appendString(STR16("F"));
+    session->appendString(STR16("G"));
+    session->appendString(STR16("H"));
+    parameters.addParameter(session);
 
     parameters.addParameter(STR16("Drums Connected"),nullptr,1,0.0,ro,kDrumsConnected);
     parameters.addParameter(STR16("Drums RMS"),STR16("dB"),0,0.0,ro,kDrumsLevel);
@@ -55,6 +72,27 @@ tresult PLUGIN_API Controller::initialize(FUnknown* c){
     parameters.addParameter(STR16("Session Pair"),nullptr,3,0.0,ro,kSessionPair);
     parameters.addParameter(STR16("Session Masking Risk"),STR16("%"),0,0.0,ro,kSessionScore);
     parameters.addParameter(STR16("Session Band"),nullptr,8,0.0,ro,kSessionBand);
+
+    return kResultOk;
+}
+
+tresult PLUGIN_API Controller::setComponentState(
+    IBStream* state){
+
+    if(!state)
+        return kInvalidArgument;
+
+    IBStreamer s(state,kLittleEndian);
+    int32 session=0;
+
+    if(s.readInt32(session)){
+        setParamNormalized(
+            kSession,
+            static_cast<double>(
+                std::clamp(session,0,7))/7.0);
+    }else{
+        setParamNormalized(kSession,0.0);
+    }
 
     return kResultOk;
 }

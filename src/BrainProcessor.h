@@ -22,6 +22,8 @@ public:
         Steinberg::Vst::ProcessSetup&) override;
     Steinberg::tresult PLUGIN_API setProcessing(Steinberg::TBool) override;
     Steinberg::tresult PLUGIN_API process(Steinberg::Vst::ProcessData&) override;
+    Steinberg::tresult PLUGIN_API setState(Steinberg::IBStream*) override;
+    Steinberg::tresult PLUGIN_API getState(Steinberg::IBStream*) override;
 
 private:
     struct PairState {
@@ -46,6 +48,7 @@ private:
     PairState pairStates_[3]{};
     SessionFinding sessionFinding_{};
     int heldTopPair_{-1};
+    int session_{0};
     bool wasPlaying_{false};
     std::int64_t lastProjectSample_{-1};
 
@@ -71,6 +74,7 @@ private:
         Steinberg::int32,
         std::int64_t) noexcept;
 
+    void readParameters(Steinberg::Vst::IParameterChanges*) noexcept;
     void updateSessionFinding() noexcept;
     void resetAnalysisState() noexcept;
 
