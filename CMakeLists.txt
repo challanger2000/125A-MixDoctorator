@@ -154,4 +154,44 @@ if(MIXDOCTORATOR_BUILD_TESTS)
     add_test(
         NAME IPCConcurrencyTests
         COMMAND IPCConcurrencyTests)
+
+    add_executable(TestBuildModeTests
+        tests/TestBuildModeTests.cpp)
+
+    target_compile_features(
+        TestBuildModeTests
+        PRIVATE cxx_std_17)
+
+    add_test(
+        NAME TestBuildModeTests
+        COMMAND TestBuildModeTests)
+
+    # CI builds tests in Release. Keep assert()-based regression checks active;
+    # otherwise NDEBUG would compile most existing test assertions away.
+    set(MIXDOCTORATOR_TEST_TARGETS
+        MaskingModelTests
+        SpectralAnalyzerTests
+        TimingModelTests
+        TransientModelTests
+        RoleAggregateTests
+        IPCModelTests
+        TransientInteractionTests
+        AttackFindingTests
+        TransportModelTests
+        PrimaryFindingTests
+        AnalysisSafetyTests
+        IPCConcurrencyTests
+        TestBuildModeTests)
+
+    foreach(test_target IN LISTS MIXDOCTORATOR_TEST_TARGETS)
+        if(MSVC)
+            target_compile_options(
+                ${test_target}
+                PRIVATE /UNDEBUG)
+        else()
+            target_compile_options(
+                ${test_target}
+                PRIVATE -UNDEBUG)
+        endif()
+    endforeach()
 endif()
