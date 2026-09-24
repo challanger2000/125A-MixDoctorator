@@ -1,4 +1,5 @@
 #include "../src/TimingModel.h"
+#include "../src/MixDoctoratorIPC.h"
 
 #include <cassert>
 #include <iostream>
@@ -7,6 +8,13 @@ using MixDoctorator::Analysis::
     samplePositionsCoherent;
 
 int main(){
+    using MixDoctorator::IPC::clampSession;
+
+    assert(clampSession(-5)==0);
+    assert(clampSession(0)==0);
+    assert(clampSession(7)==7);
+    assert(clampSession(99)==7);
+
     assert(
         samplePositionsCoherent(
             100000,
