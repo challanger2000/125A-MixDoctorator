@@ -47,6 +47,13 @@ void Processor::resetAnalysisState() noexcept{
     sessionFinding_=SessionFinding{};
     heldTopPair_=-1;
 
+    ++ipcGeneration_;
+    if(ipcGeneration_==0)
+        ipcGeneration_=1;
+
+    haveLatestIpc_=false;
+    latestIpc_=IpcResponse{};
+
     for(double& value:last_)
         value=-1.0;
 }
@@ -140,6 +147,8 @@ void Processor::ipcWorkerLoop() noexcept{
         response.session=
             IPC::clampSession(
                 newest.session);
+        response.generation=
+            newest.generation;
         response.samplePosition=
             newest.samplePosition;
 
@@ -256,8 +265,6 @@ void Processor::readParameters(
 
         if(newSession!=session_){
             session_=newSession;
-            haveLatestIpc_=false;
-            latestIpc_=IpcResponse{};
             resetAnalysisState();
         }
     }
@@ -841,6 +848,7 @@ tresult PLUGIN_API Processor::process(
     if(ipcReady_){
         const IpcRequest request{
             session_,
+            ipcGeneration_,
             currentSamplePosition,
             data.numSamples
         };
@@ -856,7 +864,8 @@ tresult PLUGIN_API Processor::process(
 
     const bool responseForSession=
         haveLatestIpc_ &&
-        latestIpc_.session==session_;
+        latestIpc_.session==session_ &&
+        latestIpc_.generation==ipcGeneration_;
 
     const bool responseFresh=
         responseForSession &&
@@ -1224,8 +1233,6 @@ tresult PLUGIN_API Processor::setState(
     else
         session_=0;
 
-    haveLatestIpc_=false;
-    latestIpc_=IpcResponse{};
     resetAnalysisState();
     return kResultOk;
 }

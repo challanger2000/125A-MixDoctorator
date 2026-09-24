@@ -52,12 +52,14 @@ private:
 
     struct IpcRequest {
         int session{0};
+        std::uint64_t generation{0};
         std::int64_t samplePosition{-1};
         Steinberg::int32 numSamples{0};
     };
 
     struct IpcResponse {
         int session{0};
+        std::uint64_t generation{0};
         std::int64_t samplePosition{-1};
         IPC::Snapshot drums{};
         IPC::Snapshot bass{};
@@ -78,6 +80,7 @@ private:
     IpcResponse latestIpc_{};
     bool haveLatestIpc_{false};
     bool ipcReady_{false};
+    std::uint64_t ipcGeneration_{1};
     double sampleRate_{44100.0};
     PairState pairStates_[3]{};
     SessionFinding sessionFinding_{};
