@@ -1,6 +1,7 @@
 #include "../src/RoleModel.h"
 #include <cassert>
 #include <iostream>
+#include <string>
 
 int main(){
     using namespace MixDoctorator;
@@ -14,6 +15,14 @@ int main(){
     assert(roleFamily(IPC::Role::LeadVocal)==RoleFamily::Vocal);
     assert(roleFamily(IPC::Role::Synth)==RoleFamily::KeysSynth);
     assert(roleFamily(IPC::Role::Pad)==RoleFamily::Pad);
+
+    for(int i=0;i<IPC::kRoleCount;++i){
+        const auto role=roleFromIndex(i);
+        assert(role!=IPC::Role::Unknown);
+        assert(roleFamily(role)!=RoleFamily::Unknown);
+        assert(roleDisplayRank(role)<1000);
+        assert(std::string(roleName(role))!="UNKNOWN");
+    }
 
     assert(isLowEndRole(IPC::Role::Kick));
     assert(isLowEndRole(IPC::Role::Bass));
