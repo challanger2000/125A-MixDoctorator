@@ -2,6 +2,7 @@
 #include "public.sdk/source/vst/vstaudioeffect.h"
 #include "MixDoctoratorIPC.h"
 #include "SpscQueue.h"
+#include "RoleModel.h"
 #include <atomic>
 #include <cstdint>
 #include <thread>
@@ -64,6 +65,9 @@ private:
         IPC::Snapshot drums{};
         IPC::Snapshot bass{};
         IPC::Snapshot guitar{};
+        IPC::Snapshot roles[IPC::kRoleCount]{};
+        bool roleOk[IPC::kRoleCount]{};
+        int roleCount[IPC::kRoleCount]{};
         int drumsCount{0};
         int bassCount{0};
         int guitarCount{0};
@@ -83,13 +87,15 @@ private:
     std::uint64_t ipcGeneration_{1};
     double sampleRate_{44100.0};
     PairState pairStates_[3]{};
+    PairState coachPairStates_[Analysis::kRolePairCount]{};
     SessionFinding sessionFinding_{};
     int heldTopPair_{-1};
+    int heldCoachPair_{-1};
     int session_{0};
     bool wasPlaying_{false};
     std::int64_t lastProjectSample_{-1};
 
-    double last_[44]{
+    double last_[45]{
         -1,-1,-1,-1,-1,-1,
         -1,-1,-1,-1,
         -1,-1,-1,-1,
@@ -101,7 +107,7 @@ private:
         -1,-1,-1,
         -1,-1,-1,
         -1,-1,-1,
-        -1,-1
+        -1,-1,-1
     };
 
     void publishParam(
@@ -137,6 +143,7 @@ private:
     static double severityFromState(const PairState&) noexcept;
     static double dominanceParam(double dominance) noexcept;
     int chooseTopPair() noexcept;
+    int chooseCoachPair() noexcept;
 };
 
 } // namespace MixDoctorator::Brain
