@@ -456,7 +456,7 @@ tresult PLUGIN_API Controller::getParamStringByValue(
             "Beide Quellen im Bereich vergleichen. Bei der stoerenderen Quelle vorsichtig Platz schaffen und im Mix gegenhoeren.",
             "Kick und Bass getrennt beurteilen. Festlegen, wer die Tiefe traegt; bei der anderen Quelle vorsichtig Platz schaffen.",
             "Gesang als Bezugspunkt. Bei Synth, Keys, Pad oder Gitarre pruefen, ob eine kleine Absenkung die Stimme klaert.",
-            "Becken und andere Quelle vergleichen. Nicht automatisch Hoehen wegnehmen; zuerst die dominantere oder haertere Quelle pruefen.",
+            "Becken und andere Quelle vergleichen. Nicht automatisch Hoehen wegnehmen; zuerst die dominantere Quelle pruefen.",
             "Attack- und harmonische Quelle getrennt pruefen: Timing, Huellkurve oder kleine Entzerrung vor grossen EQ-Eingriffen.",
             "Bei Bass gegen eine harmonische Quelle zuerst unnoetige Tiefen der anderen Quelle pruefen."
         };
