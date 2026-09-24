@@ -132,4 +132,15 @@ if(MIXDOCTORATOR_BUILD_TESTS)
     add_test(
         NAME PrimaryFindingTests
         COMMAND PrimaryFindingTests)
+
+    add_executable(AnalysisSafetyTests
+        tests/AnalysisSafetyTests.cpp)
+
+    target_compile_features(
+        AnalysisSafetyTests
+        PRIVATE cxx_std_17)
+
+    add_test(
+        NAME AnalysisSafetyTests
+        COMMAND AnalysisSafetyTests)
 endif()

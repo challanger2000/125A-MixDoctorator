@@ -22,8 +22,8 @@ constexpr int kRoleCount=3;
 constexpr int kBandCount=9;
 constexpr int kSessionCount=8;
 constexpr int kSensorSlotCount=24;
-constexpr std::uint32_t kMagic=0x4D445037u;
-constexpr std::uint32_t kVersion=7u;
+constexpr std::uint32_t kMagic=0x4D445038u;
+constexpr std::uint32_t kVersion=8u;
 
 inline int clampSession(int session) noexcept {
     return std::clamp(session,0,kSessionCount-1);
@@ -34,7 +34,7 @@ struct alignas(64) Slot {
     volatile LONG sequence{0};
     volatile LONG role{0};
     volatile LONG active{0};
-    volatile LONG reserved{0};
+    volatile LONG writerLock{0};
     volatile LONG64 instanceId{0};
     volatile LONG64 heartbeatMs{0};
     volatile LONG64 samplePosition{-1};
@@ -52,6 +52,11 @@ struct alignas(64) Slot {
 };
 
 struct SharedBlock {
+#ifdef _WIN32
+    volatile LONG initState{0}; // 0=new, 1=initializing, 2=ready
+#else
+    std::int32_t initState{0};
+#endif
     std::uint32_t magic{kMagic};
     std::uint32_t version{kVersion};
     Slot slots[kSensorSlotCount]{};
@@ -92,7 +97,7 @@ public:
             std::swprintf(
                 name,
                 sizeof(name)/sizeof(name[0]),
-                L"Local\\125A_MixDoctorator_POC_v7_S%d",
+                L"Local\\125A_MixDoctorator_POC_v8_S%d",
                 session+1);
 
             mapping_[session]=CreateFileMappingW(
@@ -124,19 +129,73 @@ public:
                 return false;
             }
 
-            if(!existed ||
-               block_[session]->magic!=kMagic ||
-               block_[session]->version!=kVersion){
+            auto* shared=
+                block_[session];
+
+            if(!existed){
+                if(InterlockedCompareExchange(
+                       &shared->initState,
+                       1,
+                       0)!=0){
+                    close();
+                    return false;
+                }
 
                 ZeroMemory(
-                    block_[session],
-                    sizeof(SharedBlock));
+                    shared->slots,
+                    sizeof(shared->slots));
 
-                block_[session]->magic=kMagic;
-                block_[session]->version=kVersion;
+                shared->magic=kMagic;
+                shared->version=kVersion;
 
-                for(auto& slot:block_[session]->slots)
+                for(auto& slot:shared->slots)
                     slot.samplePosition=-1;
+
+                MemoryBarrier();
+                InterlockedExchange(
+                    &shared->initState,
+                    2);
+            }else{
+                // open() is not called from process(); a short bounded wait is
+                // acceptable here and avoids two processes initializing the
+                // same mapping concurrently.
+                int waits=0;
+
+                while(shared->initState==1 &&
+                      waits<100){
+                    Sleep(1);
+                    ++waits;
+                }
+
+                if(shared->initState==0){
+                    if(InterlockedCompareExchange(
+                           &shared->initState,
+                           1,
+                           0)==0){
+
+                        ZeroMemory(
+                            shared->slots,
+                            sizeof(shared->slots));
+
+                        shared->magic=kMagic;
+                        shared->version=kVersion;
+
+                        for(auto& slot:shared->slots)
+                            slot.samplePosition=-1;
+
+                        MemoryBarrier();
+                        InterlockedExchange(
+                            &shared->initState,
+                            2);
+                    }
+                }
+
+                if(shared->initState!=2 ||
+                   shared->magic!=kMagic ||
+                   shared->version!=kVersion){
+                    close();
+                    return false;
+                }
             }
         }
 
@@ -192,42 +251,67 @@ public:
         if(!block)
             return false;
 
+        const auto now=
+            static_cast<std::uint64_t>(
+                GetTickCount64());
+
         int slotIndex=-1;
+        Slot* lockedSlot=nullptr;
 
-        if(cachedSlot>=0 &&
-           cachedSlot<kSensorSlotCount){
+        auto tryOwned=[&](
+            int index)->bool {
 
-            const auto id=
-                static_cast<std::uint64_t>(
-                    block->
-                    slots[cachedSlot].
-                    instanceId);
+            if(index<0 ||
+               index>=kSensorSlotCount)
+                return false;
 
-            if(id==instanceId)
-                slotIndex=cachedSlot;
-        }
+            auto& candidate=
+                block->slots[index];
 
-        if(slotIndex<0){
-            for(int i=0;i<kSensorSlotCount;++i){
-                const auto id=
-                    static_cast<std::uint64_t>(
-                        block->slots[i].instanceId);
+            if(InterlockedCompareExchange(
+                   &candidate.writerLock,
+                   1,
+                   0)!=0)
+                return false;
 
-                if(id==instanceId){
-                    slotIndex=i;
+            if(static_cast<std::uint64_t>(
+                   candidate.instanceId)!=
+               instanceId){
+                InterlockedExchange(
+                    &candidate.writerLock,
+                    0);
+                return false;
+            }
+
+            slotIndex=index;
+            lockedSlot=&candidate;
+            return true;
+        };
+
+        if(!tryOwned(cachedSlot)){
+            for(int i=0;
+                i<kSensorSlotCount &&
+                !lockedSlot;
+                ++i){
+
+                if(tryOwned(i))
                     break;
-                }
             }
         }
 
-        if(slotIndex<0){
-            const auto now=
-                static_cast<std::uint64_t>(
-                    GetTickCount64());
+        if(!lockedSlot){
+            for(int i=0;
+                i<kSensorSlotCount;
+                ++i){
 
-            for(int i=0;i<kSensorSlotCount;++i){
                 auto& candidate=
                     block->slots[i];
+
+                if(InterlockedCompareExchange(
+                       &candidate.writerLock,
+                       1,
+                       0)!=0)
+                    continue;
 
                 const LONG64 currentId=
                     candidate.instanceId;
@@ -241,41 +325,41 @@ public:
                     (now>=heartbeat &&
                      (now-heartbeat)>2000u);
 
-                if(!stale)
+                if(!stale){
+                    InterlockedExchange(
+                        &candidate.writerLock,
+                        0);
                     continue;
-
-                const LONG64 desired=
-                    static_cast<LONG64>(
-                        instanceId);
-
-                if(InterlockedCompareExchange64(
-                       &candidate.instanceId,
-                       desired,
-                       currentId)==currentId){
-
-                    slotIndex=i;
-                    break;
                 }
+
+                slotIndex=i;
+                lockedSlot=&candidate;
+                break;
             }
         }
 
-        if(slotIndex<0)
+        if(!lockedSlot)
             return false;
 
         cachedSlot=slotIndex;
 
-        auto& s=
-            block->slots[slotIndex];
+        auto& s=*lockedSlot;
 
         InterlockedIncrement(
             &s.sequence);
 
         MemoryBarrier();
 
+        // instanceId is part of the same seqlock-protected snapshot as the
+        // payload. A reclaimed slot can therefore never expose a new owner
+        // together with stale data from the previous owner.
+        s.active=0;
+        s.instanceId=
+            static_cast<LONG64>(
+                instanceId);
         s.role=
             static_cast<LONG>(
                 role);
-
         s.samplePosition=
             static_cast<LONG64>(
                 samplePosition);
@@ -290,14 +374,17 @@ public:
 
         s.heartbeatMs=
             static_cast<LONG64>(
-                GetTickCount64());
-
+                now);
         s.active=1;
 
         MemoryBarrier();
 
         InterlockedIncrement(
             &s.sequence);
+
+        InterlockedExchange(
+            &s.writerLock,
+            0);
 
         return true;
 #else
@@ -349,6 +436,7 @@ public:
                 continue;
 
             Snapshot t;
+            LONG active=0;
 
             t.instanceId=
                 static_cast<std::uint64_t>(
@@ -370,6 +458,7 @@ public:
             t.peakDb=s.peakDb;
             t.activity=s.activity;
             t.transient=s.transient;
+            active=s.active;
 
             for(int i=0;i<kBandCount;++i)
                 t.bands[i]=s.bands[i];
@@ -388,7 +477,7 @@ public:
 
                 t.connected=
                     t.instanceId!=0 &&
-                    s.active!=0 &&
+                    active!=0 &&
                     now>=t.heartbeatMs &&
                     (now-t.heartbeatMs)<1500u;
 

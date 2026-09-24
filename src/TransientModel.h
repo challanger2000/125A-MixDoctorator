@@ -27,6 +27,9 @@ public:
     }
 
     void pushPower(double power) noexcept {
+        if(!std::isfinite(power))
+            power=0.0;
+
         power=std::max(0.0,power);
 
         fastPower_+=fastAlpha_*(power-fastPower_);

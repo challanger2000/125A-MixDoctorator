@@ -241,19 +241,29 @@ static void copyMeasure(
         i<n;
         ++i){
 
-        const double left=
+        const double rawLeft=
             (input.numChannels>0 &&
              in[0])
             ? static_cast<double>(
                 in[0][i])
             : 0.0;
 
-        const double right=
+        const double rawRight=
             (input.numChannels>1 &&
              in[1])
             ? static_cast<double>(
                 in[1][i])
-            : left;
+            : rawLeft;
+
+        const double left=
+            std::isfinite(rawLeft)
+            ? rawLeft
+            : 0.0;
+
+        const double right=
+            std::isfinite(rawRight)
+            ? rawRight
+            : 0.0;
 
         if(output.numChannels>0 &&
            out[0])

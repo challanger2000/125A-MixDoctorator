@@ -27,6 +27,9 @@ public:
     }
 
     void push(double x) noexcept {
+        if(!std::isfinite(x))
+            x=0.0;
+
         time_[write_]=x;
         write_=(write_+1)%kFftSize;
         filled_=std::min(filled_+1,kFftSize);
