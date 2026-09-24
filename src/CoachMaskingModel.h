@@ -43,16 +43,19 @@ inline PairMetrics evaluateCoachMasking(
         1.0-
         directOverlap;
 
+    const double safeAdded=
+        std::clamp(
+            std::isfinite(
+                neighbor.addedRisk)
+                ? neighbor.addedRisk
+                : 0.0,
+            0.0,
+            1.0);
+
     const double boundedAdded=
         std::min(
             0.18,
-            std::clamp(
-                std::isfinite(
-                    neighbor.addedRisk)
-                    ? neighbor.addedRisk
-                    : 0.0,
-                0.0,
-                1.0));
+            safeAdded);
 
     const double effectiveAdded=
         boundedAdded*
@@ -61,10 +64,7 @@ inline PairMetrics evaluateCoachMasking(
     const double rawAdded=
         std::max(
             1.0e-20,
-            std::clamp(
-                neighbor.addedRisk,
-                0.0,
-                1.0));
+            safeAdded);
 
     const double scale=
         effectiveAdded/
