@@ -81,8 +81,14 @@ int main(){
                 const auto attack=makeRecommendation(
                     first,second,4,
                     0.35,0.70,0.0,0.60);
-                assert(attack.valid);
-                assert(attack.kind==RecommendationKind::AttackSeparation);
+
+                if(comparable){
+                    assert(attack.valid);
+                    assert(attack.kind==RecommendationKind::AttackSeparation);
+                }else{
+                    assert(!attack.valid);
+                    assert(attack.context==RecommendationContext::None);
+                }
             }
         }
     }
