@@ -62,6 +62,7 @@ struct Snapshot {
     double rmsDb{-120.0};
     double peakDb{-120.0};
     double activity{0.0};
+    double transient{0.0};
     double bands[kBandCount]{};
 };
 
