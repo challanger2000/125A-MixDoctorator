@@ -3,19 +3,24 @@
 #include "MixDoctoratorIPC.h"
 #include "SpectralAnalyzer.h"
 #include "TransientModel.h"
+#include "SpscQueue.h"
+#include <atomic>
 #include <cstdint>
+#include <thread>
 
 namespace MixDoctorator::Sensor {
 
 class Processor final : public Steinberg::Vst::AudioEffect {
 public:
     Processor();
+    ~Processor() override;
 
     static Steinberg::FUnknown* createInstance(void*) {
         return static_cast<Steinberg::Vst::IAudioProcessor*>(new Processor());
     }
 
     Steinberg::tresult PLUGIN_API initialize(Steinberg::FUnknown*) override;
+    Steinberg::tresult PLUGIN_API terminate() override;
     Steinberg::tresult PLUGIN_API setBusArrangements(
         Steinberg::Vst::SpeakerArrangement*, Steinberg::int32,
         Steinberg::Vst::SpeakerArrangement*, Steinberg::int32) override;
@@ -40,7 +45,21 @@ public:
     }
 
 private:
+    struct AnalysisPacket {
+        int session{0};
+        IPC::Role role{IPC::Role::Unknown};
+        std::int64_t samplePosition{-1};
+        double rmsDb{-180.0};
+        double peakDb{-180.0};
+        double activity{0.0};
+        double transient{0.0};
+        double bands[IPC::kBandCount]{};
+    };
+
     void readParameters(Steinberg::Vst::IParameterChanges*);
+    void startIpcWorker();
+    void stopIpcWorker() noexcept;
+    void ipcWorkerLoop() noexcept;
 
     IPC::Role role_{IPC::Role::Drums};
     int session_{0};
@@ -50,6 +69,11 @@ private:
     };
 
     IPC::SharedMemory ipc_;
+    Realtime::SpscQueue<AnalysisPacket,64> ipcQueue_;
+    std::atomic<bool> ipcWorkerRunning_{false};
+    std::thread ipcWorker_;
+    bool ipcReady_{false};
+
     Analysis::SpectralAnalyzer analyzerLeft_;
     Analysis::SpectralAnalyzer analyzerRight_;
     Analysis::TransientDetector transientDetector_;

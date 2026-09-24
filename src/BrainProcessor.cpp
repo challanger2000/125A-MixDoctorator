@@ -15,7 +15,9 @@
 #include "pluginterfaces/vst/vstspeaker.h"
 
 #include <algorithm>
+#include <chrono>
 #include <cmath>
+#include <thread>
 #include <type_traits>
 
 namespace MixDoctorator::Brain {
@@ -32,6 +34,10 @@ using namespace Steinberg::Vst;
 
 Processor::Processor(){
     setControllerClass(kControllerUID);
+}
+
+Processor::~Processor(){
+    stopIpcWorker();
 }
 
 void Processor::resetAnalysisState() noexcept{
@@ -59,8 +65,118 @@ tresult PLUGIN_API Processor::initialize(FUnknown* c){
         STR16("Stereo Out"),
         SpeakerArr::kStereo);
 
-    ipc_.open();
+    ipcReady_=ipc_.open();
+
+    if(ipcReady_)
+        startIpcWorker();
+
     return kResultOk;
+}
+
+tresult PLUGIN_API Processor::terminate(){
+    stopIpcWorker();
+    ipc_.close();
+    ipcReady_=false;
+    return AudioEffect::terminate();
+}
+
+void Processor::startIpcWorker(){
+    if(ipcWorkerRunning_.exchange(
+           true,
+           std::memory_order_acq_rel))
+        return;
+
+    try{
+        ipcWorker_=
+            std::thread(
+                [this]{
+                    ipcWorkerLoop();
+                });
+    }catch(...){
+        ipcWorkerRunning_.store(
+            false,
+            std::memory_order_release);
+        ipcReady_=false;
+    }
+}
+
+void Processor::stopIpcWorker() noexcept{
+    ipcWorkerRunning_.store(
+        false,
+        std::memory_order_release);
+
+    if(ipcWorker_.joinable())
+        ipcWorker_.join();
+}
+
+void Processor::ipcWorkerLoop() noexcept{
+    while(ipcWorkerRunning_.load(
+              std::memory_order_acquire)){
+
+        IpcRequest request;
+        IpcRequest newest;
+        bool haveRequest=false;
+
+        while(ipcRequests_.pop(request)){
+            newest=request;
+            haveRequest=true;
+        }
+
+        if(!haveRequest){
+            std::this_thread::sleep_for(
+                std::chrono::milliseconds(1));
+            continue;
+        }
+
+        const std::uint64_t nowMs=
+#ifdef _WIN32
+            static_cast<std::uint64_t>(
+                GetTickCount64());
+#else
+            0;
+#endif
+
+        IpcResponse response;
+        response.session=
+            IPC::clampSession(
+                newest.session);
+        response.samplePosition=
+            newest.samplePosition;
+
+        response.drumsOk=
+            readRoleAggregate(
+                response.session,
+                IPC::Role::Drums,
+                newest.samplePosition,
+                newest.numSamples,
+                nowMs,
+                response.drums,
+                response.drumsCount);
+
+        response.bassOk=
+            readRoleAggregate(
+                response.session,
+                IPC::Role::Bass,
+                newest.samplePosition,
+                newest.numSamples,
+                nowMs,
+                response.bass,
+                response.bassCount);
+
+        response.guitarOk=
+            readRoleAggregate(
+                response.session,
+                IPC::Role::ElectricGuitar,
+                newest.samplePosition,
+                newest.numSamples,
+                nowMs,
+                response.guitar,
+                response.guitarCount);
+
+        // Worker-to-audio queue is also bounded. The audio thread drains to
+        // the newest available response each block.
+        ipcResponses_.push(response);
+    }
 }
 
 tresult PLUGIN_API Processor::setBusArrangements(
@@ -140,6 +256,8 @@ void Processor::readParameters(
 
         if(newSession!=session_){
             session_=newSession;
+            haveLatestIpc_=false;
+            latestIpc_=IpcResponse{};
             resetAnalysisState();
         }
     }
@@ -173,6 +291,7 @@ void Processor::publishParam(
 }
 
 bool Processor::readRoleAggregate(
+    int session,
     IPC::Role role,
     std::int64_t currentSamplePosition,
     int32 numSamples,
@@ -193,7 +312,7 @@ bool Processor::readRoleAggregate(
         IPC::Snapshot source;
 
         if(!ipc_.readSlot(
-               session_,
+               session,
                slot,
                source,
                nowMs))
@@ -719,45 +838,56 @@ tresult PLUGIN_API Processor::process(
         lastProjectSample_=
             currentSamplePosition;
 
-    const std::uint64_t nowMs=
-#ifdef _WIN32
-        static_cast<std::uint64_t>(
-            GetTickCount64());
-#else
-        0;
-#endif
+    if(ipcReady_){
+        const IpcRequest request{
+            session_,
+            currentSamplePosition,
+            data.numSamples
+        };
+
+        ipcRequests_.push(request);
+    }
+
+    IpcResponse response;
+    while(ipcResponses_.pop(response)){
+        latestIpc_=response;
+        haveLatestIpc_=true;
+    }
+
+    const bool responseForSession=
+        haveLatestIpc_ &&
+        latestIpc_.session==session_;
+
+    const bool responseFresh=
+        responseForSession &&
+        Analysis::samplePositionsCoherent(
+            currentSamplePosition,
+            latestIpc_.samplePosition,
+            latestIpc_.samplePosition,
+            data.numSamples);
 
     IPC::Snapshot drums,bass,guitar;
     int drumsCount=0;
     int bassCount=0;
     int guitarCount=0;
+    bool drumsOk=false;
+    bool bassOk=false;
+    bool guitarOk=false;
 
-    const bool drumsOk=
-        readRoleAggregate(
-            IPC::Role::Drums,
-            currentSamplePosition,
-            data.numSamples,
-            nowMs,
-            drums,
-            drumsCount);
+    if(responseForSession){
+        drumsCount=latestIpc_.drumsCount;
+        bassCount=latestIpc_.bassCount;
+        guitarCount=latestIpc_.guitarCount;
+    }
 
-    const bool bassOk=
-        readRoleAggregate(
-            IPC::Role::Bass,
-            currentSamplePosition,
-            data.numSamples,
-            nowMs,
-            bass,
-            bassCount);
-
-    const bool guitarOk=
-        readRoleAggregate(
-            IPC::Role::ElectricGuitar,
-            currentSamplePosition,
-            data.numSamples,
-            nowMs,
-            guitar,
-            guitarCount);
+    if(responseFresh){
+        drums=latestIpc_.drums;
+        bass=latestIpc_.bass;
+        guitar=latestIpc_.guitar;
+        drumsOk=latestIpc_.drumsOk;
+        bassOk=latestIpc_.bassOk;
+        guitarOk=latestIpc_.guitarOk;
+    }
 
     auto level=[](
         const IPC::Snapshot& s,
@@ -848,23 +978,28 @@ tresult PLUGIN_API Processor::process(
         level(guitar,guitarOk),
         5);
 
-    updatePair(
-        drums,bass,
-        pairStates_[0],
-        data.numSamples,
-        currentSamplePosition);
+    // Do not decay accumulated evidence merely because the IPC worker is
+    // one response behind (especially across a cycle wrap). A fresh response
+    // with a genuinely disconnected source still drives the normal decay path.
+    if(responseFresh){
+        updatePair(
+            drums,bass,
+            pairStates_[0],
+            data.numSamples,
+            currentSamplePosition);
 
-    updatePair(
-        bass,guitar,
-        pairStates_[1],
-        data.numSamples,
-        currentSamplePosition);
+        updatePair(
+            bass,guitar,
+            pairStates_[1],
+            data.numSamples,
+            currentSamplePosition);
 
-    updatePair(
-        drums,guitar,
-        pairStates_[2],
-        data.numSamples,
-        currentSamplePosition);
+        updatePair(
+            drums,guitar,
+            pairStates_[2],
+            data.numSamples,
+            currentSamplePosition);
+    }
 
     publishParam(data,kDrumsBassOverlap,pairStates_[0].overlap,6);
     publishParam(data,kDrumsBassMasking,pairStates_[0].masking,7);
@@ -1089,6 +1224,8 @@ tresult PLUGIN_API Processor::setState(
     else
         session_=0;
 
+    haveLatestIpc_=false;
+    latestIpc_=IpcResponse{};
     resetAnalysisState();
     return kResultOk;
 }

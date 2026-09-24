@@ -11,7 +11,9 @@
 #include <atomic>
 #include <cmath>
 #include <cstdint>
+#include <chrono>
 #include <random>
+#include <thread>
 #include <type_traits>
 
 namespace MixDoctorator::Sensor {
@@ -74,6 +76,10 @@ Processor::Processor(){
         kControllerUID);
 }
 
+Processor::~Processor(){
+    stopIpcWorker();
+}
+
 tresult PLUGIN_API Processor::initialize(
     FUnknown* c){
 
@@ -91,13 +97,87 @@ tresult PLUGIN_API Processor::initialize(
         STR16("Stereo Out"),
         SpeakerArr::kStereo);
 
-    ipc_.open();
+    ipcReady_=ipc_.open();
 
     if(instanceId_==0)
         instanceId_=
             makeRuntimeInstanceId();
 
+    if(ipcReady_)
+        startIpcWorker();
+
     return kResultOk;
+}
+
+tresult PLUGIN_API Processor::terminate(){
+    stopIpcWorker();
+    ipc_.close();
+    ipcReady_=false;
+    return AudioEffect::terminate();
+}
+
+void Processor::startIpcWorker(){
+    if(ipcWorkerRunning_.exchange(
+           true,
+           std::memory_order_acq_rel))
+        return;
+
+    try{
+        ipcWorker_=
+            std::thread(
+                [this]{
+                    ipcWorkerLoop();
+                });
+    }catch(...){
+        ipcWorkerRunning_.store(
+            false,
+            std::memory_order_release);
+        ipcReady_=false;
+    }
+}
+
+void Processor::stopIpcWorker() noexcept{
+    ipcWorkerRunning_.store(
+        false,
+        std::memory_order_release);
+
+    if(ipcWorker_.joinable())
+        ipcWorker_.join();
+}
+
+void Processor::ipcWorkerLoop() noexcept{
+    while(ipcWorkerRunning_.load(
+              std::memory_order_acquire)){
+
+        AnalysisPacket packet;
+        AnalysisPacket newest;
+        bool havePacket=false;
+
+        while(ipcQueue_.pop(packet)){
+            newest=packet;
+            havePacket=true;
+        }
+
+        if(!havePacket){
+            std::this_thread::sleep_for(
+                std::chrono::milliseconds(1));
+            continue;
+        }
+
+        ipc_.publish(
+            newest.session,
+            instanceId_,
+            cachedSlot_[
+                IPC::clampSession(
+                    newest.session)],
+            newest.role,
+            newest.samplePosition,
+            newest.rmsDb,
+            newest.peakDb,
+            newest.activity,
+            newest.transient,
+            newest.bands);
+    }
 }
 
 tresult PLUGIN_API Processor::setBusArrangements(
@@ -362,17 +442,23 @@ tresult PLUGIN_API Processor::process(
             projectTimeSamples)
         : -1;
 
-    ipc_.publish(
-        session_,
-        instanceId_,
-        cachedSlot_[session_],
-        role_,
-        samplePosition,
-        rmsDb,
-        peakDb,
-        activity,
-        transient,
-        bands.data());
+    AnalysisPacket packet;
+    packet.session=session_;
+    packet.role=role_;
+    packet.samplePosition=samplePosition;
+    packet.rmsDb=rmsDb;
+    packet.peakDb=peakDb;
+    packet.activity=activity;
+    packet.transient=transient;
+
+    for(int i=0;i<IPC::kBandCount;++i)
+        packet.bands[i]=bands[
+            static_cast<std::size_t>(i)];
+
+    // Bounded, non-blocking handoff. If the worker is briefly behind,
+    // dropping one analysis frame is preferable to blocking the audio thread.
+    if(ipcReady_)
+        ipcQueue_.push(packet);
 
     return kResultOk;
 }

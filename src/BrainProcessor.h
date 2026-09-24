@@ -1,19 +1,24 @@
 #pragma once
 #include "public.sdk/source/vst/vstaudioeffect.h"
 #include "MixDoctoratorIPC.h"
+#include "SpscQueue.h"
+#include <atomic>
 #include <cstdint>
+#include <thread>
 
 namespace MixDoctorator::Brain {
 
 class Processor final : public Steinberg::Vst::AudioEffect {
 public:
     Processor();
+    ~Processor() override;
 
     static Steinberg::FUnknown* createInstance(void*) {
         return static_cast<Steinberg::Vst::IAudioProcessor*>(new Processor());
     }
 
     Steinberg::tresult PLUGIN_API initialize(Steinberg::FUnknown*) override;
+    Steinberg::tresult PLUGIN_API terminate() override;
     Steinberg::tresult PLUGIN_API setBusArrangements(
         Steinberg::Vst::SpeakerArrangement*, Steinberg::int32,
         Steinberg::Vst::SpeakerArrangement*, Steinberg::int32) override;
@@ -45,7 +50,34 @@ private:
         double dominance{0.0};
     };
 
+    struct IpcRequest {
+        int session{0};
+        std::int64_t samplePosition{-1};
+        Steinberg::int32 numSamples{0};
+    };
+
+    struct IpcResponse {
+        int session{0};
+        std::int64_t samplePosition{-1};
+        IPC::Snapshot drums{};
+        IPC::Snapshot bass{};
+        IPC::Snapshot guitar{};
+        int drumsCount{0};
+        int bassCount{0};
+        int guitarCount{0};
+        bool drumsOk{false};
+        bool bassOk{false};
+        bool guitarOk{false};
+    };
+
     IPC::SharedMemory ipc_;
+    Realtime::SpscQueue<IpcRequest,64> ipcRequests_;
+    Realtime::SpscQueue<IpcResponse,64> ipcResponses_;
+    std::atomic<bool> ipcWorkerRunning_{false};
+    std::thread ipcWorker_;
+    IpcResponse latestIpc_{};
+    bool haveLatestIpc_{false};
+    bool ipcReady_{false};
     double sampleRate_{44100.0};
     PairState pairStates_[3]{};
     SessionFinding sessionFinding_{};
@@ -74,12 +106,17 @@ private:
         int);
 
     bool readRoleAggregate(
+        int,
         IPC::Role,
         std::int64_t,
         Steinberg::int32,
         std::uint64_t,
         IPC::Snapshot&,
         int&) noexcept;
+
+    void startIpcWorker();
+    void stopIpcWorker() noexcept;
+    void ipcWorkerLoop() noexcept;
 
     void updatePair(
         const IPC::Snapshot&,

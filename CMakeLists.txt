@@ -177,6 +177,17 @@ if(MIXDOCTORATOR_BUILD_TESTS)
         NAME AudioSafetyTests
         COMMAND AudioSafetyTests)
 
+    add_executable(SpscQueueTests
+        tests/SpscQueueTests.cpp)
+
+    target_compile_features(
+        SpscQueueTests
+        PRIVATE cxx_std_17)
+
+    add_test(
+        NAME SpscQueueTests
+        COMMAND SpscQueueTests)
+
     # CI builds tests in Release. Keep assert()-based regression checks active;
     # otherwise NDEBUG would compile most existing test assertions away.
     set(MIXDOCTORATOR_TEST_TARGETS
@@ -193,7 +204,8 @@ if(MIXDOCTORATOR_BUILD_TESTS)
         AnalysisSafetyTests
         IPCConcurrencyTests
         TestBuildModeTests
-        AudioSafetyTests)
+        AudioSafetyTests
+        SpscQueueTests)
 
     foreach(test_target IN LISTS MIXDOCTORATOR_TEST_TARGETS)
         if(MSVC)
