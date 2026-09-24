@@ -133,9 +133,9 @@ inline Recommendation makeRecommendation(
     out.confidence=std::clamp(safeConfidence,0.0,1.0);
     out.dominance=std::clamp(safeDominance,-1.0,1.0);
 
-    if(first==IPC::Role::Unknown ||
-       second==IPC::Role::Unknown ||
-       first==second ||
+    if(!rolesComparableForCoach(
+           first,
+           second) ||
        out.score<0.05 ||
        out.confidence<0.12)
         return out;
