@@ -68,6 +68,12 @@ private:
         double,
         int);
 
+    bool readRoleAggregate(
+        IPC::Role,
+        std::int64_t,
+        Steinberg::int32,
+        IPC::Snapshot&) noexcept;
+
     void updatePair(
         const IPC::Snapshot&,
         const IPC::Snapshot&,

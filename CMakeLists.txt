@@ -65,4 +65,15 @@ if(MIXDOCTORATOR_BUILD_TESTS)
     add_test(
         NAME TransientModelTests
         COMMAND TransientModelTests)
+
+    add_executable(RoleAggregateTests
+        tests/RoleAggregateTests.cpp)
+
+    target_compile_features(
+        RoleAggregateTests
+        PRIVATE cxx_std_17)
+
+    add_test(
+        NAME RoleAggregateTests
+        COMMAND RoleAggregateTests)
 endif()

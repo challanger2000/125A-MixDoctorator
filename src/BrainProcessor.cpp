@@ -2,6 +2,7 @@
 #include "BrainIDs.h"
 #include "MaskingModel.h"
 #include "TimingModel.h"
+#include "RoleAggregate.h"
 
 #include "base/source/fstreamer.h"
 #include "pluginterfaces/vst/ivstparameterchanges.h"
@@ -16,6 +17,10 @@ namespace MixDoctorator::Brain {
 static_assert(
     Analysis::kBandCount==IPC::kBandCount,
     "Brain masking band count must match IPC");
+
+static_assert(
+    Analysis::kAggregateBandCount==IPC::kBandCount,
+    "Brain aggregate band count must match IPC");
 
 using namespace Steinberg;
 using namespace Steinberg::Vst;
@@ -158,6 +163,84 @@ void Processor::publishParam(
 
     if(q->addPoint(0,v,point)==kResultTrue)
         last_[slot]=v;
+}
+
+bool Processor::readRoleAggregate(
+    IPC::Role role,
+    std::int64_t currentSamplePosition,
+    int32 numSamples,
+    IPC::Snapshot& out) noexcept{
+
+    Analysis::RoleAggregate aggregate;
+    aggregate.reset();
+
+    std::uint64_t freshestHeartbeat=0;
+
+    for(int slot=0;
+        slot<IPC::kSensorSlotCount;
+        ++slot){
+
+        IPC::Snapshot source;
+
+        if(!ipc_.readSlot(
+               session_,
+               slot,
+               source))
+            continue;
+
+        if(!source.connected ||
+           source.role!=role)
+            continue;
+
+        if(!Analysis::samplePositionsCoherent(
+               currentSamplePosition,
+               source.samplePosition,
+               source.samplePosition,
+               numSamples))
+            continue;
+
+        aggregate.add(
+            source.rmsDb,
+            source.peakDb,
+            source.activity,
+            source.transient,
+            source.bands);
+
+        freshestHeartbeat=
+            std::max(
+                freshestHeartbeat,
+                source.heartbeatMs);
+    }
+
+    const auto result=
+        aggregate.result();
+
+    if(!result.valid)
+        return false;
+
+    out=IPC::Snapshot{};
+    out.role=role;
+    out.connected=true;
+    out.heartbeatMs=
+        freshestHeartbeat;
+    out.samplePosition=
+        currentSamplePosition;
+    out.rmsDb=
+        result.rmsDb;
+    out.peakDb=
+        result.peakDb;
+    out.activity=
+        result.activity;
+    out.transient=
+        result.transient;
+
+    for(int i=0;
+        i<IPC::kBandCount;
+        ++i)
+        out.bands[i]=
+            result.bands[i];
+
+    return true;
 }
 
 void Processor::updatePair(
@@ -587,25 +670,25 @@ tresult PLUGIN_API Processor::process(
     IPC::Snapshot drums,bass,guitar;
 
     const bool drumsOk=
-        ipc_.read(
-            session_,
+        readRoleAggregate(
             IPC::Role::Drums,
-            drums) &&
-        drums.connected;
+            currentSamplePosition,
+            data.numSamples,
+            drums);
 
     const bool bassOk=
-        ipc_.read(
-            session_,
+        readRoleAggregate(
             IPC::Role::Bass,
-            bass) &&
-        bass.connected;
+            currentSamplePosition,
+            data.numSamples,
+            bass);
 
     const bool guitarOk=
-        ipc_.read(
-            session_,
+        readRoleAggregate(
             IPC::Role::ElectricGuitar,
-            guitar) &&
-        guitar.connected;
+            currentSamplePosition,
+            data.numSamples,
+            guitar);
 
     auto level=[](
         const IPC::Snapshot& s,
