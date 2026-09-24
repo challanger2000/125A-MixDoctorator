@@ -596,10 +596,28 @@ int Processor::chooseCoachAttackPair() noexcept{
         i<Analysis::kRolePairCount;
         ++i){
 
+        IPC::Role first=IPC::Role::Unknown;
+        IPC::Role second=IPC::Role::Unknown;
+
+        if(!Analysis::decodeRolePair(
+               i,
+               first,
+               second) ||
+           !Analysis::rolesComparableForCoach(
+               first,
+               second))
+            continue;
+
         const auto& state=
             coachPairStates_[i];
 
-        if(state.observedSeconds<2.0 ||
+        if(!std::isfinite(
+               state.observedSeconds) ||
+           !std::isfinite(
+               state.transientCompetition) ||
+           !std::isfinite(
+               state.confidence) ||
+           state.observedSeconds<2.0 ||
            state.transientCompetition<0.30)
             continue;
 
