@@ -26,6 +26,19 @@ int main(){
     assert(isHarmonicRole(IPC::Role::ElectricGuitar));
     assert(!isHarmonicRole(IPC::Role::Kick));
 
+    assert(!rolesComparableForCoach(
+        IPC::Role::Drums,
+        IPC::Role::Kick));
+    assert(!rolesComparableForCoach(
+        IPC::Role::Snare,
+        IPC::Role::Drums));
+    assert(rolesComparableForCoach(
+        IPC::Role::Kick,
+        IPC::Role::Bass));
+    assert(rolesComparableForCoach(
+        IPC::Role::Snare,
+        IPC::Role::ElectricGuitar));
+
     assert(kRolePairCount==91);
     assert(encodeRolePair(IPC::Role::Drums,IPC::Role::Bass)==0);
     assert(encodeRolePair(IPC::Role::Bass,IPC::Role::Drums)==0);
