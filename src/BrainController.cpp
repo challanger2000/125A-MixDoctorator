@@ -97,7 +97,7 @@ tresult PLUGIN_API Controller::initialize(FUnknown* c){
     parameters.addParameter(STR16("Coach Evidence"),nullptr,3,0.0,ro,kCoachEvidence);
     parameters.addParameter(STR16("Coach Pair"),nullptr,Analysis::kRolePairCount,0.0,ro,kCoachPair);
     parameters.addParameter(STR16("Coach Band"),nullptr,8,0.0,ro,kCoachBand);
-    parameters.addParameter(STR16("Coach Target"),nullptr,IPC::kRoleCount,0.0,ro,kCoachTarget);
+    parameters.addParameter(STR16("Coach Target"),nullptr,Analysis::kRecommendationTargetCodeCount,0.0,ro,kCoachTarget);
     parameters.addParameter(STR16("Coach Attack Pair"),nullptr,Analysis::kRolePairCount,0.0,ro,kCoachAttackPair);
     parameters.addParameter(STR16("Coach Attack Advice"),nullptr,1,0.0,ro,kCoachAttackAdvice);
     parameters.addParameter(STR16("All Sensor Count"),nullptr,0,0.0,ro,kAllSensorCount);
@@ -578,26 +578,41 @@ tresult PLUGIN_API Controller::getParamStringByValue(
                     std::lround(
                         std::clamp(v,0.0,1.0)*
                         static_cast<double>(
-                            IPC::kRoleCount))),
+                            Analysis::
+                            kRecommendationTargetCodeCount))),
                 0,
-                IPC::kRoleCount);
+                Analysis::
+                kRecommendationTargetCodeCount);
 
         UString128 s;
 
-        if(encoded<=0){
+        if(encoded==0){
+            s.fromAscii("NOCH KEINE AKTION");
+        }else if(encoded==1){
             s.fromAscii("BEIDE VERGLEICHEN");
         }else{
+            const int roleValue=
+                encoded-1;
+
             const auto role=
-                static_cast<IPC::Role>(
-                    encoded);
+                (roleValue>=1 &&
+                 roleValue<=IPC::kRoleCount)
+                ? static_cast<IPC::Role>(
+                    roleValue)
+                : IPC::Role::Unknown;
 
-            char b[96]{};
-            std::snprintf(
-                b,sizeof(b),
-                "ZUERST %s PRUEFEN",
-                Analysis::roleName(role));
+            if(role==IPC::Role::Unknown){
+                s.fromAscii(
+                    "BEIDE VERGLEICHEN");
+            }else{
+                char b[96]{};
+                std::snprintf(
+                    b,sizeof(b),
+                    "ZUERST %s PRUEFEN",
+                    Analysis::roleName(role));
 
-            s.fromAscii(b);
+                s.fromAscii(b);
+            }
         }
 
         s.copyTo(out,128);
