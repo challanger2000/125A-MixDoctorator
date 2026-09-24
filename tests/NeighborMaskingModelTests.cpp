@@ -57,6 +57,28 @@ int main(){
         assert(m.spread.masking<0.04);
     }
 
+    // Each spread direction must contribute independently. This guards
+    // against overwriting an already accumulated neighbour contribution.
+    {
+        const auto a=oneBand(4);
+        const auto b=oneBand(5);
+
+        const auto upperOnly=evaluatePairWithNeighborSpread(
+            -18.0,1.0,a.data(),
+            -18.0,1.0,b.data(),
+            0.0,0.20);
+
+        const auto lowerOnly=evaluatePairWithNeighborSpread(
+            -18.0,1.0,a.data(),
+            -18.0,1.0,b.data(),
+            0.12,0.0);
+
+        assert(upperOnly.spread.masking>0.03);
+        assert(lowerOnly.spread.masking>0.01);
+        assert(upperOnly.addedRisk>0.03);
+        assert(lowerOnly.addedRisk>0.01);
+    }
+
     // A large level difference should still suppress neighbour interaction.
     {
         const auto a=oneBand(4);
