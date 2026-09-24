@@ -16,6 +16,7 @@
     <control-tag name="TopAttackPair" tag="236"/><control-tag name="TopAttackScore" tag="237"/><control-tag name="TopAttackAdvice" tag="238"/>
     <control-tag name="CoachHeadline" tag="239"/><control-tag name="CoachAction" tag="240"/><control-tag name="CoachListen" tag="241"/>
     <control-tag name="CoachReason" tag="242"/><control-tag name="CoachEvidence" tag="243"/>
+    <control-tag name="CoachPair" tag="244"/><control-tag name="CoachBand" tag="245"/>
     <control-tag name="ViewMode" tag="9000"/>
   </control-tags>
 
@@ -50,12 +51,14 @@
 
     <view class="CParamDisplay" origin="0,54" size="940,46" control-tag="CoachHeadline" font-size="18" font-color="#ffffffff" back-color="#252525ff" frame-color="#777777ff"/>
 
-    <view class="CTextLabel" origin="0,118" size="230,22" title="AREA TO CHECK" font-size="12" font-color="#a0a0a0ff" transparent="true"/>
-    <view class="CParamDisplay" origin="0,143" size="230,54" control-tag="TopBand" font-size="14" font-color="#ffffffff" back-color="#202020ff" frame-color="#555555ff"/>
-    <view class="CTextLabel" origin="245,118" size="165,22" title="EVIDENCE" font-size="12" font-color="#a0a0a0ff" transparent="true"/>
-    <view class="CParamDisplay" origin="245,143" size="165,54" control-tag="CoachEvidence" font-size="14" font-color="#ffffffff" back-color="#202020ff" frame-color="#555555ff"/>
-    <view class="CTextLabel" origin="425,118" size="515,22" title="WHY MIXDOCTORATOR SAYS THIS" font-size="12" font-color="#a0a0a0ff" transparent="true"/>
-    <view class="CMultiLineTextLabel" origin="425,143" size="515,54" control-tag="CoachReason" font-size="13" font-color="#ffffffff" back-color="#202020ff" frame-color="#555555ff" line-layout="wrap" vertical-centered="true"/>
+    <view class="CTextLabel" origin="0,118" size="300,22" title="SOURCES" font-size="12" font-color="#a0a0a0ff" transparent="true"/>
+    <view class="CParamDisplay" origin="0,143" size="300,54" control-tag="CoachPair" font-size="13" font-color="#ffffffff" back-color="#202020ff" frame-color="#555555ff"/>
+    <view class="CTextLabel" origin="315,118" size="185,22" title="AREA TO CHECK" font-size="12" font-color="#a0a0a0ff" transparent="true"/>
+    <view class="CParamDisplay" origin="315,143" size="185,54" control-tag="CoachBand" font-size="13" font-color="#ffffffff" back-color="#202020ff" frame-color="#555555ff"/>
+    <view class="CTextLabel" origin="515,118" size="135,22" title="EVIDENCE" font-size="12" font-color="#a0a0a0ff" transparent="true"/>
+    <view class="CParamDisplay" origin="515,143" size="135,54" control-tag="CoachEvidence" font-size="13" font-color="#ffffffff" back-color="#202020ff" frame-color="#555555ff"/>
+    <view class="CTextLabel" origin="665,118" size="275,22" title="WHY MIXDOCTORATOR SAYS THIS" font-size="12" font-color="#a0a0a0ff" transparent="true"/>
+    <view class="CMultiLineTextLabel" origin="665,143" size="275,54" control-tag="CoachReason" font-size="12" font-color="#ffffffff" back-color="#202020ff" frame-color="#555555ff" line-layout="wrap" vertical-centered="true"/>
 
     <view class="CTextLabel" origin="0,208" size="940,24" title="TRY THIS FIRST" font-size="14" font-color="#ccccccff" transparent="true"/>
     <view class="CMultiLineTextLabel" origin="0,238" size="940,72" control-tag="CoachAction" font-size="15" font-color="#ffffffff" back-color="#303030ff" frame-color="#777777ff" line-layout="wrap" vertical-centered="true"/>
