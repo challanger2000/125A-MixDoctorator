@@ -67,6 +67,17 @@ if(MIXDOCTORATOR_BUILD_TESTS)
         NAME TransientModelTests
         COMMAND TransientModelTests)
 
+    add_executable(RoleBankAggregateTests
+        tests/RoleBankAggregateTests.cpp)
+
+    target_compile_features(
+        RoleBankAggregateTests
+        PRIVATE cxx_std_17)
+
+    add_test(
+        NAME RoleBankAggregateTests
+        COMMAND RoleBankAggregateTests)
+
     add_executable(RoleAggregateTests
         tests/RoleAggregateTests.cpp)
 
@@ -262,6 +273,7 @@ if(MIXDOCTORATOR_BUILD_TESTS)
         SpectralAnalyzerTests
         TimingModelTests
         TransientModelTests
+        RoleBankAggregateTests
         RoleAggregateTests
         IPCModelTests
         TransientInteractionTests
