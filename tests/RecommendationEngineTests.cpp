@@ -53,6 +53,38 @@ int main(){
     assert(r.valid);
     assert(r.context==RecommendationContext::BassVsHarmonic);
 
+    r=makeRecommendation(
+        IPC::Role::Kick,
+        IPC::Role::Bass,
+        6,0.30,0.60,0.0,0.0);
+    assert(r.valid);
+    assert(r.kind==RecommendationKind::PresenceSeparation);
+    assert(r.context==RecommendationContext::Generic);
+
+    r=makeRecommendation(
+        IPC::Role::Cymbals,
+        IPC::Role::ElectricGuitar,
+        2,0.30,0.60,0.0,0.0);
+    assert(r.valid);
+    assert(r.kind==RecommendationKind::LowMidCleanup);
+    assert(r.context==RecommendationContext::Generic);
+
+    r=makeRecommendation(
+        IPC::Role::Snare,
+        IPC::Role::ElectricGuitar,
+        6,0.30,0.60,0.0,0.05);
+    assert(r.valid);
+    assert(r.kind==RecommendationKind::PresenceSeparation);
+    assert(r.context==RecommendationContext::Generic);
+
+    r=makeRecommendation(
+        IPC::Role::Bass,
+        IPC::Role::Pad,
+        6,0.30,0.60,0.0,0.0);
+    assert(r.valid);
+    assert(r.kind==RecommendationKind::PresenceSeparation);
+    assert(r.context==RecommendationContext::Generic);
+
     assert(recommendationActionCode(
         RecommendationContext::Generic)==1);
     assert(recommendationActionCode(
