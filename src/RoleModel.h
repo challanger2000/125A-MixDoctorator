@@ -1,10 +1,46 @@
 #pragma once
 #include "MixDoctoratorIPC.h"
+#include <algorithm>
 
 namespace MixDoctorator::Analysis {
 
 constexpr int kRolePairCount=
     (IPC::kRoleCount*(IPC::kRoleCount-1))/2;
+
+struct RoleCountSummary {
+    int sensors{0};
+    int roles{0};
+};
+
+inline RoleCountSummary summarizeRoleCounts(
+    const int* counts) noexcept {
+
+    RoleCountSummary out;
+
+    if(!counts)
+        return out;
+
+    for(int i=0;i<IPC::kRoleCount;++i){
+        const int count=
+            std::clamp(
+                counts[i],
+                0,
+                IPC::kSensorSlotCount);
+
+        if(count>0)
+            ++out.roles;
+
+        out.sensors+=count;
+    }
+
+    out.sensors=
+        std::clamp(
+            out.sensors,
+            0,
+            IPC::kSensorSlotCount);
+
+    return out;
+}
 
 inline IPC::Role roleFromIndex(int index) noexcept {
     if(index<0 || index>=IPC::kRoleCount)
