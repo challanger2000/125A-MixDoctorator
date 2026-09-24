@@ -9,6 +9,8 @@
 #include "PrimaryFinding.h"
 #include "AudioSafety.h"
 #include "CoachModel.h"
+#include "RecommendationEngine.h"
+#include "RoleModel.h"
 
 #include "base/source/fstreamer.h"
 #include "pluginterfaces/vst/ivstparameterchanges.h"
@@ -45,8 +47,12 @@ void Processor::resetAnalysisState() noexcept{
     for(auto& p:pairStates_)
         p=PairState{};
 
+    for(auto& p:coachPairStates_)
+        p=PairState{};
+
     sessionFinding_=SessionFinding{};
     heldTopPair_=-1;
+    heldCoachPair_=-1;
 
     ++ipcGeneration_;
     if(ipcGeneration_==0)
@@ -153,35 +159,59 @@ void Processor::ipcWorkerLoop() noexcept{
         response.samplePosition=
             newest.samplePosition;
 
+        for(int i=0;i<IPC::kRoleCount;++i){
+            const auto role=
+                Analysis::roleFromIndex(i);
+
+            response.roleOk[i]=
+                readRoleAggregate(
+                    response.session,
+                    role,
+                    newest.samplePosition,
+                    newest.numSamples,
+                    nowMs,
+                    response.roles[i],
+                    response.roleCount[i]);
+        }
+
+        response.drums=
+            response.roles[
+                Analysis::roleToIndex(
+                    IPC::Role::Drums)];
+        response.bass=
+            response.roles[
+                Analysis::roleToIndex(
+                    IPC::Role::Bass)];
+        response.guitar=
+            response.roles[
+                Analysis::roleToIndex(
+                    IPC::Role::ElectricGuitar)];
+
         response.drumsOk=
-            readRoleAggregate(
-                response.session,
-                IPC::Role::Drums,
-                newest.samplePosition,
-                newest.numSamples,
-                nowMs,
-                response.drums,
-                response.drumsCount);
-
+            response.roleOk[
+                Analysis::roleToIndex(
+                    IPC::Role::Drums)];
         response.bassOk=
-            readRoleAggregate(
-                response.session,
-                IPC::Role::Bass,
-                newest.samplePosition,
-                newest.numSamples,
-                nowMs,
-                response.bass,
-                response.bassCount);
-
+            response.roleOk[
+                Analysis::roleToIndex(
+                    IPC::Role::Bass)];
         response.guitarOk=
-            readRoleAggregate(
-                response.session,
-                IPC::Role::ElectricGuitar,
-                newest.samplePosition,
-                newest.numSamples,
-                nowMs,
-                response.guitar,
-                response.guitarCount);
+            response.roleOk[
+                Analysis::roleToIndex(
+                    IPC::Role::ElectricGuitar)];
+
+        response.drumsCount=
+            response.roleCount[
+                Analysis::roleToIndex(
+                    IPC::Role::Drums)];
+        response.bassCount=
+            response.roleCount[
+                Analysis::roleToIndex(
+                    IPC::Role::Bass)];
+        response.guitarCount=
+            response.roleCount[
+                Analysis::roleToIndex(
+                    IPC::Role::ElectricGuitar)];
 
         // Worker-to-audio queue is also bounded. The audio thread drains to
         // the newest available response each block.
@@ -640,6 +670,74 @@ int Processor::chooseTopPair() noexcept{
     }
 
     heldTopPair_=best;
+    return best;
+}
+
+int Processor::chooseCoachPair() noexcept{
+    auto eligible=[this](int i){
+        return
+            coachPairStates_[i].observedSeconds>=2.5 &&
+            coachPairStates_[i].masking>=0.14 &&
+            coachPairStates_[i].confidence>=0.12;
+    };
+
+    if(heldCoachPair_>=0 &&
+       heldCoachPair_<Analysis::kRolePairCount &&
+       eligible(heldCoachPair_)){
+
+        int challenger=heldCoachPair_;
+        double challengerRank=
+            coachPairStates_[heldCoachPair_].masking *
+            (0.60+
+             0.40*
+             coachPairStates_[heldCoachPair_].confidence);
+
+        for(int i=0;
+            i<Analysis::kRolePairCount;
+            ++i){
+
+            if(!eligible(i))
+                continue;
+
+            const double rank=
+                coachPairStates_[i].masking *
+                (0.60+
+                 0.40*
+                 coachPairStates_[i].confidence);
+
+            if(rank>challengerRank+0.04){
+                challenger=i;
+                challengerRank=rank;
+            }
+        }
+
+        heldCoachPair_=challenger;
+        return heldCoachPair_;
+    }
+
+    int best=-1;
+    double bestRank=0.14;
+
+    for(int i=0;
+        i<Analysis::kRolePairCount;
+        ++i){
+
+        if(!eligible(i))
+            continue;
+
+        const double rank=
+            coachPairStates_[i].masking *
+            (0.60+
+             0.40*
+             coachPairStates_[i].confidence);
+
+        if(rank>bestRank){
+            best=i;
+            bestRank=rank;
+        }
+    }
+
+    heldCoachPair_=best;
     return best;
 }
 
