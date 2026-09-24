@@ -69,6 +69,7 @@ enum ParamID : Steinberg::Vst::ParamID {
     kCoachEvidence,
     kCoachPair,
     kCoachBand,
+    kCoachTarget,
     kCoachAttackPair,
     kCoachAttackAdvice,
 
