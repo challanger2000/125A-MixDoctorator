@@ -78,6 +78,17 @@ if(MIXDOCTORATOR_BUILD_TESTS)
         NAME SpectralAnalyzerTests
         COMMAND SpectralAnalyzerTests)
 
+    add_executable(PairMeasurementTests
+        tests/PairMeasurementTests.cpp)
+
+    target_compile_features(
+        PairMeasurementTests
+        PRIVATE cxx_std_17)
+
+    add_test(
+        NAME PairMeasurementTests
+        COMMAND PairMeasurementTests)
+
     add_executable(PairUpdateRatesTests
         tests/PairUpdateRatesTests.cpp)
 
