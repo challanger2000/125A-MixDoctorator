@@ -111,6 +111,19 @@ int main(){
         assert(std::abs(ab.overlap-ba.overlap)<1.0e-12);
     }
 
+    // Near-silent neighbour-only content must remain below the finding
+    // threshold even when the normalized spectra are maximally similar.
+    {
+        const auto a=oneBand(4);
+        const auto b=oneBand(5);
+
+        const auto m=evaluateCoachMasking(
+            -54.0,0.10,a.data(),
+            -54.0,0.10,b.data());
+
+        assert(m.masking<0.14);
+    }
+
     // Non-finite values must never escape the model.
     {
         const double nan=std::numeric_limits<double>::quiet_NaN();
