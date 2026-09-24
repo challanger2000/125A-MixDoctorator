@@ -82,13 +82,10 @@ inline NeighborMaskingMetrics evaluatePairWithNeighborSpread(
         0.75*jointActivity;
 
     // Neighbour weights model psychoacoustic coupling, not additional
-    // physical band energy. Keeping them outside the dB calculation avoids
-    // a false non-monotonic response where a larger source-level gap could
-    // accidentally become "more similar" after spread attenuation.
-    const double coupling=
-        0.5*
-        (lowerWeight+upperWeight);
-
+    // physical band energy. Direction is selected from the stronger adjacent
+    // source: a lower-frequency masker uses upperWeight (upward spread), while
+    // a higher-frequency masker uses lowerWeight (downward spread). Equal
+    // levels use the mean so source-order symmetry is preserved.
     auto fraction=[](
         double value) noexcept {
 
@@ -108,7 +105,8 @@ inline NeighborMaskingMetrics evaluatePairWithNeighborSpread(
 
     auto crossRisk=[&](
         double af,
-        double bf) noexcept {
+        double bf,
+        bool aIsLowerBand) noexcept {
 
         CrossRisk x;
 
@@ -118,8 +116,7 @@ inline NeighborMaskingMetrics evaluatePairWithNeighborSpread(
         const double common=
             std::min(af,bf);
 
-        if(common<=0.0 ||
-           coupling<=0.0)
+        if(common<=0.0)
             return x;
 
         const double aBandDb=
@@ -144,6 +141,31 @@ inline NeighborMaskingMetrics evaluatePairWithNeighborSpread(
         const double levelSimilarity=
             std::exp(
                 -gap/6.0);
+
+        const double levelDelta=
+            aBandDb-bBandDb;
+
+        double coupling=
+            0.5*
+            (lowerWeight+upperWeight);
+
+        if(std::abs(levelDelta)>1.0e-9){
+            const bool aIsStronger=
+                levelDelta>0.0;
+
+            const bool maskerIsLower=
+                aIsStronger
+                ? aIsLowerBand
+                : !aIsLowerBand;
+
+            coupling=
+                maskerIsLower
+                ? upperWeight
+                : lowerWeight;
+        }
+
+        if(coupling<=0.0)
+            return x;
 
         x.overlap=
             common*
@@ -179,13 +201,15 @@ inline NeighborMaskingMetrics evaluatePairWithNeighborSpread(
         const auto forward=
             crossRisk(
                 bandsA[i],
-                bandsB[i+1]);
+                bandsB[i+1],
+                true);
 
         // A upper band against B lower band.
         const auto reverse=
             crossRisk(
                 bandsA[i+1],
-                bandsB[i]);
+                bandsB[i],
+                false);
 
         const double pairRisk=
             forward.risk+
