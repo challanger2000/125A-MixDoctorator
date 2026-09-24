@@ -30,6 +30,8 @@ int main(){
     assert(r.valid);
     assert(r.kind==RecommendationKind::PresenceSeparation);
     assert(r.context==RecommendationContext::VocalVsHarmonic);
+    assert(r.adjustRole==IPC::Role::Synth);
+    assert(r.context==RecommendationContext::VocalVsHarmonic);
 
     r=makeRecommendation(
         IPC::Role::Cymbals,
@@ -37,6 +39,7 @@ int main(){
         8,0.25,0.50,0.0,0.05);
     assert(r.valid);
     assert(r.kind==RecommendationKind::TopEndSeparation);
+    assert(r.context==RecommendationContext::CymbalVsHarmonic);
     assert(r.context==RecommendationContext::CymbalVsHarmonic);
 
     r=makeRecommendation(
