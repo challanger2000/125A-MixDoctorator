@@ -62,6 +62,18 @@ def registered_names(path: Path):
     return names
 
 
+def consumed_names(path: Path):
+    text = path.read_text(encoding="utf-8")
+    names = set(
+        re.findall(
+            r"getParameterId\s*\(\s*\)\s*"
+            r"(?:==|!=)\s*(k[A-Za-z0-9_]+)",
+            text,
+        )
+    )
+    return names
+
+
 def published_names(path: Path):
     text = path.read_text(encoding="utf-8")
     names = set()
@@ -89,11 +101,14 @@ for ids_path, controller_path, processor_path, label in CASES:
     ids = enum_names(ids_path)
     registered = registered_names(controller_path)
     published = published_names(processor_path)
+    consumed = consumed_names(processor_path)
 
     missing_registration = sorted(ids - registered)
     unknown_registration = sorted(registered - ids)
     unregistered_publish = sorted(published - registered)
     unknown_publish = sorted(published - ids)
+    unregistered_consume = sorted(consumed - registered)
+    unknown_consume = sorted(consumed - ids)
 
     if missing_registration:
         errors.append(
@@ -114,6 +129,16 @@ for ids_path, controller_path, processor_path, label in CASES:
         errors.append(
             f"{label}: processor publishes unknown IDs: "
             + ", ".join(unknown_publish)
+        )
+    if unregistered_consume:
+        errors.append(
+            f"{label}: processor consumes unregistered IDs: "
+            + ", ".join(unregistered_consume)
+        )
+    if unknown_consume:
+        errors.append(
+            f"{label}: processor consumes unknown IDs: "
+            + ", ".join(unknown_consume)
         )
 
 if errors:
