@@ -39,6 +39,7 @@ int main(){
             initialBands));
 
     assert(cachedSlot>=0);
+    const int claimedSlot=cachedSlot;
 
     std::atomic<bool> finished{false};
     std::atomic<int> coherentReads{0};
@@ -73,7 +74,9 @@ int main(){
     });
 
     while(!finished.load(
-              std::memory_order_acquire)){
+              std::memory_order_acquire) ||
+          coherentReads.load(
+              std::memory_order_relaxed)==0){
 
         Snapshot s;
         const auto now=
@@ -82,7 +85,7 @@ int main(){
 
         if(!readerMemory.readSlot(
                session,
-               cachedSlot,
+               claimedSlot,
                s,
                now))
             continue;
