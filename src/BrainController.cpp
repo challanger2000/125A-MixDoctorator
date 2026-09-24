@@ -97,6 +97,7 @@ tresult PLUGIN_API Controller::initialize(FUnknown* c){
     parameters.addParameter(STR16("Coach Evidence"),nullptr,3,0.0,ro,kCoachEvidence);
     parameters.addParameter(STR16("Coach Pair"),nullptr,Analysis::kRolePairCount,0.0,ro,kCoachPair);
     parameters.addParameter(STR16("Coach Band"),nullptr,8,0.0,ro,kCoachBand);
+    parameters.addParameter(STR16("Coach Target"),nullptr,IPC::kRoleCount,0.0,ro,kCoachTarget);
     parameters.addParameter(STR16("Coach Attack Pair"),nullptr,Analysis::kRolePairCount,0.0,ro,kCoachAttackPair);
     parameters.addParameter(STR16("Coach Attack Advice"),nullptr,1,0.0,ro,kCoachAttackAdvice);
 
@@ -534,6 +535,39 @@ tresult PLUGIN_API Controller::getParamStringByValue(
 
         UString128 s;
         s.fromAscii(b);
+        s.copyTo(out,128);
+        return kResultTrue;
+    }
+
+    if(id==kCoachTarget){
+        const int encoded=
+            std::clamp(
+                static_cast<int>(
+                    std::lround(
+                        std::clamp(v,0.0,1.0)*
+                        static_cast<double>(
+                            IPC::kRoleCount))),
+                0,
+                IPC::kRoleCount);
+
+        UString128 s;
+
+        if(encoded<=0){
+            s.fromAscii("BEIDE VERGLEICHEN");
+        }else{
+            const auto role=
+                static_cast<IPC::Role>(
+                    encoded);
+
+            char b[96]{};
+            std::snprintf(
+                b,sizeof(b),
+                "ZUERST %s PRUEFEN",
+                Analysis::roleName(role));
+
+            s.fromAscii(b);
+        }
+
         s.copyTo(out,128);
         return kResultTrue;
     }
