@@ -52,6 +52,23 @@ int main(){
     assert(b==IPC::Role::Synth);
     assert(!decodeRolePair(-1,a,b));
 
+    int counts[IPC::kRoleCount]{};
+    counts[roleToIndex(IPC::Role::Kick)]=1;
+    counts[roleToIndex(IPC::Role::Bass)]=2;
+    counts[roleToIndex(IPC::Role::LeadVocal)]=1;
+
+    const auto summary=
+        summarizeRoleCounts(counts);
+
+    assert(summary.sensors==4);
+    assert(summary.roles==3);
+
+    const auto emptySummary=
+        summarizeRoleCounts(nullptr);
+
+    assert(emptySummary.sensors==0);
+    assert(emptySummary.roles==0);
+
     std::cout << "Role model tests passed\n";
     return 0;
 }
