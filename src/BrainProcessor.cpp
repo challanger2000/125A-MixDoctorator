@@ -431,6 +431,10 @@ void Processor::updatePair(
             std::max(
                 0.0,
                 state.observedSeconds-dt*0.20);
+
+        state.dominance+=
+            rates.dominanceAlpha*
+            (0.0-state.dominance);
     }
 
     const double overlapAlpha=
@@ -972,6 +976,7 @@ tresult PLUGIN_API Processor::process(
                     state.observedSeconds<=1.0e-6 &&
                     std::abs(state.overlap)<=1.0e-6 &&
                     std::abs(state.masking)<=1.0e-6 &&
+                    std::abs(state.dominance)<=1.0e-6 &&
                     std::abs(
                         state.transientCompetition)<=1.0e-6 &&
                     std::abs(state.confidence)<=1.0e-6 &&
