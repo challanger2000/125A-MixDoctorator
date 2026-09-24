@@ -1213,7 +1213,9 @@ tresult PLUGIN_API Processor::process(
     const double coachBandValue=
         recommendation.valid
         ? static_cast<double>(
-            recommendation.band)/8.0
+            recommendation.band+1)/
+          static_cast<double>(
+            IPC::kBandCount)
         : 0.0;
 
     const double coachConfidence=
