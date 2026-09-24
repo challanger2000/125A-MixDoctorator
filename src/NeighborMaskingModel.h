@@ -12,10 +12,10 @@ struct NeighborMaskingMetrics {
     double addedRisk{0.0};
 };
 
-// Experimental QA model only. It broadens each normalized band profile into
-// adjacent bands with conservative weights, then compares the broadened
-// profiles using the existing masking model. This is intentionally isolated
-// from production until false-positive behaviour is measured.
+// Experimental QA model only. It adds conservative psychoacoustic coupling
+// between directly adjacent measured bands while leaving the original band
+// levels intact. This is intentionally isolated from production until
+// false-positive behaviour is measured.
 inline NeighborMaskingMetrics evaluatePairWithNeighborSpread(
     double rmsDbA,
     double activityA,
@@ -52,87 +52,189 @@ inline NeighborMaskingMetrics evaluatePairWithNeighborSpread(
             0.0,
             0.35);
 
-    auto oneSidedSpread=[&](
-        const double* source){
+    rmsDbA=
+        std::isfinite(rmsDbA)
+        ? rmsDbA
+        : -120.0;
 
-        std::array<double,kBandCount> result{};
+    rmsDbB=
+        std::isfinite(rmsDbB)
+        ? rmsDbB
+        : -120.0;
 
-        for(int i=0;i<kBandCount;++i){
-            const double value=
-                std::clamp(
-                    std::isfinite(source[i])
-                        ? source[i]
-                        : 0.0,
-                    0.0,
-                    1.0);
+    activityA=
+        std::isfinite(activityA)
+        ? activityA
+        : 0.0;
 
-            result[i]+=value;
+    activityB=
+        std::isfinite(activityB)
+        ? activityB
+        : 0.0;
 
-            if(i>0)
-                result[i-1]+=
-                    value*lowerWeight;
+    const double jointActivity=
+        std::sqrt(
+            std::clamp(activityA,0.0,1.0) *
+            std::clamp(activityB,0.0,1.0));
 
-            if(i+1<kBandCount)
-                result[i+1]+=
-                    value*upperWeight;
-        }
+    const double activityFactor=
+        0.25+
+        0.75*jointActivity;
 
-        for(double& value:result)
-            value=std::clamp(
-                value,
-                0.0,
-                1.0);
+    // Neighbour weights model psychoacoustic coupling, not additional
+    // physical band energy. Keeping them outside the dB calculation avoids
+    // a false non-monotonic response where a larger source-level gap could
+    // accidentally become "more similar" after spread attenuation.
+    const double coupling=
+        0.5*
+        (lowerWeight+upperWeight);
 
-        return result;
+    auto fraction=[](
+        double value) noexcept {
+
+        return std::clamp(
+            std::isfinite(value)
+                ? value
+                : 0.0,
+            0.0,
+            1.0);
     };
 
-    // Spread only one side at a time, then keep only the extra adjacent-band
-    // risk over the direct model. Broadening both profiles simultaneously
-    // creates artificial two-band interactions through overlapping tails.
-    const auto spreadA=
-        oneSidedSpread(bandsA);
+    struct CrossRisk {
+        double risk{0.0};
+        double overlap{0.0};
+        double dominance{0.0};
+    };
 
-    const auto spreadB=
-        oneSidedSpread(bandsB);
+    auto crossRisk=[&](
+        double af,
+        double bf) noexcept {
 
-    const auto aSpreadVsB=
-        evaluatePair(
-            rmsDbA,activityA,spreadA.data(),
-            rmsDbB,activityB,bandsB);
+        CrossRisk x;
 
-    const auto aVsBSpread=
-        evaluatePair(
-            rmsDbA,activityA,bandsA,
-            rmsDbB,activityB,spreadB.data());
+        af=fraction(af);
+        bf=fraction(bf);
+
+        const double common=
+            std::min(af,bf);
+
+        if(common<=0.0 ||
+           coupling<=0.0)
+            return x;
+
+        const double aBandDb=
+            rmsDbA+
+            10.0*std::log10(
+                std::max(
+                    af,
+                    1.0e-12));
+
+        const double bBandDb=
+            rmsDbB+
+            10.0*std::log10(
+                std::max(
+                    bf,
+                    1.0e-12));
+
+        const double gap=
+            std::abs(
+                aBandDb-
+                bBandDb);
+
+        const double levelSimilarity=
+            std::exp(
+                -gap/6.0);
+
+        x.overlap=
+            common*
+            coupling;
+
+        x.risk=
+            x.overlap*
+            levelSimilarity*
+            activityFactor;
+
+        x.dominance=
+            std::clamp(
+                (aBandDb-bBandDb)/
+                12.0,
+                -1.0,
+                1.0);
+
+        return x;
+    };
 
     out.spread=out.direct;
 
     double addedMasking=0.0;
+    double addedOverlap=0.0;
+    double strongestNeighborRisk=0.0;
+    double strongestNeighborDominance=0.0;
 
-    for(int i=0;i<kBandCount;++i){
-        const double extraA=
-            std::max(
-                0.0,
-                aSpreadVsB.bandRisk[i]-
-                out.direct.bandRisk[i]);
+    for(int i=0;
+        i+1<kBandCount;
+        ++i){
 
-        const double extraB=
-            std::max(
-                0.0,
-                aVsBSpread.bandRisk[i]-
-                out.direct.bandRisk[i]);
+        // A lower band against B upper band.
+        const auto forward=
+            crossRisk(
+                bandsA[i],
+                bandsB[i+1]);
+
+        // A upper band against B lower band.
+        const auto reverse=
+            crossRisk(
+                bandsA[i+1],
+                bandsB[i]);
+
+        const double pairRisk=
+            forward.risk+
+            reverse.risk;
+
+        const double pairOverlap=
+            forward.overlap+
+            reverse.overlap;
+
+        addedMasking+=
+            pairRisk;
+
+        addedOverlap+=
+            pairOverlap;
+
+        // Split adjacent interaction over the two participating display bands.
+        const double halfRisk=
+            0.5*
+            pairRisk;
 
         out.spread.bandRisk[i]=
             std::clamp(
-                out.direct.bandRisk[i]+
-                extraA+
-                extraB,
+                out.spread.bandRisk[i]+
+                halfRisk,
                 0.0,
                 1.0);
 
-        addedMasking+=
-            extraA+
-            extraB;
+        out.spread.bandRisk[i+1]=
+            std::clamp(
+                out.spread.bandRisk[i+1]+
+                halfRisk,
+                0.0,
+                1.0);
+
+        if(forward.risk>
+           strongestNeighborRisk){
+            strongestNeighborRisk=
+                forward.risk;
+            strongestNeighborDominance=
+                forward.dominance;
+        }
+
+        if(reverse.risk>
+           strongestNeighborRisk){
+            strongestNeighborRisk=
+                reverse.risk;
+            strongestNeighborDominance=
+                reverse.dominance;
+        }
     }
 
     out.addedRisk=
@@ -148,28 +250,18 @@ inline NeighborMaskingMetrics evaluatePairWithNeighborSpread(
             0.0,
             1.0);
 
-    const double extraOverlapA=
-        std::max(
-            0.0,
-            aSpreadVsB.overlap-
-            out.direct.overlap);
-
-    const double extraOverlapB=
-        std::max(
-            0.0,
-            aVsBSpread.overlap-
-            out.direct.overlap);
-
     out.spread.overlap=
         std::clamp(
             out.direct.overlap+
-            extraOverlapA+
-            extraOverlapB,
+            addedOverlap,
             0.0,
             1.0);
 
     int bestBand=0;
-    for(int i=1;i<kBandCount;++i)
+
+    for(int i=1;
+        i<kBandCount;
+        ++i)
         if(out.spread.bandRisk[i]>
            out.spread.bandRisk[bestBand])
             bestBand=i;
@@ -177,17 +269,12 @@ inline NeighborMaskingMetrics evaluatePairWithNeighborSpread(
     out.spread.dominantBand=
         bestBand;
 
-    if(out.direct.masking>1.0e-12){
+    if(out.direct.masking>1.0e-12)
         out.spread.dominance=
             out.direct.dominance;
-    }else if(aSpreadVsB.masking>=
-            aVsBSpread.masking){
+    else
         out.spread.dominance=
-            aSpreadVsB.dominance;
-    }else{
-        out.spread.dominance=
-            aVsBSpread.dominance;
-    }
+            strongestNeighborDominance;
 
     return out;
 }
