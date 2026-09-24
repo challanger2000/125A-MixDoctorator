@@ -1233,7 +1233,7 @@ tresult PLUGIN_API Processor::process(
         recommendation.valid
         ? static_cast<double>(
             Analysis::recommendationActionCode(
-                recommendation.context))/6.0
+                recommendation))/6.0
         : 0.0;
 
     const int coachTargetCode=
