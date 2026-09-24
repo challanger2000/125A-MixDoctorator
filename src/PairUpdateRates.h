@@ -48,7 +48,7 @@ inline PairUpdateRates makePairUpdateRates(
     r.overlapUpAlpha=alpha(0.60);
     r.overlapDownAlpha=alpha(2.5);
     r.maskingUpAlpha=alpha(0.85);
-    r.maskingDownAlpha=alpha(3.5);
+    r.maskingDownAlpha=alpha(2.4);
     r.transientUpAlpha=alpha(0.12);
     r.transientDownAlpha=alpha(0.90);
     r.bandAlpha=alpha(1.5);
