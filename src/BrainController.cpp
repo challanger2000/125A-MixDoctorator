@@ -97,7 +97,7 @@ tresult PLUGIN_API Controller::initialize(FUnknown* c){
     parameters.addParameter(STR16("Coach Reason"),nullptr,6,0.0,ro,kCoachReason);
     parameters.addParameter(STR16("Coach Evidence"),nullptr,3,0.0,ro,kCoachEvidence);
     parameters.addParameter(STR16("Coach Pair"),nullptr,Analysis::kRolePairCount,0.0,ro,kCoachPair);
-    parameters.addParameter(STR16("Coach Band"),nullptr,8,0.0,ro,kCoachBand);
+    parameters.addParameter(STR16("Coach Band"),nullptr,IPC::kBandCount,0.0,ro,kCoachBand);
     parameters.addParameter(STR16("Coach Target"),nullptr,Analysis::kRecommendationTargetCodeCount,0.0,ro,kCoachTarget);
     parameters.addParameter(STR16("Coach Attack Pair"),nullptr,Analysis::kRolePairCount,0.0,ro,kCoachAttackPair);
     parameters.addParameter(STR16("Coach Attack Advice"),nullptr,1,0.0,ro,kCoachAttackAdvice);
@@ -281,8 +281,7 @@ tresult PLUGIN_API Controller::getParamStringByValue(
        id==kBassGuitarBand ||
        id==kDrumsGuitarBand ||
        id==kTopBand ||
-       id==kSessionBand ||
-       id==kCoachBand){
+       id==kSessionBand){
 
         static const char* names[9]={
             "SUB 20-80",
@@ -308,6 +307,47 @@ tresult PLUGIN_API Controller::getParamStringByValue(
 
         UString128 s;
         s.fromAscii(names[index]);
+        s.copyTo(out,128);
+        return kResultTrue;
+    }
+
+    if(id==kCoachBand){
+        static const char* names[9]={
+            "SUB 20-80",
+            "BASS 80-160",
+            "TIEFE MITTEN 160-300",
+            "KOERPER 300-600",
+            "MITTEN 600-1.2k",
+            "OBERE MITTEN 1.2-2.5k",
+            "PRAESENZ 2.5-5k",
+            "HOEHEN 5-10k",
+            "AIR 10k+"
+        };
+
+        const int encoded=
+            std::clamp(
+                static_cast<int>(
+                    std::lround(
+                        std::clamp(
+                            v,0.0,1.0)*
+                        static_cast<double>(
+                            IPC::kBandCount))),
+                0,
+                IPC::kBandCount);
+
+        UString128 s;
+
+        if(encoded==0){
+            s.fromAscii("KEIN BEREICH");
+        }else{
+            s.fromAscii(
+                names[
+                    std::clamp(
+                        encoded-1,
+                        0,
+                        IPC::kBandCount-1)]);
+        }
+
         s.copyTo(out,128);
         return kResultTrue;
     }
