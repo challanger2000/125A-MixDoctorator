@@ -78,7 +78,9 @@ inline void distributeSmoothBandEnergy(
     double hz,
     double power) noexcept {
 
-    if(!std::isfinite(power) ||
+    if(!std::isfinite(hz) ||
+       hz<=0.0 ||
+       !std::isfinite(power) ||
        power<=0.0)
         return;
 
