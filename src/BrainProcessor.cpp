@@ -10,6 +10,7 @@
 #include "AudioSafety.h"
 #include "CoachModel.h"
 #include "RecommendationEngine.h"
+#include "FindingRanking.h"
 #include "RoleModel.h"
 
 #include "base/source/fstreamer.h"
@@ -610,135 +611,39 @@ double Processor::dominanceParam(
 }
 
 int Processor::chooseTopPair() noexcept{
-    auto eligible=[this](int i){
-        return
-            pairStates_[i].observedSeconds>=2.5 &&
-            pairStates_[i].masking>=0.14 &&
-            pairStates_[i].confidence>=0.12;
-    };
+    const int selected=
+        Analysis::chooseStableFinding(
+            3,
+            heldTopPair_,
+            [this](int i){
+                const auto& state=pairStates_[i];
+                return Analysis::FindingCandidate{
+                    state.observedSeconds,
+                    state.masking,
+                    state.confidence
+                };
+            });
 
-    if(heldTopPair_>=0 &&
-       heldTopPair_<3 &&
-       eligible(heldTopPair_)){
-
-        int challenger=
-            heldTopPair_;
-
-        double challengerRank=
-            pairStates_[heldTopPair_].masking *
-            (0.60+
-             0.40*
-             pairStates_[heldTopPair_].confidence);
-
-        for(int i=0;i<3;++i){
-            if(!eligible(i))
-                continue;
-
-            const double rank=
-                pairStates_[i].masking *
-                (0.60+
-                 0.40*
-                 pairStates_[i].confidence);
-
-            if(rank>challengerRank+0.04){
-                challenger=i;
-                challengerRank=rank;
-            }
-        }
-
-        heldTopPair_=challenger;
-        return heldTopPair_;
-    }
-
-    int best=-1;
-    double bestRank=0.14;
-
-    for(int i=0;i<3;++i){
-        if(!eligible(i))
-            continue;
-
-        const double rank=
-            pairStates_[i].masking *
-            (0.60+
-             0.40*
-             pairStates_[i].confidence);
-
-        if(rank>bestRank){
-            best=i;
-            bestRank=rank;
-        }
-    }
-
-    heldTopPair_=best;
-    return best;
+    heldTopPair_=selected;
+    return selected;
 }
 
 int Processor::chooseCoachPair() noexcept{
-    auto eligible=[this](int i){
-        return
-            coachPairStates_[i].observedSeconds>=2.5 &&
-            coachPairStates_[i].masking>=0.14 &&
-            coachPairStates_[i].confidence>=0.12;
-    };
+    const int selected=
+        Analysis::chooseStableFinding(
+            Analysis::kRolePairCount,
+            heldCoachPair_,
+            [this](int i){
+                const auto& state=coachPairStates_[i];
+                return Analysis::FindingCandidate{
+                    state.observedSeconds,
+                    state.masking,
+                    state.confidence
+                };
+            });
 
-    if(heldCoachPair_>=0 &&
-       heldCoachPair_<Analysis::kRolePairCount &&
-       eligible(heldCoachPair_)){
-
-        int challenger=heldCoachPair_;
-        double challengerRank=
-            coachPairStates_[heldCoachPair_].masking *
-            (0.60+
-             0.40*
-             coachPairStates_[heldCoachPair_].confidence);
-
-        for(int i=0;
-            i<Analysis::kRolePairCount;
-            ++i){
-
-            if(!eligible(i))
-                continue;
-
-            const double rank=
-                coachPairStates_[i].masking *
-                (0.60+
-                 0.40*
-                 coachPairStates_[i].confidence);
-
-            if(rank>challengerRank+0.04){
-                challenger=i;
-                challengerRank=rank;
-            }
-        }
-
-        heldCoachPair_=challenger;
-        return heldCoachPair_;
-    }
-
-    int best=-1;
-    double bestRank=0.14;
-
-    for(int i=0;
-        i<Analysis::kRolePairCount;
-        ++i){
-
-        if(!eligible(i))
-            continue;
-
-        const double rank=
-            coachPairStates_[i].masking *
-            (0.60+
-             0.40*
-             coachPairStates_[i].confidence);
-
-        if(rank>bestRank){
-            best=i;
-            bestRank=rank;
-        }
-    }
-
-    heldCoachPair_=best;
-    return best;
+    heldCoachPair_=selected;
+    return selected;
 }
 
 int Processor::chooseCoachAttackPair() noexcept{
