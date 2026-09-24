@@ -77,9 +77,11 @@ inline NeighborMaskingMetrics evaluatePairWithNeighborSpread(
             std::clamp(activityA,0.0,1.0) *
             std::clamp(activityB,0.0,1.0));
 
+    // Match the direct masking model: near-silent normalized spectra should
+    // not create a confident neighbour-only finding.
     const double activityFactor=
-        0.25+
-        0.75*jointActivity;
+        0.08+
+        0.92*jointActivity;
 
     // Neighbour weights model psychoacoustic coupling, not additional
     // physical band energy. Direction is selected from the stronger adjacent
