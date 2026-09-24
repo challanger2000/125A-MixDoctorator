@@ -6,6 +6,8 @@
 
 using MixDoctorator::Analysis::SpectralAnalyzer;
 using MixDoctorator::Analysis::combineStereoFractions;
+using MixDoctorator::Analysis::distributeSmoothBandEnergy;
+using MixDoctorator::Analysis::kSpectralBandCount;
 
 namespace {
 constexpr double kPi=
@@ -38,6 +40,56 @@ int strongestBand(
 }
 
 int main(){
+    {
+        static constexpr double centres[kSpectralBandCount]{
+            50.0,120.0,220.0,430.0,850.0,
+            1800.0,3500.0,7500.0,14000.0
+        };
+
+        for(int i=0;i<kSpectralBandCount;++i){
+            std::array<double,kSpectralBandCount> mapped{};
+            distributeSmoothBandEnergy(
+                mapped,
+                centres[i],
+                1.0);
+
+            double sum=0.0;
+            for(double v:mapped)
+                sum+=v;
+
+            assert(std::abs(sum-1.0)<1.0e-12);
+            assert(mapped[i]>0.999999);
+        }
+
+        for(int i=0;i<kSpectralBandCount-1;++i){
+            const double midpoint=
+                std::sqrt(
+                    centres[i]*
+                    centres[i+1]);
+
+            std::array<double,kSpectralBandCount> mapped{};
+            distributeSmoothBandEnergy(
+                mapped,
+                midpoint,
+                1.0);
+
+            double sum=0.0;
+            for(double v:mapped)
+                sum+=v;
+
+            assert(std::abs(sum-1.0)<1.0e-12);
+            assert(std::abs(mapped[i]-0.5)<1.0e-12);
+            assert(std::abs(mapped[i+1]-0.5)<1.0e-12);
+        }
+
+        std::array<double,kSpectralBandCount> invalid{};
+        distributeSmoothBandEnergy(invalid,-1.0,1.0);
+        distributeSmoothBandEnergy(invalid,1000.0,-1.0);
+
+        for(double v:invalid)
+            assert(v==0.0);
+    }
+
     constexpr double sampleRate=
         48000.0;
 
