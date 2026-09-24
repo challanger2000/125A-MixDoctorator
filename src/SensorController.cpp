@@ -21,6 +21,17 @@ tresult PLUGIN_API Controller::initialize(FUnknown* c){
     role->appendString(STR16("Drums"));
     role->appendString(STR16("Bass"));
     role->appendString(STR16("Electric Guitar"));
+    role->appendString(STR16("Kick"));
+    role->appendString(STR16("Snare"));
+    role->appendString(STR16("Toms"));
+    role->appendString(STR16("Cymbals / Hi-Hat"));
+    role->appendString(STR16("Percussion"));
+    role->appendString(STR16("Acoustic Guitar"));
+    role->appendString(STR16("Lead Vocal"));
+    role->appendString(STR16("Backing Vocal"));
+    role->appendString(STR16("Piano / Keys"));
+    role->appendString(STR16("Synth"));
+    role->appendString(STR16("Pad"));
     parameters.addParameter(role);
 
     auto* session=new StringListParameter(
@@ -49,7 +60,8 @@ tresult PLUGIN_API Controller::setComponentState(IBStream* state){
 
     setParamNormalized(
         kRole,
-        static_cast<double>(std::clamp(role,1,3)-1)/2.0);
+        static_cast<double>(std::clamp(role,1,IPC::kRoleCount)-1)/
+            static_cast<double>(IPC::kRoleCount-1));
 
     int32 session=0;
     if(s.readInt32(session)){
