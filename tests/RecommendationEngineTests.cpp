@@ -12,6 +12,7 @@ int main(){
         1,0.40,0.70,0.2,0.10);
     assert(r.valid);
     assert(r.kind==RecommendationKind::LowEndOwnership);
+    assert(r.context==RecommendationContext::KickBass);
     assert(r.score>0.40);
 
     r=makeRecommendation(
@@ -20,6 +21,7 @@ int main(){
         6,0.35,0.65,-0.1,0.55);
     assert(r.valid);
     assert(r.kind==RecommendationKind::AttackSeparation);
+    assert(r.context==RecommendationContext::RhythmVsHarmonic);
 
     r=makeRecommendation(
         IPC::Role::LeadVocal,
@@ -27,6 +29,7 @@ int main(){
         6,0.30,0.50,0.0,0.05);
     assert(r.valid);
     assert(r.kind==RecommendationKind::PresenceSeparation);
+    assert(r.context==RecommendationContext::VocalVsHarmonic);
 
     r=makeRecommendation(
         IPC::Role::Cymbals,
@@ -34,12 +37,25 @@ int main(){
         8,0.25,0.50,0.0,0.05);
     assert(r.valid);
     assert(r.kind==RecommendationKind::TopEndSeparation);
+    assert(r.context==RecommendationContext::CymbalVsHarmonic);
 
     r=makeRecommendation(
         IPC::Role::Bass,
         IPC::Role::Pad,
         2,0.25,0.10,0.0,0.0);
     assert(!r.valid);
+
+    r=makeRecommendation(
+        IPC::Role::Bass,
+        IPC::Role::Pad,
+        3,0.30,0.60,0.0,0.0);
+    assert(r.valid);
+    assert(r.context==RecommendationContext::BassVsHarmonic);
+
+    assert(recommendationActionCode(
+        RecommendationContext::Generic)==0);
+    assert(recommendationActionCode(
+        RecommendationContext::BassVsHarmonic)==5);
 
     std::cout << "Recommendation engine tests passed\n";
     return 0;
