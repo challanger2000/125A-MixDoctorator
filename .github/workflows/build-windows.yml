@@ -13,13 +13,32 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Configure
-        run: cmake -S . -B build -G "Visual Studio 17 2022" -A x64 -DMIXDOCTORATOR_BUILD_TESTS=ON
+        run: cmake -S . -B build -G "Visual Studio 17 2022" -A x64 -DMIXDOCTORATOR_BUILD_TESTS=ON -DMIXDOCTORATOR_BUILD_VALIDATOR=ON
 
       - name: Build plugins and analysis tests
-        run: cmake --build build --config Release --target MixDoctoratorSensor MixDoctoratorBrain MaskingModelTests SpectralAnalyzerTests TimingModelTests TransientModelTests RoleAggregateTests IPCModelTests TransientInteractionTests AttackFindingTests --parallel
+        run: cmake --build build --config Release --target MixDoctoratorSensor MixDoctoratorBrain MaskingModelTests SpectralAnalyzerTests TimingModelTests TransientModelTests RoleAggregateTests IPCModelTests TransientInteractionTests AttackFindingTests validator --parallel
 
       - name: Run analysis tests
         run: ctest --test-dir build -C Release --output-on-failure
+
+      - name: Run Steinberg VST3 validator
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path validation | Out-Null
+
+          $validator = Get-ChildItem -Path build -Recurse -File -Filter "validator.exe" | Select-Object -First 1
+          $sensor = Get-ChildItem -Path build -Recurse -Directory -Filter "125A-MixDoctorator-Sensor.vst3" | Select-Object -First 1
+          $brain  = Get-ChildItem -Path build -Recurse -Directory -Filter "125A-MixDoctorator-Brain.vst3" | Select-Object -First 1
+
+          if (-not $validator) { throw "Steinberg validator.exe not found" }
+          if (-not $sensor) { throw "Sensor VST3 bundle not found for validation" }
+          if (-not $brain)  { throw "Brain VST3 bundle not found for validation" }
+
+          & $validator.FullName $sensor.FullName 2>&1 | Tee-Object -FilePath validation/Sensor-validator.txt
+          if ($LASTEXITCODE -ne 0) { throw "Sensor failed Steinberg VST3 validator" }
+
+          & $validator.FullName $brain.FullName 2>&1 | Tee-Object -FilePath validation/Brain-validator.txt
+          if ($LASTEXITCODE -ne 0) { throw "Brain failed Steinberg VST3 validator" }
 
       - name: Stage VST3 bundles
         shell: pwsh
@@ -34,6 +53,7 @@ jobs:
 
           Copy-Item $sensor.FullName artifact -Recurse -Force
           Copy-Item $brain.FullName artifact -Recurse -Force
+          Copy-Item validation artifact -Recurse -Force
 
       - name: Upload VST3 PoC
         uses: actions/upload-artifact@v4
