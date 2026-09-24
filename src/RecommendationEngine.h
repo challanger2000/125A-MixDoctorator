@@ -40,7 +40,8 @@ struct Recommendation {
 
 inline RecommendationContext recommendationContext(
     IPC::Role first,
-    IPC::Role second) noexcept {
+    IPC::Role second,
+    RecommendationKind kind) noexcept {
 
     const bool kickBass=
         (first==IPC::Role::Kick &&
@@ -48,7 +49,9 @@ inline RecommendationContext recommendationContext(
         (first==IPC::Role::Bass &&
          second==IPC::Role::Kick);
 
-    if(kickBass)
+    if(kickBass &&
+       (kind==RecommendationKind::LowEndOwnership ||
+        kind==RecommendationKind::LowMidCleanup))
         return RecommendationContext::KickBass;
 
     const auto a=roleFamily(first);
@@ -66,22 +69,27 @@ inline RecommendationContext recommendationContext(
     const bool cymbalA=first==IPC::Role::Cymbals;
     const bool cymbalB=second==IPC::Role::Cymbals;
 
-    if((cymbalA && harmonicB) ||
-       (cymbalB && harmonicA))
+    if((kind==RecommendationKind::TopEndSeparation ||
+        kind==RecommendationKind::PresenceSeparation) &&
+       ((cymbalA && harmonicB) ||
+        (cymbalB && harmonicA)))
         return RecommendationContext::CymbalVsHarmonic;
 
     const bool rhythmA=isTransientRole(first);
     const bool rhythmB=isTransientRole(second);
 
-    if((rhythmA && harmonicB) ||
-       (rhythmB && harmonicA))
+    if(kind==RecommendationKind::AttackSeparation &&
+       ((rhythmA && harmonicB) ||
+        (rhythmB && harmonicA)))
         return RecommendationContext::RhythmVsHarmonic;
 
     const bool bassA=a==RoleFamily::Bass;
     const bool bassB=b==RoleFamily::Bass;
 
-    if((bassA && harmonicB) ||
-       (bassB && harmonicA))
+    if((kind==RecommendationKind::LowEndOwnership ||
+        kind==RecommendationKind::LowMidCleanup) &&
+       ((bassA && harmonicB) ||
+        (bassB && harmonicA)))
         return RecommendationContext::BassVsHarmonic;
 
     return RecommendationContext::Generic;
@@ -137,11 +145,6 @@ inline Recommendation makeRecommendation(
        out.confidence<0.12)
         return out;
 
-    out.context=
-        recommendationContext(
-            first,
-            second);
-
     const bool transientPair=
         isTransientRole(first) ||
         isTransientRole(second);
@@ -162,6 +165,12 @@ inline Recommendation makeRecommendation(
     }else{
         out.kind=RecommendationKind::TopEndSeparation;
     }
+
+    out.context=
+        recommendationContext(
+            first,
+            second,
+            out.kind);
 
     // Low-end ownership is especially meaningful for kick/bass style pairs,
     // but remains valid for other sources when measured evidence supports it.
