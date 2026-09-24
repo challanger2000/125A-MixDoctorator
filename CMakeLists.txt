@@ -211,6 +211,17 @@ if(MIXDOCTORATOR_BUILD_TESTS)
         NAME RecommendationEngineTests
         COMMAND RecommendationEngineTests)
 
+    add_executable(FindingRankingTests
+        tests/FindingRankingTests.cpp)
+
+    target_compile_features(
+        FindingRankingTests
+        PRIVATE cxx_std_17)
+
+    add_test(
+        NAME FindingRankingTests
+        COMMAND FindingRankingTests)
+
     add_executable(RecommendationScenarioTests
         tests/RecommendationScenarioTests.cpp)
 
@@ -264,6 +275,7 @@ if(MIXDOCTORATOR_BUILD_TESTS)
         CoachModelTests
         RoleModelTests
         RecommendationEngineTests
+        FindingRankingTests
         RecommendationScenarioTests
         RecommendationMatrixTests
         SpscQueueTests)
