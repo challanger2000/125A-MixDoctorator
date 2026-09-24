@@ -77,6 +77,7 @@ private:
         IPC::Role,
         std::int64_t,
         Steinberg::int32,
+        std::uint64_t,
         IPC::Snapshot&,
         int&) noexcept;
 

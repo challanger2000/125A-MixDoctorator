@@ -173,6 +173,7 @@ bool Processor::readRoleAggregate(
     IPC::Role role,
     std::int64_t currentSamplePosition,
     int32 numSamples,
+    std::uint64_t nowMs,
     IPC::Snapshot& out,
     int& connectedCount) noexcept{
 
@@ -191,7 +192,8 @@ bool Processor::readRoleAggregate(
         if(!ipc_.readSlot(
                session_,
                slot,
-               source))
+               source,
+               nowMs))
             continue;
 
         if(!source.connected ||
@@ -706,6 +708,14 @@ tresult PLUGIN_API Processor::process(
         lastProjectSample_=
             currentSamplePosition;
 
+    const std::uint64_t nowMs=
+#ifdef _WIN32
+        static_cast<std::uint64_t>(
+            GetTickCount64());
+#else
+        0;
+#endif
+
     IPC::Snapshot drums,bass,guitar;
     int drumsCount=0;
     int bassCount=0;
@@ -716,6 +726,7 @@ tresult PLUGIN_API Processor::process(
             IPC::Role::Drums,
             currentSamplePosition,
             data.numSamples,
+            nowMs,
             drums,
             drumsCount);
 
@@ -724,6 +735,7 @@ tresult PLUGIN_API Processor::process(
             IPC::Role::Bass,
             currentSamplePosition,
             data.numSamples,
+            nowMs,
             bass,
             bassCount);
 
@@ -732,6 +744,7 @@ tresult PLUGIN_API Processor::process(
             IPC::Role::ElectricGuitar,
             currentSamplePosition,
             data.numSamples,
+            nowMs,
             guitar,
             guitarCount);
 

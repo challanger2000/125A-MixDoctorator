@@ -1,5 +1,7 @@
 #include "../src/SpectralAnalyzer.h"
 #include "../src/TransientModel.h"
+#include "../src/MaskingModel.h"
+#include "../src/RoleAggregate.h"
 
 #include <array>
 #include <cassert>
@@ -46,6 +48,43 @@ int main(){
     assert(std::isfinite(detector.value()));
     assert(detector.value()>=0.0);
     assert(detector.value()<=1.0);
+
+    double brokenBands[9]{};
+    brokenBands[2]=
+        std::numeric_limits<double>::quiet_NaN();
+    brokenBands[4]=
+        std::numeric_limits<double>::infinity();
+
+    const auto pair=
+        evaluatePair(
+            std::numeric_limits<double>::quiet_NaN(),
+            std::numeric_limits<double>::infinity(),
+            brokenBands,
+            -18.0,
+            0.8,
+            brokenBands);
+
+    assert(std::isfinite(pair.overlap));
+    assert(std::isfinite(pair.masking));
+    assert(std::isfinite(pair.dominance));
+
+    RoleAggregate aggregate;
+    aggregate.reset();
+    aggregate.add(
+        -18.0,
+        std::numeric_limits<double>::quiet_NaN(),
+        std::numeric_limits<double>::infinity(),
+        std::numeric_limits<double>::quiet_NaN(),
+        brokenBands);
+
+    const auto aggregateResult=
+        aggregate.result();
+
+    assert(aggregateResult.valid);
+    assert(std::isfinite(aggregateResult.rmsDb));
+    assert(std::isfinite(aggregateResult.peakDb));
+    assert(std::isfinite(aggregateResult.activity));
+    assert(std::isfinite(aggregateResult.transient));
 
     std::cout << "AnalysisSafety tests passed\n";
     return 0;

@@ -35,8 +35,24 @@ public:
         double transient,
         const double* bands) noexcept {
 
-        if(!bands)
+        if(!bands ||
+           !std::isfinite(rmsDb))
             return;
+
+        peakDb=
+            std::isfinite(peakDb)
+            ? peakDb
+            : -120.0;
+
+        activity=
+            std::isfinite(activity)
+            ? activity
+            : 0.0;
+
+        transient=
+            std::isfinite(transient)
+            ? transient
+            : 0.0;
 
         const double power=
             std::pow(
@@ -73,10 +89,15 @@ public:
             i<kAggregateBandCount;
             ++i){
 
+            const double band=
+                std::isfinite(bands[i])
+                ? bands[i]
+                : 0.0;
+
             bandPower_[i]+=
                 power*
                 std::clamp(
-                    bands[i],
+                    band,
                     0.0,
                     1.0);
         }

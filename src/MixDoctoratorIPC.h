@@ -187,6 +187,13 @@ public:
                         InterlockedExchange(
                             &shared->initState,
                             2);
+                    }else{
+                        int settleWaits=0;
+                        while(shared->initState==1 &&
+                              settleWaits<100){
+                            Sleep(1);
+                            ++settleWaits;
+                        }
                     }
                 }
 
@@ -406,7 +413,8 @@ public:
     bool readSlot(
         int session,
         int slotIndex,
-        Snapshot& out) noexcept {
+        Snapshot& out,
+        std::uint64_t nowMs) noexcept {
 
 #ifdef _WIN32
         if(!opened_ ||
@@ -471,15 +479,11 @@ public:
             if(before==after &&
                !(after&1)){
 
-                const auto now=
-                    static_cast<std::uint64_t>(
-                        GetTickCount64());
-
                 t.connected=
                     t.instanceId!=0 &&
                     active!=0 &&
-                    now>=t.heartbeatMs &&
-                    (now-t.heartbeatMs)<1500u;
+                    nowMs>=t.heartbeatMs &&
+                    (nowMs-t.heartbeatMs)<1500u;
 
                 out=t;
                 return true;

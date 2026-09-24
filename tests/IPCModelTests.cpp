@@ -77,6 +77,10 @@ int main(){
         slotA==
         originalSlotA);
 
+    const auto nowMs=
+        static_cast<std::uint64_t>(
+            GetTickCount64());
+
     bool foundA=false;
     bool foundB=false;
     int guitarCount=0;
@@ -90,7 +94,8 @@ int main(){
         if(!first.readSlot(
                7,
                i,
-               snapshot))
+               snapshot,
+               nowMs))
             continue;
 
         if(!snapshot.connected ||

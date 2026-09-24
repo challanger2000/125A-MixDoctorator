@@ -25,6 +25,29 @@ inline PairMetrics evaluatePair(
 
     PairMetrics m;
 
+    if(!bandsA || !bandsB)
+        return m;
+
+    rmsDbA=
+        std::isfinite(rmsDbA)
+        ? rmsDbA
+        : -120.0;
+
+    rmsDbB=
+        std::isfinite(rmsDbB)
+        ? rmsDbB
+        : -120.0;
+
+    activityA=
+        std::isfinite(activityA)
+        ? activityA
+        : 0.0;
+
+    activityB=
+        std::isfinite(activityB)
+        ? activityB
+        : 0.0;
+
     const double jointActivity=
         std::sqrt(
             std::clamp(activityA,0.0,1.0) *
@@ -33,11 +56,21 @@ inline PairMetrics evaluatePair(
     double bestRisk=-1.0;
 
     for(int i=0;i<kBandCount;++i){
+        const double aRaw=
+            std::isfinite(bandsA[i])
+            ? bandsA[i]
+            : 0.0;
+
+        const double bRaw=
+            std::isfinite(bandsB[i])
+            ? bandsB[i]
+            : 0.0;
+
         const double af=
-            std::clamp(bandsA[i],0.0,1.0);
+            std::clamp(aRaw,0.0,1.0);
 
         const double bf=
-            std::clamp(bandsB[i],0.0,1.0);
+            std::clamp(bRaw,0.0,1.0);
 
         const double common=
             std::min(af,bf);
@@ -91,13 +124,17 @@ inline PairMetrics evaluatePair(
 
     const double af=
         std::clamp(
-            bandsA[i],
+            std::isfinite(bandsA[i])
+                ? bandsA[i]
+                : 0.0,
             0.0,
             1.0);
 
     const double bf=
         std::clamp(
-            bandsB[i],
+            std::isfinite(bandsB[i])
+                ? bandsB[i]
+                : 0.0,
             0.0,
             1.0);
 
