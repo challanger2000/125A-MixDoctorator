@@ -634,6 +634,18 @@ int Processor::chooseCoachPair() noexcept{
             Analysis::kRolePairCount,
             heldCoachPair_,
             [this](int i){
+                IPC::Role first=IPC::Role::Unknown;
+                IPC::Role second=IPC::Role::Unknown;
+
+                if(!Analysis::decodeRolePair(
+                       i,
+                       first,
+                       second) ||
+                   !Analysis::rolesComparableForCoach(
+                       first,
+                       second))
+                    return Analysis::FindingCandidate{};
+
                 const auto& state=coachPairStates_[i];
                 return Analysis::FindingCandidate{
                     state.observedSeconds,
@@ -1000,7 +1012,10 @@ tresult PLUGIN_API Processor::process(
                     Analysis::encodeRolePair(
                         first,second);
 
-                if(pairIndex<0)
+                if(pairIndex<0 ||
+                   !Analysis::rolesComparableForCoach(
+                       first,
+                       second))
                     continue;
 
                 updatePair(
