@@ -171,6 +171,29 @@ inline int recommendationActionCode(
     return static_cast<int>(context);
 }
 
+constexpr int kRecommendationTargetCodeCount=
+    IPC::kRoleCount+1;
+
+inline int recommendationTargetCode(
+    const Recommendation& recommendation) noexcept {
+
+    if(!recommendation.valid)
+        return 0;
+
+    if(recommendation.adjustRole==
+       IPC::Role::Unknown)
+        return 1;
+
+    const int role=
+        static_cast<int>(
+            recommendation.adjustRole);
+
+    if(role<1 || role>IPC::kRoleCount)
+        return 1;
+
+    return role+1;
+}
+
 inline Recommendation makeRecommendation(
     IPC::Role first,
     IPC::Role second,
