@@ -16,9 +16,19 @@ enum class RecommendationKind {
     AttackSeparation
 };
 
+enum class RecommendationContext {
+    Generic=0,
+    KickBass,
+    VocalVsHarmonic,
+    CymbalVsHarmonic,
+    RhythmVsHarmonic,
+    BassVsHarmonic
+};
+
 struct Recommendation {
     bool valid{false};
     RecommendationKind kind{RecommendationKind::None};
+    RecommendationContext context{RecommendationContext::Generic};
     IPC::Role first{IPC::Role::Unknown};
     IPC::Role second{IPC::Role::Unknown};
     int band{0};
@@ -26,6 +36,60 @@ struct Recommendation {
     double confidence{0.0};
     double dominance{0.0};
 };
+
+inline RecommendationContext recommendationContext(
+    IPC::Role first,
+    IPC::Role second) noexcept {
+
+    const bool kickBass=
+        (first==IPC::Role::Kick &&
+         second==IPC::Role::Bass) ||
+        (first==IPC::Role::Bass &&
+         second==IPC::Role::Kick);
+
+    if(kickBass)
+        return RecommendationContext::KickBass;
+
+    const auto a=roleFamily(first);
+    const auto b=roleFamily(second);
+
+    const bool vocalA=a==RoleFamily::Vocal;
+    const bool vocalB=b==RoleFamily::Vocal;
+    const bool harmonicA=isHarmonicRole(first);
+    const bool harmonicB=isHarmonicRole(second);
+
+    if((vocalA && harmonicB && !vocalB) ||
+       (vocalB && harmonicA && !vocalA))
+        return RecommendationContext::VocalVsHarmonic;
+
+    const bool cymbalA=first==IPC::Role::Cymbals;
+    const bool cymbalB=second==IPC::Role::Cymbals;
+
+    if((cymbalA && harmonicB) ||
+       (cymbalB && harmonicA))
+        return RecommendationContext::CymbalVsHarmonic;
+
+    const bool rhythmA=isTransientRole(first);
+    const bool rhythmB=isTransientRole(second);
+
+    if((rhythmA && harmonicB) ||
+       (rhythmB && harmonicA))
+        return RecommendationContext::RhythmVsHarmonic;
+
+    const bool bassA=a==RoleFamily::Bass;
+    const bool bassB=b==RoleFamily::Bass;
+
+    if((bassA && harmonicB) ||
+       (bassB && harmonicA))
+        return RecommendationContext::BassVsHarmonic;
+
+    return RecommendationContext::Generic;
+}
+
+inline int recommendationActionCode(
+    RecommendationContext context) noexcept {
+    return static_cast<int>(context);
+}
 
 inline Recommendation makeRecommendation(
     IPC::Role first,
@@ -39,6 +103,10 @@ inline Recommendation makeRecommendation(
     Recommendation out;
     out.first=first;
     out.second=second;
+    out.context=
+        recommendationContext(
+            first,
+            second);
     out.band=std::clamp(band,0,IPC::kBandCount-1);
 
     const double safeMasking=
