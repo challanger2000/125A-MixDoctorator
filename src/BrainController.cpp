@@ -97,7 +97,7 @@ tresult PLUGIN_API Controller::initialize(FUnknown* c){
     parameters.addParameter(STR16("Coach Reason"),nullptr,6,0.0,ro,kCoachReason);
     parameters.addParameter(STR16("Coach Evidence"),nullptr,3,0.0,ro,kCoachEvidence);
     parameters.addParameter(STR16("Coach Pair"),nullptr,Analysis::kRolePairCount,0.0,ro,kCoachPair);
-    parameters.addParameter(STR16("Coach Band"),nullptr,IPC::kBandCount,0.0,ro,kCoachBand);
+    parameters.addParameter(STR16("Coach Band"),nullptr,Analysis::kRecommendationBandCodeCount,0.0,ro,kCoachBand);
     parameters.addParameter(STR16("Coach Target"),nullptr,Analysis::kRecommendationTargetCodeCount,0.0,ro,kCoachTarget);
     parameters.addParameter(STR16("Coach Attack Pair"),nullptr,Analysis::kRolePairCount,0.0,ro,kCoachAttackPair);
     parameters.addParameter(STR16("Coach Attack Advice"),nullptr,1,0.0,ro,kCoachAttackAdvice);
@@ -331,9 +331,11 @@ tresult PLUGIN_API Controller::getParamStringByValue(
                         std::clamp(
                             v,0.0,1.0)*
                         static_cast<double>(
-                            IPC::kBandCount))),
+                            Analysis::
+                            kRecommendationBandCodeCount))),
                 0,
-                IPC::kBandCount);
+                Analysis::
+                kRecommendationBandCodeCount);
 
         UString128 s;
 
