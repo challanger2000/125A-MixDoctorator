@@ -46,16 +46,16 @@ static int dominantBand(
 }
 
 int main(){
-    const double sampleRates[]{44100.0,48000.0,96000.0};
+    const double sampleRates[]{44100.0,48000.0,96000.0,192000.0};
     const double frequencies[]{50.0,120.0,220.0,430.0,850.0,1800.0,3500.0,7500.0,14000.0};
 
     double worstCentreShare=1.0;
     double worstRateDrift=0.0;
 
     for(int band=0;band<SpectralAnalyzer::kBandCount;++band){
-        std::array<double,3> centreShare{};
+        std::array<double,4> centreShare{};
 
-        for(int r=0;r<3;++r){
+        for(int r=0;r<4;++r){
             const auto measured=
                 measureTone(
                     sampleRates[r],
@@ -75,8 +75,8 @@ int main(){
                     centreShare[r]);
         }
 
-        for(int a=0;a<3;++a)
-            for(int b=a+1;b<3;++b)
+        for(int a=0;a<4;++a)
+            for(int b=a+1;b<4;++b)
                 worstRateDrift=
                     std::max(
                         worstRateDrift,
@@ -90,14 +90,25 @@ int main(){
     for(double frequency : {50.0,80.0,120.0,160.0}){
         const auto a=measureTone(44100.0,frequency);
         const auto b=measureTone(96000.0,frequency);
+        const auto c192=measureTone(192000.0,frequency);
 
-        double distance=0.0;
-        for(int i=0;i<SpectralAnalyzer::kBandCount;++i)
-            distance+=std::abs(a[i]-b[i]);
+        double distance96=0.0;
+        double distance192=0.0;
+        for(int i=0;i<SpectralAnalyzer::kBandCount;++i){
+            distance96+=std::abs(a[i]-b[i]);
+            distance192+=std::abs(a[i]-c192[i]);
+        }
+
+        std::cout
+            << "Low-end " << frequency
+            << " Hz: drift 44.1->96k=" << distance96
+            << " drift 44.1->192k=" << distance192
+            << "\n";
 
         // Total-variation style bound. Large values mean the same tone would
         // look materially different to the Coach merely because of sample rate.
-        assert(distance<0.70);
+        assert(distance96<0.70);
+        assert(distance192<0.85);
     }
 
     assert(worstCentreShare>0.18);
