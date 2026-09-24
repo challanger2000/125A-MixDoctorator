@@ -17,7 +17,8 @@
     <control-tag name="CoachHeadline" tag="239"/><control-tag name="CoachAction" tag="240"/><control-tag name="CoachListen" tag="241"/>
     <control-tag name="CoachReason" tag="242"/><control-tag name="CoachEvidence" tag="243"/>
     <control-tag name="CoachPair" tag="244"/><control-tag name="CoachBand" tag="245"/>
-    <control-tag name="CoachAttackPair" tag="246"/><control-tag name="CoachAttackAdvice" tag="247"/>
+    <control-tag name="CoachTarget" tag="246"/>
+    <control-tag name="CoachAttackPair" tag="247"/><control-tag name="CoachAttackAdvice" tag="248"/>
     <control-tag name="ViewMode" tag="9000"/>
   </control-tags>
 
@@ -61,7 +62,8 @@
     <view class="CTextLabel" origin="665,118" size="275,22" title="WARUM DIESER HINWEIS" font-size="12" font-color="#a0a0a0ff" transparent="true"/>
     <view class="CMultiLineTextLabel" origin="665,143" size="275,54" control-tag="CoachReason" font-size="12" font-color="#ffffffff" back-color="#202020ff" frame-color="#555555ff" line-layout="wrap" vertical-centered="true"/>
 
-    <view class="CTextLabel" origin="0,208" size="940,24" title="ZUERST AUSPROBIEREN" font-size="14" font-color="#ccccccff" transparent="true"/>
+    <view class="CTextLabel" origin="0,208" size="620,24" title="ZUERST AUSPROBIEREN" font-size="14" font-color="#ccccccff" transparent="true"/>
+    <view class="CParamDisplay" origin="650,204" size="290,28" control-tag="CoachTarget" font-size="12" font-color="#ffffffff" back-color="#202020ff" frame-color="#555555ff"/>
     <view class="CMultiLineTextLabel" origin="0,238" size="940,72" control-tag="CoachAction" font-size="15" font-color="#ffffffff" back-color="#303030ff" frame-color="#777777ff" line-layout="wrap" vertical-centered="true"/>
 
     <view class="CTextLabel" origin="0,338" size="940,24" title="DARAUF HOEREN" font-size="14" font-color="#ccccccff" transparent="true"/>
