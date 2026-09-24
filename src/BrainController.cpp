@@ -408,12 +408,12 @@ tresult PLUGIN_API Controller::getParamStringByValue(
 
         static const char* listen[7]={
             "Warte auf einen stabilen Hinweis. Ein bewegter Messwert allein ist kein Grund, den Mix zu aendern.",
-            "Achte auf klarere Rollen im Bass, ohne Gewicht oder Punch zu verlieren. Wenn es duenn wird, Aenderung rueckgaengig machen.",
+            "Achte auf klarere Bassrollen ohne Gewicht oder Punch zu verlieren. Wird es duenn, Aenderung rueckgaengig.",
             "Achte auf weniger Matsch und klarere Noten, ohne dass eine Quelle hohl klingt.",
-            "Achte auf zwei getrennte Parts statt eines verschwommenen Mittenblocks. Rueckgaengig machen, wenn eine Quelle Charakter verliert.",
+            "Achte auf getrennte Parts statt verschwommener Mitten. Verliert eine Quelle Charakter, rueckgaengig machen.",
             "Achte auf mehr Definition, ohne den Mix dumpf zu machen oder die andere Quelle zu weit nach vorn zu holen.",
             "Achte auf weniger Haerte oder Gedraenge, ohne nuetzliche Helligkeit und Air zu verlieren.",
-            "Achte auf klarere Attacks und Groove. Wenn der Mix nur schwaecher oder unnatuerlich wird, Aenderung rueckgaengig machen."
+            "Achte auf klarere Attacks und Groove. Wird der Mix schwaecher oder unnatuerlich, rueckgaengig machen."
         };
 
         static const char* reason[7]={
@@ -452,11 +452,11 @@ tresult PLUGIN_API Controller::getParamStringByValue(
 
         static const char* action[6]={
             "Mix weiterlaufen lassen. Erst etwas aendern, wenn der Hinweis stabil wird.",
-            "Kick und Bass getrennt beurteilen: festlegen, wer den gemessenen Tiefenbereich tragen soll. Bei der anderen Quelle nur vorsichtig Platz schaffen.",
-            "Gesang als Bezugspunkt nehmen. Bei Synth, Keys, Pad oder Gitarre im gemessenen Bereich zuerst pruefen, ob eine kleine Absenkung die Stimme klarer macht.",
-            "Becken nicht automatisch dumpf machen. Zuerst pruefen, ob Gitarre, Synth oder Keys im gemessenen Hoehenbereich etwas Platz abgeben koennen.",
-            "Attack-Quelle und harmonische Quelle getrennt pruefen. Timing, Huellkurve oder eine kleine spektrale Entzerrung sind oft sinnvoller als grosse EQ-Eingriffe.",
-            "Bei Bass gegen Gitarre, Synth, Keys oder Pad zuerst unnoetigen Tiefenanteil der harmonischen Quelle pruefen, bevor der Bass ausgeduennt wird."
+            "Kick und Bass getrennt beurteilen. Festlegen, wer den Tiefenbereich traegt; bei der anderen Quelle vorsichtig Platz schaffen.",
+            "Gesang als Bezugspunkt. Bei Synth, Keys, Pad oder Gitarre pruefen, ob eine kleine Absenkung im Bereich die Stimme klaert.",
+            "Becken nicht automatisch dumpf machen. Erst pruefen, ob Gitarre, Synth oder Keys im Hoehenbereich etwas Platz abgeben.",
+            "Attack- und harmonische Quelle getrennt pruefen: Timing, Huellkurve oder kleine Entzerrung vor grossen EQ-Eingriffen.",
+            "Bei Bass gegen Gitarre, Synth, Keys oder Pad zuerst unnoetige Tiefen der harmonischen Quelle pruefen."
         };
 
         UString128 s;
