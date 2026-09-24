@@ -95,7 +95,7 @@ private:
     bool wasPlaying_{false};
     std::int64_t lastProjectSample_{-1};
 
-    double last_[46]{
+    double last_[48]{
         -1,-1,-1,-1,-1,-1,
         -1,-1,-1,-1,
         -1,-1,-1,-1,
@@ -107,7 +107,7 @@ private:
         -1,-1,-1,
         -1,-1,-1,
         -1,-1,-1,
-        -1,-1,-1,-1
+        -1,-1,-1,-1,-1,-1
     };
 
     void publishParam(
@@ -144,6 +144,7 @@ private:
     static double dominanceParam(double dominance) noexcept;
     int chooseTopPair() noexcept;
     int chooseCoachPair() noexcept;
+    int chooseCoachAttackPair() noexcept;
 };
 
 } // namespace MixDoctorator::Brain
