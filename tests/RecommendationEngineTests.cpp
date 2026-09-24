@@ -44,6 +44,7 @@ int main(){
         IPC::Role::Pad,
         2,0.25,0.10,0.0,0.0);
     assert(!r.valid);
+    assert(r.context==RecommendationContext::None);
 
     r=makeRecommendation(
         IPC::Role::Bass,
