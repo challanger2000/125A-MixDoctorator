@@ -30,6 +30,9 @@ jobs:
       - name: Check realtime process guard
         run: python tests/check_realtime_process.py
 
+      - name: Check role and session menu counts
+        run: python tests/check_menu_counts.py
+
       - name: Configure
         run: cmake -S . -B build -G "Visual Studio 17 2022" -A x64 -DMIXDOCTORATOR_BUILD_TESTS=ON -DMIXDOCTORATOR_BUILD_VALIDATOR=ON
 
