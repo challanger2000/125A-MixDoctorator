@@ -93,6 +93,26 @@ int main(){
     assert(recommendationActionCode(
         RecommendationContext::BassVsHarmonic)==6);
 
+    Recommendation noAction;
+    assert(recommendationTargetCode(noAction)==0);
+
+    auto compareBoth=makeRecommendation(
+        IPC::Role::Kick,
+        IPC::Role::Bass,
+        1,0.40,0.70,0.0,0.0);
+    assert(compareBoth.valid);
+    assert(compareBoth.adjustRole==IPC::Role::Unknown);
+    assert(recommendationTargetCode(compareBoth)==1);
+
+    auto targeted=makeRecommendation(
+        IPC::Role::LeadVocal,
+        IPC::Role::Synth,
+        6,0.40,0.70,0.0,0.0);
+    assert(targeted.valid);
+    assert(targeted.adjustRole==IPC::Role::Synth);
+    assert(recommendationTargetCode(targeted)==
+           static_cast<int>(IPC::Role::Synth)+1);
+
     std::cout << "Recommendation engine tests passed\n";
     return 0;
 }
