@@ -162,7 +162,7 @@ tresult PLUGIN_API Controller::getParamStringByValue(
         UString128 s;
         s.fromAscii(
             v>=0.5
-            ? "CONNECTED"
+            ? "VERBUNDEN"
             : "OFFLINE");
         s.copyTo(out,128);
         return kResultTrue;
@@ -253,12 +253,12 @@ tresult PLUGIN_API Controller::getParamStringByValue(
         static const char* names[9]={
             "SUB 20-80",
             "BASS 80-160",
-            "LOW-MID 160-300",
-            "BODY 300-600",
-            "MID 600-1.2k",
-            "UPPER MID 1.2-2.5k",
-            "PRESENCE 2.5-5k",
-            "TREBLE 5-10k",
+            "TIEFE MITTEN 160-300",
+            "KOERPER 300-600",
+            "MITTEN 600-1.2k",
+            "OBERE MITTEN 1.2-2.5k",
+            "PRAESENZ 2.5-5k",
+            "HOEHEN 5-10k",
             "AIR 10k+"
         };
 
@@ -283,11 +283,11 @@ tresult PLUGIN_API Controller::getParamStringByValue(
        id==kDrumsGuitarStatus){
 
         static const char* states[5]={
-            "OBSERVING",
-            "CLEAR",
-            "LOW",
-            "MEDIUM",
-            "HIGH"
+            "BEOBACHTEN",
+            "KLAR",
+            "NIEDRIG",
+            "MITTEL",
+            "HOCH"
         };
 
         const int index=
@@ -311,10 +311,10 @@ tresult PLUGIN_API Controller::getParamStringByValue(
        id==kTopAttackPair){
 
         static const char* pairs[4]={
-            "NONE",
-            "DRUMS - BASS",
-            "BASS - E-GUITAR",
-            "DRUMS - E-GUITAR"
+            "KEINE",
+            "SCHLAGZEUG - BASS",
+            "BASS - E-GITARRE",
+            "SCHLAGZEUG - E-GITARRE"
         };
 
         const int index=
@@ -336,10 +336,10 @@ tresult PLUGIN_API Controller::getParamStringByValue(
     if(id==kTopAttackAdvice){
 
         static const char* advice[4]={
-            "No sustained attack competition detected",
-            "Drums and bass attacks coincide: check envelopes, timing or ducking",
-            "Bass and guitar attacks coincide: check articulation and transient emphasis",
-            "Drums and guitar attacks coincide: check pick/snare/cymbal attack space"
+            "Keine anhaltende Attack-Konkurrenz erkannt",
+            "Schlagzeug und Bass treffen gleichzeitig: Huellkurven, Timing oder Ducking pruefen",
+            "Bass und Gitarre treffen gleichzeitig: Artikulation und Transienten pruefen",
+            "Schlagzeug und Gitarre konkurrieren bei Attack: Anschlag, Snare und Becken pruefen"
         };
 
         const int index=
@@ -361,9 +361,9 @@ tresult PLUGIN_API Controller::getParamStringByValue(
     if(id==kTopDominance){
 
         static const char* labels[3]={
-            "SECOND SOURCE",
-            "BALANCED",
-            "FIRST SOURCE"
+            "ZWEITE QUELLE",
+            "AUSGEGLICHEN",
+            "ERSTE QUELLE"
         };
 
         const int index=
@@ -398,43 +398,43 @@ tresult PLUGIN_API Controller::getParamStringByValue(
                 6);
 
         static const char* headline[7]={
-            "No reliable mix problem yet",
-            "Two sources may be competing for low-end ownership",
-            "Low-mid buildup may be reducing separation",
-            "Midrange overlap may be blurring separation",
-            "Presence overlap may be masking definition",
-            "Upper-frequency overlap may be crowding the mix",
-            "Two sources may be competing in their attacks"
+            "Noch kein verlaessliches Mix-Problem erkannt",
+            "Zwei Quellen konkurrieren moeglicherweise um den Tiefbass",
+            "Tiefe Mitten koennen die Trennung verschlechtern",
+            "Mitten-Ueberlappung kann die Trennung verwischen",
+            "Praesenz-Ueberlappung kann Definition verdecken",
+            "Hoehen-Ueberlappung kann den Mix verdichten",
+            "Zwei Quellen konkurrieren moeglicherweise in den Attacks"
         };
 
         static const char* action[7]={
-            "Keep the mix playing. Do not change anything until the finding becomes stable.",
-            "Decide which shown source should own this low range. On the other source, try a gentle cut or high-pass only if the mix improves.",
-            "Compare the two shown sources in this range. Try a small 1-2 dB cut on the muddier one first.",
-            "Choose which shown source needs to stay clearer here. Try a small 1-2 dB cut on the less important source.",
-            "Before boosting presence, try a small cut on the shown source that can give up a little definition in this range.",
-            "Compare the two shown sources and reduce the harsher or less important one by about 1-2 dB first.",
-            "Check envelope, transient emphasis, timing or gentle ducking between the two shown sources before reaching for large EQ moves."
+            "Mix weiterlaufen lassen. Erst etwas aendern, wenn der Hinweis stabil wird.",
+            "Entscheide, welche der beiden Quellen diesen Tiefenbereich tragen soll. Bei der anderen nur vorsichtig absenken oder hochpassfiltern, wenn der Mix dadurch besser wird.",
+            "Vergleiche beide Quellen in diesem Bereich. Bei der dumpferen zuerst vorsichtig 1-2 dB absenken.",
+            "Entscheide, welche Quelle hier klarer bleiben soll. Bei der weniger wichtigen Quelle vorsichtig 1-2 dB absenken.",
+            "Bevor du Praesenz anhebst, senke bei der Quelle mit weniger Prioritaet in diesem Bereich leicht ab.",
+            "Vergleiche beide Quellen und senke die haertere oder weniger wichtige zuerst um etwa 1-2 dB ab.",
+            "Pruefe Huellkurve, Transienten, Timing oder sanftes Ducking zwischen den beiden Quellen, bevor du stark mit EQ eingreifst."
         };
 
         static const char* listen[7]={
-            "Wait for a stable finding. A moving value alone is not a reason to change the mix.",
-            "Listen for clearer low-end roles without losing weight or punch. Undo the change if the bottom becomes thin.",
-            "Listen for less mud and clearer notes without making either source hollow.",
-            "Listen for two distinct parts instead of one blurred midrange block. Undo the change if either source loses character.",
-            "Listen for clearer definition without making the mix dull or pushing the other source too far forward.",
-            "Listen for less harshness or crowding while keeping useful brightness and air.",
-            "Listen for clearer attacks and groove. If the mix only gets weaker or unnatural, undo the change."
+            "Warte auf einen stabilen Hinweis. Ein bewegter Messwert allein ist kein Grund, den Mix zu aendern.",
+            "Achte auf klarere Rollen im Bass, ohne Gewicht oder Punch zu verlieren. Wenn es duenn wird, Aenderung rueckgaengig machen.",
+            "Achte auf weniger Matsch und klarere Noten, ohne dass eine Quelle hohl klingt.",
+            "Achte auf zwei getrennte Parts statt eines verschwommenen Mittenblocks. Rueckgaengig machen, wenn eine Quelle Charakter verliert.",
+            "Achte auf mehr Definition, ohne den Mix dumpf zu machen oder die andere Quelle zu weit nach vorn zu holen.",
+            "Achte auf weniger Haerte oder Gedraenge, ohne nuetzliche Helligkeit und Air zu verlieren.",
+            "Achte auf klarere Attacks und Groove. Wenn der Mix nur schwaecher oder unnatuerlich wird, Aenderung rueckgaengig machen."
         };
 
         static const char* reason[7]={
-            "No sufficiently stable conflict has been measured yet.",
-            "The two shown sources overlap most strongly in the sub or bass range.",
-            "The two shown sources overlap most strongly in the low-mid or body range.",
-            "The two shown sources overlap most strongly in the midrange.",
-            "The two shown sources overlap most strongly in the presence range.",
-            "The two shown sources overlap most strongly in the treble or air range.",
-            "The measured overlap also contains sustained transient competition."
+            "Noch kein ausreichend stabiler Konflikt gemessen.",
+            "Die beiden Quellen ueberlappen sich am staerksten im Sub- oder Bassbereich.",
+            "Die beiden Quellen ueberlappen sich am staerksten in tiefen Mitten oder Koerperbereich.",
+            "Die beiden Quellen ueberlappen sich am staerksten in den Mitten.",
+            "Die beiden Quellen ueberlappen sich am staerksten im Praesenzbereich.",
+            "Die beiden Quellen ueberlappen sich am staerksten in Hoehen oder Air.",
+            "Die gemessene Ueberlappung enthaelt zusaetzlich anhaltende Transienten-Konkurrenz."
         };
 
         const char* text=
@@ -454,10 +454,10 @@ tresult PLUGIN_API Controller::getParamStringByValue(
 
     if(id==kCoachEvidence){
         static const char* evidence[4]={
-            "WAITING",
-            "EARLY HINT",
-            "STABLE HINT",
-            "STRONG HINT"
+            "WARTEN",
+            "ERSTER HINWEIS",
+            "STABILER HINWEIS",
+            "STARKER HINWEIS"
         };
 
         const int index=
@@ -490,7 +490,7 @@ tresult PLUGIN_API Controller::getParamStringByValue(
 
         if(encoded==0){
             UString128 s;
-            s.fromAscii("NONE");
+            s.fromAscii("KEINE");
             s.copyTo(out,128);
             return kResultTrue;
         }
@@ -515,7 +515,7 @@ tresult PLUGIN_API Controller::getParamStringByValue(
         }else{
             std::snprintf(
                 b,sizeof(b),
-                "NONE");
+                "KEINE");
         }
 
         UString128 s;
@@ -528,8 +528,8 @@ tresult PLUGIN_API Controller::getParamStringByValue(
         UString128 s;
         s.fromAscii(
             v>=0.5
-            ? "Check timing, envelopes, transient emphasis or gentle ducking between these sources"
-            : "No sustained attack competition detected");
+            ? "Timing, Huellkurven, Transienten oder sanftes Ducking zwischen diesen Quellen pruefen"
+            : "Keine anhaltende Attack-Konkurrenz erkannt");
         s.copyTo(out,128);
         return kResultTrue;
     }
@@ -537,7 +537,7 @@ tresult PLUGIN_API Controller::getParamStringByValue(
     if(id==kTopAdvice){
 
         static const char* advice[16]={
-            "Keep listening - no reliable masking finding yet",
+            "Weiterhoeren - noch kein verlaesslicher Masking-Hinweis",
 
             "Drums dominate sub/bass: check kick/toms before raising bass",
             "Bass dominates sub/bass: check bass weight before raising kick",
