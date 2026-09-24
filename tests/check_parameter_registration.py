@@ -34,21 +34,30 @@ def registered_names(path: Path):
     text = path.read_text(encoding="utf-8")
     names = set()
 
-    # Standard addParameter(..., kParam)
+    # Standard addParameter(..., flags, kParam): the ParamID is the final
+    # argument. Do not collect VST3 flags such as kIsHidden/kIsReadOnly.
     for m in re.finditer(
         r"parameters\.addParameter\s*\((?P<body>.*?)\);",
         text,
         re.S,
     ):
-        names.update(re.findall(r"\b(k[A-Za-z0-9_]+)\b", m.group("body")))
+        p = re.search(
+            r",\s*(k[A-Za-z0-9_]+)\s*$",
+            m.group("body"),
+            re.S,
+        )
+        if p:
+            names.add(p.group(1))
 
-    # StringListParameter is created first and added later via a variable.
+    # StringListParameter(name, kParam, ...): ParamID is the second argument.
     for m in re.finditer(
-        r"new\s+StringListParameter\s*\((?P<body>.*?)\);",
+        r"new\s+StringListParameter\s*\(\s*"
+        r"STR16\([^\)]*\)\s*,\s*"
+        r"(?P<param>k[A-Za-z0-9_]+)",
         text,
         re.S,
     ):
-        names.update(re.findall(r"\b(k[A-Za-z0-9_]+)\b", m.group("body")))
+        names.add(m.group("param"))
 
     return names
 
