@@ -144,8 +144,8 @@ inline const char* roleName(IPC::Role role) noexcept {
         case IPC::Role::Cymbals: return "BECKEN / HI-HAT";
         case IPC::Role::Percussion: return "PERCUSSION";
         case IPC::Role::AcousticGuitar: return "AKUSTIKGITARRE";
-        case IPC::Role::LeadVocal: return "LEAD-GESANG";
-        case IPC::Role::BackingVocal: return "BACKING-GESANG";
+        case IPC::Role::LeadVocal: return "HAUPTGESANG";
+        case IPC::Role::BackingVocal: return "HINTERGRUNDGESANG";
         case IPC::Role::PianoKeys: return "PIANO / KEYS";
         case IPC::Role::Synth: return "SYNTH";
         case IPC::Role::Pad: return "PAD";
