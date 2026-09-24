@@ -205,6 +205,52 @@ int main(){
     assert(
         antiPhaseBands[6]>0.95);
 
+
+    // High-rate anti-alias guard: an ultrasonic tone that would fold into the
+    // audible analysis band after decimation must be strongly attenuated.
+    auto totalEnergy=[](double sampleRate,double hz){
+        SpectralAnalyzer analyzer;
+        analyzer.prepare(sampleRate);
+
+        const int samples=
+            static_cast<int>(
+                sampleRate*0.75);
+
+        for(int n=0;n<samples;++n){
+            const double x=
+                std::sin(
+                    2.0*kPi*
+                    hz*
+                    static_cast<double>(n)/
+                    sampleRate);
+
+            analyzer.push(x);
+        }
+
+        double sum=0.0;
+        for(double v:analyzer.energy())
+            sum+=v;
+
+        return sum;
+    };
+
+    const double audible96=
+        totalEnergy(96000.0,10000.0);
+
+    const double ultrasonic96=
+        totalEnergy(96000.0,35000.0);
+
+    const double audible192=
+        totalEnergy(192000.0,10000.0);
+
+    const double ultrasonic192=
+        totalEnergy(192000.0,70000.0);
+
+    assert(audible96>0.0);
+    assert(audible192>0.0);
+    assert(ultrasonic96<audible96*0.01);
+    assert(ultrasonic192<audible192*0.01);
+
     std::cout
         << "SpectralAnalyzer tests passed\n";
 
