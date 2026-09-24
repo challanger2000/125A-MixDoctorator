@@ -987,8 +987,10 @@ tresult PLUGIN_API Processor::process(
                     latestIpc_.roles[b].connected;
 
                 if(!bothConnected &&
-                   stateIdle)
+                   stateIdle){
+                    state=PairState{};
                     continue;
+                }
 
                 updatePair(
                     latestIpc_.roles[a],
