@@ -96,6 +96,39 @@ int main(){
                close.spread.masking*0.20);
     }
 
+    // Upward spread from a stronger lower-frequency source should be
+    // stronger than downward spread from an equally separated upper source.
+    {
+        const auto lower=oneBand(4);
+        const auto upper=oneBand(5);
+
+        const auto lowerFrequencyMasker=
+            evaluatePairWithNeighborSpread(
+                -15.0,1.0,lower.data(),
+                -21.0,1.0,upper.data());
+
+        const auto upperFrequencyMasker=
+            evaluatePairWithNeighborSpread(
+                -21.0,1.0,lower.data(),
+                -15.0,1.0,upper.data());
+
+        assert(
+            lowerFrequencyMasker.addedRisk>
+            upperFrequencyMasker.addedRisk*
+            1.40);
+
+        // Swapping source identity must not change either physical case.
+        const auto lowerFrequencyMaskerSwapped=
+            evaluatePairWithNeighborSpread(
+                -21.0,1.0,upper.data(),
+                -15.0,1.0,lower.data());
+
+        assert(std::abs(
+            lowerFrequencyMasker.addedRisk-
+            lowerFrequencyMaskerSwapped.addedRisk)<
+            1.0e-12);
+    }
+
     // Swapping source order must preserve total risk.
     {
         const auto a=oneBand(2);
