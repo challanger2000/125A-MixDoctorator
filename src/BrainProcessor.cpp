@@ -12,6 +12,7 @@
 #include "CoachModel.h"
 #include "RecommendationEngine.h"
 #include "FindingRanking.h"
+#include "PairUpdateRates.h"
 #include "RoleModel.h"
 
 #include "base/source/fstreamer.h"
@@ -367,16 +368,11 @@ void Processor::updatePair(
     const IPC::Snapshot& a,
     const IPC::Snapshot& b,
     PairState& state,
+    const Analysis::PairUpdateRates& rates,
     int32 numSamples,
     std::int64_t currentSamplePosition) noexcept{
 
-    const double dt=
-        std::clamp(
-            static_cast<double>(
-                std::max<int32>(1,numSamples)) /
-            std::max(8000.0,sampleRate_),
-            0.0001,
-            0.25);
+    const double dt=rates.dt;
 
     const bool timeCoherent=
         Analysis::samplePositionsCoherent(
@@ -427,11 +423,8 @@ void Processor::updatePair(
         for(int i=0;i<IPC::kBandCount;++i)
             bandTargets[i]=metrics.bandRisk[i];
 
-        const double domAlpha=
-            1.0-std::exp(-dt/1.8);
-
         state.dominance+=
-            domAlpha*
+            rates.dominanceAlpha*
             (metrics.dominance-state.dominance);
     }else{
         state.observedSeconds=
@@ -441,18 +434,14 @@ void Processor::updatePair(
     }
 
     const double overlapAlpha=
-        1.0-std::exp(
-            -dt /
-            ((overlapTarget>state.overlap)
-                ? 0.60
-                : 2.5));
+        overlapTarget>state.overlap
+        ? rates.overlapUpAlpha
+        : rates.overlapDownAlpha;
 
     const double maskingAlpha=
-        1.0-std::exp(
-            -dt /
-            ((maskingTarget>state.masking)
-                ? 0.85
-                : 3.5));
+        maskingTarget>state.masking
+        ? rates.maskingUpAlpha
+        : rates.maskingDownAlpha;
 
     state.overlap+=
         overlapAlpha*
@@ -463,24 +452,19 @@ void Processor::updatePair(
         (maskingTarget-state.masking);
 
     const double transientAlpha=
-        1.0-std::exp(
-            -dt/
-            ((transientCompetitionTarget>
-              state.transientCompetition)
-                ? 0.12
-                : 0.90));
+        transientCompetitionTarget>
+        state.transientCompetition
+        ? rates.transientUpAlpha
+        : rates.transientDownAlpha;
 
     state.transientCompetition+=
         transientAlpha*
         (transientCompetitionTarget-
          state.transientCompetition);
 
-    const double bandAlpha=
-        1.0-std::exp(-dt/1.5);
-
     for(int i=0;i<IPC::kBandCount;++i)
         state.bandRisk[i]+=
-            bandAlpha*
+            rates.bandAlpha*
             (bandTargets[i]-state.bandRisk[i]);
 
     int stableBest=0;
@@ -517,11 +501,8 @@ void Processor::updatePair(
             0.40*bandStability
         );
 
-    const double confAlpha=
-        1.0-std::exp(-dt/2.5);
-
     state.confidence+=
-        confAlpha*
+        rates.confidenceAlpha*
         (targetConfidence-state.confidence);
 }
 
