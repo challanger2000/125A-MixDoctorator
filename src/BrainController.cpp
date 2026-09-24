@@ -91,7 +91,7 @@ tresult PLUGIN_API Controller::initialize(FUnknown* c){
     parameters.addParameter(STR16("Top Attack Advice"),nullptr,3,0.0,ro,kTopAttackAdvice);
 
     parameters.addParameter(STR16("Coach Headline"),nullptr,6,0.0,ro,kCoachHeadline);
-    parameters.addParameter(STR16("Coach Action"),nullptr,6,0.0,ro,kCoachAction);
+    parameters.addParameter(STR16("Coach Action"),nullptr,5,0.0,ro,kCoachAction);
     parameters.addParameter(STR16("Coach Listen"),nullptr,6,0.0,ro,kCoachListen);
     parameters.addParameter(STR16("Coach Reason"),nullptr,6,0.0,ro,kCoachReason);
     parameters.addParameter(STR16("Coach Evidence"),nullptr,3,0.0,ro,kCoachEvidence);
@@ -383,7 +383,6 @@ tresult PLUGIN_API Controller::getParamStringByValue(
     }
 
     if(id==kCoachHeadline ||
-       id==kCoachAction ||
        id==kCoachListen ||
        id==kCoachReason){
 
@@ -405,16 +404,6 @@ tresult PLUGIN_API Controller::getParamStringByValue(
             "Praesenz-Ueberlappung kann Definition verdecken",
             "Hoehen-Ueberlappung kann den Mix verdichten",
             "Zwei Quellen konkurrieren moeglicherweise in den Attacks"
-        };
-
-        static const char* action[7]={
-            "Mix weiterlaufen lassen. Erst etwas aendern, wenn der Hinweis stabil wird.",
-            "Entscheide, welche der beiden Quellen diesen Tiefenbereich tragen soll. Bei der anderen nur vorsichtig absenken oder hochpassfiltern, wenn der Mix dadurch besser wird.",
-            "Vergleiche beide Quellen in diesem Bereich. Bei der dumpferen zuerst vorsichtig 1-2 dB absenken.",
-            "Entscheide, welche Quelle hier klarer bleiben soll. Bei der weniger wichtigen Quelle vorsichtig 1-2 dB absenken.",
-            "Bevor du Praesenz anhebst, senke bei der Quelle mit weniger Prioritaet in diesem Bereich leicht ab.",
-            "Vergleiche beide Quellen und senke die haertere oder weniger wichtige zuerst um etwa 1-2 dB ab.",
-            "Pruefe Huellkurve, Transienten, Timing oder sanftes Ducking zwischen den beiden Quellen, bevor du stark mit EQ eingreifst."
         };
 
         static const char* listen[7]={
@@ -440,14 +429,38 @@ tresult PLUGIN_API Controller::getParamStringByValue(
         const char* text=
             id==kCoachHeadline
             ? headline[index]
-            : id==kCoachAction
-                ? action[index]
-                : id==kCoachListen
-                    ? listen[index]
-                    : reason[index];
+            : id==kCoachListen
+                ? listen[index]
+                : reason[index];
 
         UString128 s;
         s.fromAscii(text);
+        s.copyTo(out,128);
+        return kResultTrue;
+    }
+
+    if(id==kCoachAction){
+        const int index=
+            std::clamp(
+                static_cast<int>(
+                    std::lround(
+                        std::clamp(
+                            v,0.0,1.0)*
+                        5.0)),
+                0,
+                5);
+
+        static const char* action[6]={
+            "Mix weiterlaufen lassen. Erst etwas aendern, wenn der Hinweis stabil wird.",
+            "Kick und Bass getrennt beurteilen: festlegen, wer den gemessenen Tiefenbereich tragen soll. Bei der anderen Quelle nur vorsichtig Platz schaffen.",
+            "Gesang als Bezugspunkt nehmen. Bei Synth, Keys, Pad oder Gitarre im gemessenen Bereich zuerst pruefen, ob eine kleine Absenkung die Stimme klarer macht.",
+            "Becken nicht automatisch dumpf machen. Zuerst pruefen, ob Gitarre, Synth oder Keys im gemessenen Hoehenbereich etwas Platz abgeben koennen.",
+            "Attack-Quelle und harmonische Quelle getrennt pruefen. Timing, Huellkurve oder eine kleine spektrale Entzerrung sind oft sinnvoller als grosse EQ-Eingriffe.",
+            "Bei Bass gegen Gitarre, Synth, Keys oder Pad zuerst unnoetigen Tiefenanteil der harmonischen Quelle pruefen, bevor der Bass ausgeduennt wird."
+        };
+
+        UString128 s;
+        s.fromAscii(action[index]);
         s.copyTo(out,128);
         return kResultTrue;
     }
@@ -539,23 +552,23 @@ tresult PLUGIN_API Controller::getParamStringByValue(
         static const char* advice[16]={
             "Weiterhoeren - noch kein verlaesslicher Masking-Hinweis",
 
-            "Drums dominate sub/bass: check kick/toms before raising bass",
-            "Bass dominates sub/bass: check bass weight before raising kick",
-            "Drums and bass compete in sub/bass: decide which should lead",
-            "Check drum/bass buildup in low-mids and body",
-            "Check drum attack against bass definition",
+            "Schlagzeug dominiert Sub/Bass: Kick/Toms pruefen, bevor Bass angehoben wird",
+            "Bass dominiert Sub/Bass: Bassgewicht pruefen, bevor Kick angehoben wird",
+            "Schlagzeug und Bass konkurrieren unten: entscheiden, wer fuehren soll",
+            "Schlagzeug/Bass-Aufbau in tiefen Mitten und Koerper pruefen",
+            "Schlagzeug-Attack gegen Bassdefinition pruefen",
 
-            "Bass dominates guitar lows: check bass body/harmonics",
-            "Guitar dominates bass lows: reduce guitar low-end/body first",
-            "Bass and guitar compete in lows: separate their body ranges",
-            "Check bass harmonics against guitar mids/presence",
-            "Check guitar top end only if bass definition is actually lost",
+            "Bass dominiert Gitarrentiefe: Bass-Koerper und Obertone pruefen",
+            "Gitarre dominiert Basstiefe: zuerst Gitarren-Tiefen/Koerper pruefen",
+            "Bass und Gitarre konkurrieren unten: Koerperbereiche trennen",
+            "Bass-Obertone gegen Gitarren-Mitten/Praesenz pruefen",
+            "Gitarren-Hoehen nur pruefen, wenn Bassdefinition wirklich verloren geht",
 
-            "Check guitar low end against kick/toms",
-            "Drums dominate mids/presence: inspect snare/cymbal emphasis",
-            "Guitar dominates mids/presence: inspect guitar bite/presence",
-            "Drums and guitar compete in attack/presence: create space",
-            "Check cymbal/guitar treble overlap before adding more top end"
+            "Gitarren-Tiefen gegen Kick/Toms pruefen",
+            "Schlagzeug dominiert Mitten/Praesenz: Snare/Becken pruefen",
+            "Gitarre dominiert Mitten/Praesenz: Biss/Praesenz pruefen",
+            "Schlagzeug und Gitarre konkurrieren bei Attack/Praesenz: Platz schaffen",
+            "Becken/Gitarren-Hoehen pruefen, bevor mehr Hoehen angehoben werden"
         };
 
         const int index=
