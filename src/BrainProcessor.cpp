@@ -935,6 +935,30 @@ tresult PLUGIN_API Processor::process(
             : 0.0,
         32);
 
+    const auto overallSummary=
+        Analysis::summarizeRoleCounts(
+            responseForSession
+            ? latestIpc_.roleCount
+            : nullptr);
+
+    publishParam(
+        data,
+        kAllSensorCount,
+        static_cast<double>(
+            overallSummary.sensors)/
+        static_cast<double>(
+            IPC::kSensorSlotCount),
+        49);
+
+    publishParam(
+        data,
+        kAllRoleCount,
+        static_cast<double>(
+            overallSummary.roles)/
+        static_cast<double>(
+            IPC::kRoleCount),
+        50);
+
     // When the transport is stopped, keep the last measured diagnosis
     // visible instead of decaying live values to silence.
     if(hasProcessContext && !playing)
