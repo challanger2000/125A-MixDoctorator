@@ -2,6 +2,7 @@
 #include "public.sdk/source/vst/vstaudioeffect.h"
 #include "MixDoctoratorIPC.h"
 #include "SpectralAnalyzer.h"
+#include "TransientModel.h"
 
 namespace MixDoctorator::Sensor {
 
@@ -27,6 +28,14 @@ public:
     void analyzeStereoSample(double left,double right) noexcept {
         analyzerLeft_.push(left);
         analyzerRight_.push(right);
+
+        const double power=
+            0.5*
+            (left*left+
+             right*right);
+
+        transientDetector_.pushPower(
+            power);
     }
 
 private:
@@ -38,6 +47,7 @@ private:
     IPC::SharedMemory ipc_;
     Analysis::SpectralAnalyzer analyzerLeft_;
     Analysis::SpectralAnalyzer analyzerRight_;
+    Analysis::TransientDetector transientDetector_;
     double sampleRate_{44100.0};
 };
 

@@ -21,8 +21,8 @@ enum class Role : std::uint32_t {
 constexpr int kRoleCount=3;
 constexpr int kBandCount=9;
 constexpr int kSessionCount=8;
-constexpr std::uint32_t kMagic=0x4D445035u;
-constexpr std::uint32_t kVersion=5u;
+constexpr std::uint32_t kMagic=0x4D445036u;
+constexpr std::uint32_t kVersion=6u;
 
 inline int clampSession(int session) noexcept {
     return std::clamp(session,0,kSessionCount-1);
@@ -44,6 +44,7 @@ struct alignas(64) Slot {
     double rmsDb{-120.0};
     double peakDb{-120.0};
     double activity{0.0};
+    double transient{0.0};
     double bands[kBandCount]{};
 };
 
@@ -89,7 +90,7 @@ public:
             std::swprintf(
                 name,
                 sizeof(name)/sizeof(name[0]),
-                L"Local\\125A_MixDoctorator_POC_v5_S%d",
+                L"Local\\125A_MixDoctorator_POC_v6_S%d",
                 session+1);
 
             mapping_[session]=CreateFileMappingW(
@@ -162,6 +163,7 @@ public:
         double rmsDb,
         double peakDb,
         double activity,
+        double transient,
         const double* bands) noexcept {
 
 #ifdef _WIN32
@@ -184,6 +186,7 @@ public:
         s.rmsDb=rmsDb;
         s.peakDb=peakDb;
         s.activity=activity;
+        s.transient=transient;
 
         for(int i=0;i<kBandCount;++i)
             s.bands[i]=bands[i];
@@ -196,7 +199,7 @@ public:
         return true;
 #else
         (void)session;(void)role;(void)samplePosition;(void)rmsDb;
-        (void)peakDb;(void)activity;(void)bands;
+        (void)peakDb;(void)activity;(void)transient;(void)bands;
         return false;
 #endif
     }
@@ -232,6 +235,7 @@ public:
             t.rmsDb=s.rmsDb;
             t.peakDb=s.peakDb;
             t.activity=s.activity;
+            t.transient=s.transient;
 
             for(int i=0;i<kBandCount;++i)
                 t.bands[i]=s.bands[i];

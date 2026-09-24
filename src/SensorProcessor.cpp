@@ -87,6 +87,9 @@ tresult PLUGIN_API Processor::setupProcessing(
     analyzerRight_.prepare(
         sampleRate_);
 
+    transientDetector_.prepare(
+        sampleRate_);
+
     return AudioEffect::
         setupProcessing(setup);
 }
@@ -99,6 +102,9 @@ tresult PLUGIN_API Processor::setProcessing(
             sampleRate_);
 
         analyzerRight_.prepare(
+            sampleRate_);
+
+        transientDetector_.prepare(
             sampleRate_);
     }
 
@@ -281,6 +287,9 @@ tresult PLUGIN_API Processor::process(
             analyzerLeft_,
             analyzerRight_);
 
+    const double transient=
+        transientDetector_.value();
+
     const std::int64_t samplePosition=
         data.processContext
         ? static_cast<std::int64_t>(
@@ -295,6 +304,7 @@ tresult PLUGIN_API Processor::process(
         rmsDb,
         peakDb,
         activity,
+        transient,
         bands.data());
 
     return kResultOk;

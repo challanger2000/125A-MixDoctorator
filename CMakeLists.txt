@@ -54,4 +54,15 @@ if(MIXDOCTORATOR_BUILD_TESTS)
     add_test(
         NAME TimingModelTests
         COMMAND TimingModelTests)
+
+    add_executable(TransientModelTests
+        tests/TransientModelTests.cpp)
+
+    target_compile_features(
+        TransientModelTests
+        PRIVATE cxx_std_17)
+
+    add_test(
+        NAME TransientModelTests
+        COMMAND TransientModelTests)
 endif()
