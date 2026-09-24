@@ -66,7 +66,7 @@ inline NeighborMaskingMetrics evaluatePairWithNeighborSpread(
                     0.0,
                     1.0);
 
-            result[i]=value;
+            result[i]+=value;
 
             if(i>0)
                 result[i-1]+=
