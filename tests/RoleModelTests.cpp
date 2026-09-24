@@ -69,6 +69,29 @@ int main(){
     assert(emptySummary.sensors==0);
     assert(emptySummary.roles==0);
 
+    int saturatedCounts[IPC::kRoleCount]{};
+    for(int i=0;i<IPC::kRoleCount;++i)
+        saturatedCounts[i]=99;
+
+    const auto saturatedSummary=
+        summarizeRoleCounts(
+            saturatedCounts);
+
+    assert(saturatedSummary.sensors==
+           IPC::kSensorSlotCount);
+    assert(saturatedSummary.roles==
+           IPC::kRoleCount);
+
+    int negativeCounts[IPC::kRoleCount]{};
+    negativeCounts[0]=-5;
+
+    const auto negativeSummary=
+        summarizeRoleCounts(
+            negativeCounts);
+
+    assert(negativeSummary.sensors==0);
+    assert(negativeSummary.roles==0);
+
     std::cout << "Role model tests passed\n";
     return 0;
 }
