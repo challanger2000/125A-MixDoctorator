@@ -3,6 +3,7 @@
 #include "MaskingModel.h"
 #include "TimingModel.h"
 #include "RoleAggregate.h"
+#include "RoleBankAggregate.h"
 #include "TransientInteraction.h"
 #include "AttackFinding.h"
 #include "TransportModel.h"
@@ -328,22 +329,11 @@ void Processor::readAllRoleAggregates(
     std::uint64_t nowMs,
     IpcResponse& response) noexcept {
 
-    Analysis::RoleAggregate aggregates[
-        IPC::kRoleCount];
+    Analysis::RoleBankAggregate bank;
+    bank.reset();
 
-    std::uint64_t freshest[
-        IPC::kRoleCount]{};
-
-    for(int i=0;i<IPC::kRoleCount;++i){
-        aggregates[i].reset();
-        response.roleOk[i]=false;
-        response.roleCount[i]=0;
-        response.roles[i]=IPC::Snapshot{};
-    }
-
-    // Read each shared-memory slot once, then route the coherent snapshot to
-    // its role aggregate. This avoids scanning all 24 slots separately for
-    // every one of the 14 roles.
+    // Read shared memory once. RoleBankAggregate handles role routing,
+    // connected counts and sample-position coherence.
     for(int slot=0;
         slot<IPC::kSensorSlotCount;
         ++slot){
@@ -357,69 +347,19 @@ void Processor::readAllRoleAggregates(
                nowMs))
             continue;
 
-        if(!source.connected)
-            continue;
-
-        const int roleIndex=
-            Analysis::roleToIndex(
-                source.role);
-
-        if(roleIndex<0 ||
-           roleIndex>=IPC::kRoleCount)
-            continue;
-
-        ++response.roleCount[roleIndex];
-
-        if(!Analysis::samplePositionsCoherent(
-               currentSamplePosition,
-               source.samplePosition,
-               source.samplePosition,
-               numSamples))
-            continue;
-
-        aggregates[roleIndex].add(
-            source.rmsDb,
-            source.peakDb,
-            source.activity,
-            source.transient,
-            source.bands);
-
-        freshest[roleIndex]=
-            std::max(
-                freshest[roleIndex],
-                source.heartbeatMs);
+        bank.add(
+            source,
+            currentSamplePosition,
+            numSamples);
     }
 
     for(int i=0;i<IPC::kRoleCount;++i){
-        const auto result=
-            aggregates[i].result();
-
-        if(!result.valid)
-            continue;
-
-        auto& out=response.roles[i];
-
-        out=IPC::Snapshot{};
-        out.role=
-            Analysis::roleFromIndex(i);
-        out.connected=true;
-        out.heartbeatMs=freshest[i];
-        out.samplePosition=
-            currentSamplePosition;
-        out.rmsDb=result.rmsDb;
-        out.peakDb=result.peakDb;
-        out.activity=result.activity;
-        out.transient=result.transient;
-        out.aggregateCount=
-            response.roleCount[i];
-
-        for(int band=0;
-            band<IPC::kBandCount;
-            ++band)
-            out.bands[band]=
-                result.bands[band];
-
-        response.roleOk[i]=true;
+        response.roleOk[i]=
+            bank.result(
+                i,
+                currentSamplePosition,
+                response.roles[i],
+                response.roleCount[i]);
     }
 }
 
