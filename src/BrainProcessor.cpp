@@ -741,6 +741,39 @@ int Processor::chooseCoachPair() noexcept{
     return best;
 }
 
+int Processor::chooseCoachAttackPair() noexcept{
+    int best=-1;
+    double bestRank=0.30;
+
+    for(int i=0;
+        i<Analysis::kRolePairCount;
+        ++i){
+
+        const auto& state=
+            coachPairStates_[i];
+
+        if(state.observedSeconds<2.0 ||
+           state.transientCompetition<0.30)
+            continue;
+
+        const double rank=
+            state.transientCompetition *
+            (0.55+
+             0.45*
+             std::clamp(
+                 state.confidence,
+                 0.0,
+                 1.0));
+
+        if(rank>bestRank){
+            best=i;
+            bestRank=rank;
+        }
+    }
+
+    return best;
+}
+
 void Processor::updateSessionFinding() noexcept{
     for(int i=0;i<3;++i){
         const auto& p=
@@ -1349,6 +1382,31 @@ tresult PLUGIN_API Processor::process(
         kTopAttackAdvice,
         attackAdviceValue,
         38);
+
+    const int coachAttackPair=
+        chooseCoachAttackPair();
+
+    const double coachAttackPairValue=
+        coachAttackPair<0
+        ? 0.0
+        : static_cast<double>(
+            coachAttackPair+1)/
+          static_cast<double>(
+            Analysis::kRolePairCount);
+
+    publishParam(
+        data,
+        kCoachAttackPair,
+        coachAttackPairValue,
+        46);
+
+    publishParam(
+        data,
+        kCoachAttackAdvice,
+        coachAttackPair<0
+            ? 0.0
+            : 1.0,
+        47);
 
     return kResultOk;
 }
