@@ -24,6 +24,9 @@ jobs:
       - name: Check Brain publication slot consistency
         run: python tests/check_publish_slots.py
 
+      - name: Check VST3 parameter registration consistency
+        run: python tests/check_parameter_registration.py
+
       - name: Configure
         run: cmake -S . -B build -G "Visual Studio 17 2022" -A x64 -DMIXDOCTORATOR_BUILD_TESTS=ON -DMIXDOCTORATOR_BUILD_VALIDATOR=ON
 
