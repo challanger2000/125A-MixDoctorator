@@ -89,12 +89,13 @@ private:
     bool wasPlaying_{false};
     std::int64_t lastProjectSample_{-1};
 
-    double last_[39]{
+    double last_[42]{
         -1,-1,-1,-1,-1,-1,
         -1,-1,-1,-1,
         -1,-1,-1,-1,
         -1,-1,-1,-1,
         -1,-1,-1,-1,-1,-1,
+        -1,-1,-1,
         -1,-1,-1,
         -1,-1,-1,
         -1,-1,-1,
@@ -133,7 +134,6 @@ private:
     void resetAnalysisState() noexcept;
 
     static double severityFromState(const PairState&) noexcept;
-    static int adviceFor(int pairIndex,int bandIndex,double dominance) noexcept;
     static double dominanceParam(double dominance) noexcept;
     int chooseTopPair() noexcept;
 };

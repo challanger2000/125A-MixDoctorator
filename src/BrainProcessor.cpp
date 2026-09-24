@@ -8,6 +8,7 @@
 #include "TransportModel.h"
 #include "PrimaryFinding.h"
 #include "AudioSafety.h"
+#include "CoachModel.h"
 
 #include "base/source/fstreamer.h"
 #include "pluginterfaces/vst/ivstparameterchanges.h"
@@ -578,63 +579,6 @@ double Processor::dominanceParam(
     return 0.5;
 }
 
-int Processor::adviceFor(
-    int pairIndex,
-    int bandIndex,
-    double dominance) noexcept{
-
-    const int side=
-        dominance>0.20
-        ? 1
-        : dominance<-0.20
-            ? -1
-            : 0;
-
-    if(pairIndex<0)
-        return 0;
-
-    if(pairIndex==0){
-        if(bandIndex<=1){
-            if(side>0) return 1;
-            if(side<0) return 2;
-            return 3;
-        }
-
-        if(bandIndex<=3)
-            return 4;
-
-        return 5;
-    }
-
-    if(pairIndex==1){
-        if(bandIndex<=2){
-            if(side>0) return 6;
-            if(side<0) return 7;
-            return 8;
-        }
-
-        if(bandIndex<=5)
-            return 9;
-
-        return 10;
-    }
-
-    if(pairIndex==2){
-        if(bandIndex<=2)
-            return 11;
-
-        if(bandIndex<=6){
-            if(side>0) return 12;
-            if(side<0) return 13;
-            return 14;
-        }
-
-        return 15;
-    }
-
-    return 0;
-}
-
 int Processor::chooseTopPair() noexcept{
     auto eligible=[this](int i){
         return
@@ -1091,7 +1035,7 @@ tresult PLUGIN_API Processor::process(
     const int advice=
         displayPair<0
         ? 0
-        : adviceFor(
+        : Analysis::coachAdviceCode(
             displayPair,
             displayBand,
             displayDominance);
@@ -1105,6 +1049,12 @@ tresult PLUGIN_API Processor::process(
     publishParam(data,kTopAdvice,adviceValue,21);
     publishParam(data,kTopDominance,dominanceValue,22);
     publishParam(data,kTopConfidence,confidenceValue,23);
+
+    // The beginner-facing Coach view uses the same measured finding and the
+    // same stable recommendation code as the technical view.
+    publishParam(data,kCoachHeadline,adviceValue,39);
+    publishParam(data,kCoachAction,adviceValue,40);
+    publishParam(data,kCoachListen,adviceValue,41);
 
     const double sessionPair=
         (sessionFinding_.pair<0)

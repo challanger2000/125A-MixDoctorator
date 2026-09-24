@@ -89,6 +89,10 @@ tresult PLUGIN_API Controller::initialize(FUnknown* c){
     parameters.addParameter(STR16("Top Attack Index"),STR16("%"),0,0.0,ro,kTopAttackScore);
     parameters.addParameter(STR16("Top Attack Advice"),nullptr,3,0.0,ro,kTopAttackAdvice);
 
+    parameters.addParameter(STR16("Coach Headline"),nullptr,15,0.0,ro,kCoachHeadline);
+    parameters.addParameter(STR16("Coach Action"),nullptr,15,0.0,ro,kCoachAction);
+    parameters.addParameter(STR16("Coach Listen"),nullptr,15,0.0,ro,kCoachListen);
+
     return kResultOk;
 }
 
@@ -355,6 +359,90 @@ tresult PLUGIN_API Controller::getParamStringByValue(
 
         UString128 s;
         s.fromAscii(labels[index]);
+        s.copyTo(out,128);
+        return kResultTrue;
+    }
+
+    if(id==kCoachHeadline ||
+       id==kCoachAction ||
+       id==kCoachListen){
+
+        const int index=
+            std::clamp(
+                static_cast<int>(
+                    std::lround(
+                        std::clamp(
+                            v,0.0,1.0)*
+                        15.0)),
+                0,
+                15);
+
+        static const char* headline[16]={
+            "No reliable masking problem yet",
+            "Drums and bass may be fighting for the deepest lows",
+            "Bass may be covering the drum low end",
+            "Drums and bass share too much of the low end",
+            "Drums and bass may be building up in the low-mids",
+            "Drum attack may be hiding bass definition",
+            "Bass may be too strong below the guitars",
+            "Guitars may be too heavy below the bass",
+            "Bass and guitars share too much low-end space",
+            "Bass harmonics may be masking guitar definition",
+            "Guitar top end may be masking bass articulation",
+            "Guitar low end may be crowding kick or toms",
+            "Drums may be covering guitar mids or presence",
+            "Guitars may be covering drum mids or presence",
+            "Drums and guitars may be competing for presence",
+            "Cymbals and guitars may be sharing too much top end"
+        };
+
+        static const char* action[16]={
+            "Keep the mix playing. Do not change EQ just to make a meter move.",
+            "Open the drum EQ. In the shown range, try a small 1-2 dB cut only if the bass becomes clearer.",
+            "Open the bass EQ. In the shown range, try a small 1-2 dB cut only if the kick becomes clearer.",
+            "Choose which source should own the shown range, then try a gentle 1-2 dB cut on the other source.",
+            "Compare both sources in the shown range. Start with a 1-2 dB cut on the muddier one.",
+            "Check the shown range on drums first. Reduce only enough to reveal bass definition.",
+            "Check the bass in the shown range. Try a gentle 1-2 dB cut before boosting the guitars.",
+            "Check the guitars in the shown range. Try a gentle low-cut or 1-2 dB reduction first.",
+            "Choose whether bass or guitars should lead in the shown range, then trim the other source gently.",
+            "Check bass harmonics in the shown range. Try a 1-2 dB cut before adding more guitar presence.",
+            "Do not boost the bass first. Trim the guitars slightly in the shown range and compare in the full mix.",
+            "Check the guitars first. Remove only unnecessary low end in the shown range.",
+            "Check drum or cymbal emphasis in the shown range. Try a small cut before boosting the guitars.",
+            "Check guitar bite in the shown range. Try a small cut before making the drums louder.",
+            "Choose the more important attack source, then make a small cut in the shown range on the other source.",
+            "Compare cymbals and guitars in the shown range. Reduce the harsher source by about 1-2 dB first."
+        };
+
+        static const char* listen[16]={
+            "Wait for a stable finding. A moving value alone is not a reason to change the mix.",
+            "Keep the change only if bass notes become clearer without making the drums weak.",
+            "Keep the change only if the kick becomes easier to hear without making the bass thin.",
+            "Listen for separation and punch. If the low end loses weight, undo the change.",
+            "Listen for less mud and better note definition without making either source hollow.",
+            "Listen for clearer bass notes while the kick and snare still keep their attack.",
+            "Listen for clearer guitars without losing the weight that the bass should provide.",
+            "Listen for a clearer bass while the guitars still sound full enough in the mix.",
+            "Listen for two distinct roles instead of one thick low-end block.",
+            "Listen for clearer guitar notes without making the bass disappear.",
+            "Listen for clearer bass articulation without making the guitars dull.",
+            "Listen for cleaner kick and tom impact while the guitars still feel powerful.",
+            "Listen for clearer guitars while the snare and cymbals still sound natural.",
+            "Listen for clearer drums without making the guitars lose their character.",
+            "Listen for clearer attacks. If both sources simply get thinner, undo the change.",
+            "Listen for less harshness and better separation without removing useful brightness."
+        };
+
+        const char* text=
+            id==kCoachHeadline
+            ? headline[index]
+            : id==kCoachAction
+                ? action[index]
+                : listen[index];
+
+        UString128 s;
+        s.fromAscii(text);
         s.copyTo(out,128);
         return kResultTrue;
     }

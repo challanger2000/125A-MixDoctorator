@@ -177,6 +177,17 @@ if(MIXDOCTORATOR_BUILD_TESTS)
         NAME AudioSafetyTests
         COMMAND AudioSafetyTests)
 
+    add_executable(CoachModelTests
+        tests/CoachModelTests.cpp)
+
+    target_compile_features(
+        CoachModelTests
+        PRIVATE cxx_std_17)
+
+    add_test(
+        NAME CoachModelTests
+        COMMAND CoachModelTests)
+
     add_executable(SpscQueueTests
         tests/SpscQueueTests.cpp)
 
@@ -205,6 +216,7 @@ if(MIXDOCTORATOR_BUILD_TESTS)
         IPCConcurrencyTests
         TestBuildModeTests
         AudioSafetyTests
+        CoachModelTests
         SpscQueueTests)
 
     foreach(test_target IN LISTS MIXDOCTORATOR_TEST_TARGETS)

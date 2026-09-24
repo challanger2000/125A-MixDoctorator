@@ -60,7 +60,11 @@ enum ParamID : Steinberg::Vst::ParamID {
 
     kTopAttackPair,
     kTopAttackScore,
-    kTopAttackAdvice
+    kTopAttackAdvice,
+
+    kCoachHeadline,
+    kCoachAction,
+    kCoachListen
 };
 
 } // namespace MixDoctorator::Brain

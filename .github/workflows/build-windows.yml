@@ -16,7 +16,7 @@ jobs:
         run: cmake -S . -B build -G "Visual Studio 17 2022" -A x64 -DMIXDOCTORATOR_BUILD_TESTS=ON -DMIXDOCTORATOR_BUILD_VALIDATOR=ON
 
       - name: Build plugins and analysis tests
-        run: cmake --build build --config Release --target MixDoctoratorSensor MixDoctoratorBrain MaskingModelTests SpectralAnalyzerTests TimingModelTests TransientModelTests RoleAggregateTests IPCModelTests TransientInteractionTests AttackFindingTests TransportModelTests PrimaryFindingTests AnalysisSafetyTests IPCConcurrencyTests TestBuildModeTests AudioSafetyTests SpscQueueTests validator --parallel
+        run: cmake --build build --config Release --target MixDoctoratorSensor MixDoctoratorBrain MaskingModelTests SpectralAnalyzerTests TimingModelTests TransientModelTests RoleAggregateTests IPCModelTests TransientInteractionTests AttackFindingTests TransportModelTests PrimaryFindingTests AnalysisSafetyTests IPCConcurrencyTests TestBuildModeTests AudioSafetyTests CoachModelTests SpscQueueTests validator --parallel
 
       - name: Run analysis tests
         run: ctest --test-dir build -C Release --output-on-failure
