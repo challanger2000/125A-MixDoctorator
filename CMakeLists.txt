@@ -56,6 +56,17 @@ if(MIXDOCTORATOR_BUILD_TESTS)
         NAME SpectralAnalyzerTests
         COMMAND SpectralAnalyzerTests)
 
+    add_executable(PairUpdateRatesTests
+        tests/PairUpdateRatesTests.cpp)
+
+    target_compile_features(
+        PairUpdateRatesTests
+        PRIVATE cxx_std_17)
+
+    add_test(
+        NAME PairUpdateRatesTests
+        COMMAND PairUpdateRatesTests)
+
     add_executable(TimingModelTests
         tests/TimingModelTests.cpp)
 
@@ -283,6 +294,7 @@ if(MIXDOCTORATOR_BUILD_TESTS)
         MaskingSweepTests
         MaskingModelTests
         SpectralAnalyzerTests
+        PairUpdateRatesTests
         TimingModelTests
         TransientModelTests
         RoleBankAggregateTests
