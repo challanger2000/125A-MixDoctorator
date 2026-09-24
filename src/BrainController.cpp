@@ -77,6 +77,14 @@ tresult PLUGIN_API Controller::initialize(FUnknown* c){
     parameters.addParameter(STR16("Bass Transient"),STR16("%"),0,0.0,ro,kBassTransient);
     parameters.addParameter(STR16("Guitar Transient"),STR16("%"),0,0.0,ro,kGuitarTransient);
 
+    parameters.addParameter(STR16("Drums Sensor Count"),nullptr,0,0.0,ro,kDrumsCount);
+    parameters.addParameter(STR16("Bass Sensor Count"),nullptr,0,0.0,ro,kBassCount);
+    parameters.addParameter(STR16("Guitar Sensor Count"),nullptr,0,0.0,ro,kGuitarCount);
+
+    parameters.addParameter(STR16("Drums Bass Transient Competition"),STR16("%"),0,0.0,ro,kDrumsBassTransientCompetition);
+    parameters.addParameter(STR16("Bass Guitar Transient Competition"),STR16("%"),0,0.0,ro,kBassGuitarTransientCompetition);
+    parameters.addParameter(STR16("Drums Guitar Transient Competition"),STR16("%"),0,0.0,ro,kDrumsGuitarTransientCompetition);
+
     return kResultOk;
 }
 
@@ -134,6 +142,31 @@ tresult PLUGIN_API Controller::getParamStringByValue(
         return kResultTrue;
     }
 
+    if(id==kDrumsCount ||
+       id==kBassCount ||
+       id==kGuitarCount){
+
+        const int count=
+            std::clamp(
+                static_cast<int>(
+                    std::lround(
+                        std::clamp(v,0.0,1.0)*
+                        24.0)),
+                0,
+                24);
+
+        char b[32]{};
+        std::snprintf(
+            b,sizeof(b),
+            "%d",
+            count);
+
+        UString128 s;
+        s.fromAscii(b);
+        s.copyTo(out,128);
+        return kResultTrue;
+    }
+
     if(id==kDrumsLevel ||
        id==kBassLevel ||
        id==kGuitarLevel){
@@ -165,7 +198,10 @@ tresult PLUGIN_API Controller::getParamStringByValue(
        id==kSessionScore ||
        id==kDrumsTransient ||
        id==kBassTransient ||
-       id==kGuitarTransient){
+       id==kGuitarTransient ||
+       id==kDrumsBassTransientCompetition ||
+       id==kBassGuitarTransientCompetition ||
+       id==kDrumsGuitarTransientCompetition){
 
         char b[32]{};
         std::snprintf(

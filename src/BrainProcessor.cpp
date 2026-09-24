@@ -3,6 +3,7 @@
 #include "MaskingModel.h"
 #include "TimingModel.h"
 #include "RoleAggregate.h"
+#include "TransientInteraction.h"
 
 #include "base/source/fstreamer.h"
 #include "pluginterfaces/vst/ivstparameterchanges.h"
@@ -233,6 +234,8 @@ bool Processor::readRoleAggregate(
         result.activity;
     out.transient=
         result.transient;
+    out.aggregateCount=
+        result.count;
 
     for(int i=0;
         i<IPC::kBandCount;
@@ -274,6 +277,7 @@ void Processor::updatePair(
 
     double overlapTarget=0.0;
     double maskingTarget=0.0;
+    double transientCompetitionTarget=0.0;
     double bandTargets[IPC::kBandCount]{};
 
     if(active){
@@ -293,6 +297,15 @@ void Processor::updatePair(
 
         overlapTarget=metrics.overlap;
         maskingTarget=metrics.masking;
+
+        transientCompetitionTarget=
+            Analysis::transientCompetition(
+                a.transient,
+                b.transient,
+                a.rmsDb,
+                b.rmsDb,
+                a.activity,
+                b.activity);
 
         for(int i=0;i<IPC::kBandCount;++i)
             bandTargets[i]=metrics.bandRisk[i];
@@ -331,6 +344,19 @@ void Processor::updatePair(
     state.masking+=
         maskingAlpha*
         (maskingTarget-state.masking);
+
+    const double transientAlpha=
+        1.0-std::exp(
+            -dt/
+            ((transientCompetitionTarget>
+              state.transientCompetition)
+                ? 0.12
+                : 0.90));
+
+    state.transientCompetition+=
+        transientAlpha*
+        (transientCompetitionTarget-
+         state.transientCompetition);
 
     const double bandAlpha=
         1.0-std::exp(-dt/1.5);
@@ -865,6 +891,60 @@ tresult PLUGIN_API Processor::process(
             ? std::clamp(guitar.transient,0.0,1.0)
             : 0.0,
         29);
+
+    publishParam(
+        data,
+        kDrumsCount,
+        drumsOk
+            ? std::clamp(
+                static_cast<double>(drums.aggregateCount)/
+                static_cast<double>(IPC::kSensorSlotCount),
+                0.0,
+                1.0)
+            : 0.0,
+        30);
+
+    publishParam(
+        data,
+        kBassCount,
+        bassOk
+            ? std::clamp(
+                static_cast<double>(bass.aggregateCount)/
+                static_cast<double>(IPC::kSensorSlotCount),
+                0.0,
+                1.0)
+            : 0.0,
+        31);
+
+    publishParam(
+        data,
+        kGuitarCount,
+        guitarOk
+            ? std::clamp(
+                static_cast<double>(guitar.aggregateCount)/
+                static_cast<double>(IPC::kSensorSlotCount),
+                0.0,
+                1.0)
+            : 0.0,
+        32);
+
+    publishParam(
+        data,
+        kDrumsBassTransientCompetition,
+        pairStates_[0].transientCompetition,
+        33);
+
+    publishParam(
+        data,
+        kBassGuitarTransientCompetition,
+        pairStates_[1].transientCompetition,
+        34);
+
+    publishParam(
+        data,
+        kDrumsGuitarTransientCompetition,
+        pairStates_[2].transientCompetition,
+        35);
 
     return kResultOk;
 }

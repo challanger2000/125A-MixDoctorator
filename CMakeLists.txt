@@ -87,4 +87,15 @@ if(MIXDOCTORATOR_BUILD_TESTS)
     add_test(
         NAME IPCModelTests
         COMMAND IPCModelTests)
+
+    add_executable(TransientInteractionTests
+        tests/TransientInteractionTests.cpp)
+
+    target_compile_features(
+        TransientInteractionTests
+        PRIVATE cxx_std_17)
+
+    add_test(
+        NAME TransientInteractionTests
+        COMMAND TransientInteractionTests)
 endif()

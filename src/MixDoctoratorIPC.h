@@ -48,6 +48,7 @@ struct alignas(64) Slot {
     double peakDb{-120.0};
     double activity{0.0};
     double transient{0.0};
+    int aggregateCount{0};
     double bands[kBandCount]{};
 };
 

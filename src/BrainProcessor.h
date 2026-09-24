@@ -33,6 +33,7 @@ private:
         double observedSeconds{0.0};
         double dominance{0.0};
         double confidence{0.0};
+        double transientCompetition{0.0};
         int dominantBand{0};
     };
 
@@ -52,12 +53,14 @@ private:
     bool wasPlaying_{false};
     std::int64_t lastProjectSample_{-1};
 
-    double last_[30]{
+    double last_[36]{
         -1,-1,-1,-1,-1,-1,
         -1,-1,-1,-1,
         -1,-1,-1,-1,
         -1,-1,-1,-1,
         -1,-1,-1,-1,-1,-1,
+        -1,-1,-1,
+        -1,-1,-1,
         -1,-1,-1,
         -1,-1,-1
     };

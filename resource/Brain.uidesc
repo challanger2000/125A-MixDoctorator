@@ -13,6 +13,8 @@
     <control-tag name="TopPair" tag="218"/><control-tag name="TopScore" tag="219"/><control-tag name="TopBand" tag="220"/><control-tag name="TopAdvice" tag="221"/><control-tag name="TopDominance" tag="222"/><control-tag name="TopConfidence" tag="223"/>
     <control-tag name="SessionPair" tag="224"/><control-tag name="SessionScore" tag="225"/><control-tag name="SessionBand" tag="226"/>
     <control-tag name="DrumsTransient" tag="227"/><control-tag name="BassTransient" tag="228"/><control-tag name="GuitarTransient" tag="229"/>
+    <control-tag name="DrumsCount" tag="230"/><control-tag name="BassCount" tag="231"/><control-tag name="GuitarCount" tag="232"/>
+    <control-tag name="DrumsBassTransientCompetition" tag="233"/><control-tag name="BassGuitarTransientCompetition" tag="234"/><control-tag name="DrumsGuitarTransientCompetition" tag="235"/>
   </control-tags>
 
   <template name="view" class="CViewContainer" origin="0,0" size="980,760" background-color="#171717ff">
@@ -21,40 +23,47 @@
     <view class="COptionMenu" origin="775,16" size="120,32" control-tag="Session" font-size="14" back-color="#303030ff" font-color="#ffffffff" frame-color="#777777ff"/>
 
     <view class="CTextLabel" origin="540,28" size="120,24" title="TRANSIENT" font-size="12" font-color="#a0a0a0ff" transparent="true"/>
+    <view class="CTextLabel" origin="680,28" size="80,24" title="COUNT" font-size="12" font-color="#a0a0a0ff" transparent="true"/>
     <view class="CTextLabel" origin="20,62" size="140,28" title="DRUMS" font-size="16" font-color="#ffffffff" transparent="true"/>
     <view class="CParamDisplay" origin="170,62" size="160,28" control-tag="DrumsConnected" font-size="14" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
     <view class="CParamDisplay" origin="350,62" size="170,28" control-tag="DrumsLevel" font-size="14" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
     <view class="CParamDisplay" origin="540,62" size="120,28" control-tag="DrumsTransient" font-size="14" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
+    <view class="CParamDisplay" origin="680,62" size="80,28" control-tag="DrumsCount" font-size="14" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
 
     <view class="CTextLabel" origin="20,102" size="140,28" title="BASS" font-size="16" font-color="#ffffffff" transparent="true"/>
     <view class="CParamDisplay" origin="170,102" size="160,28" control-tag="BassConnected" font-size="14" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
     <view class="CParamDisplay" origin="350,102" size="170,28" control-tag="BassLevel" font-size="14" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
     <view class="CParamDisplay" origin="540,102" size="120,28" control-tag="BassTransient" font-size="14" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
+    <view class="CParamDisplay" origin="680,102" size="80,28" control-tag="BassCount" font-size="14" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
 
     <view class="CTextLabel" origin="20,142" size="140,28" title="E-GUITAR" font-size="16" font-color="#ffffffff" transparent="true"/>
     <view class="CParamDisplay" origin="170,142" size="160,28" control-tag="GuitarConnected" font-size="14" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
     <view class="CParamDisplay" origin="350,142" size="170,28" control-tag="GuitarLevel" font-size="14" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
     <view class="CParamDisplay" origin="540,142" size="120,28" control-tag="GuitarTransient" font-size="14" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
+    <view class="CParamDisplay" origin="680,142" size="80,28" control-tag="GuitarCount" font-size="14" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
 
-    <view class="CTextLabel" origin="20,198" size="940,28" title="PAIR ANALYSIS: OVERLAP / MASKING RISK / MAIN RANGE / ATTENTION" font-size="15" font-color="#ccccccff" transparent="true"/>
+    <view class="CTextLabel" origin="20,198" size="940,28" title="PAIR ANALYSIS: OVERLAP / MASKING / ATTACK / MAIN RANGE / ATTENTION" font-size="15" font-color="#ccccccff" transparent="true"/>
 
     <view class="CTextLabel" origin="20,238" size="165,28" title="DRUMS ↔ BASS" font-size="15" font-color="#ffffffff" transparent="true"/>
     <view class="CParamDisplay" origin="195,238" size="85,28" control-tag="DrumsBassOverlap" font-size="14" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
     <view class="CParamDisplay" origin="292,238" size="85,28" control-tag="DrumsBassMasking" font-size="14" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
-    <view class="CParamDisplay" origin="389,238" size="250,28" control-tag="DrumsBassBand" font-size="14" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
-    <view class="CParamDisplay" origin="651,238" size="145,28" control-tag="DrumsBassStatus" font-size="14" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
+    <view class="CParamDisplay" origin="389,238" size="85,28" control-tag="DrumsBassTransientCompetition" font-size="14" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
+    <view class="CParamDisplay" origin="486,238" size="250,28" control-tag="DrumsBassBand" font-size="14" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
+    <view class="CParamDisplay" origin="748,238" size="145,28" control-tag="DrumsBassStatus" font-size="14" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
 
     <view class="CTextLabel" origin="20,288" size="165,28" title="BASS ↔ E-GUITAR" font-size="15" font-color="#ffffffff" transparent="true"/>
     <view class="CParamDisplay" origin="195,288" size="85,28" control-tag="BassGuitarOverlap" font-size="14" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
     <view class="CParamDisplay" origin="292,288" size="85,28" control-tag="BassGuitarMasking" font-size="14" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
-    <view class="CParamDisplay" origin="389,288" size="250,28" control-tag="BassGuitarBand" font-size="14" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
-    <view class="CParamDisplay" origin="651,288" size="145,28" control-tag="BassGuitarStatus" font-size="14" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
+    <view class="CParamDisplay" origin="389,288" size="85,28" control-tag="BassGuitarTransientCompetition" font-size="14" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
+    <view class="CParamDisplay" origin="486,288" size="250,28" control-tag="BassGuitarBand" font-size="14" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
+    <view class="CParamDisplay" origin="748,288" size="145,28" control-tag="BassGuitarStatus" font-size="14" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
 
     <view class="CTextLabel" origin="20,338" size="165,28" title="DRUMS ↔ E-GUITAR" font-size="15" font-color="#ffffffff" transparent="true"/>
     <view class="CParamDisplay" origin="195,338" size="85,28" control-tag="DrumsGuitarOverlap" font-size="14" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
     <view class="CParamDisplay" origin="292,338" size="85,28" control-tag="DrumsGuitarMasking" font-size="14" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
-    <view class="CParamDisplay" origin="389,338" size="250,28" control-tag="DrumsGuitarBand" font-size="14" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
-    <view class="CParamDisplay" origin="651,338" size="145,28" control-tag="DrumsGuitarStatus" font-size="14" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
+    <view class="CParamDisplay" origin="389,338" size="85,28" control-tag="DrumsGuitarTransientCompetition" font-size="14" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
+    <view class="CParamDisplay" origin="486,338" size="250,28" control-tag="DrumsGuitarBand" font-size="14" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
+    <view class="CParamDisplay" origin="748,338" size="145,28" control-tag="DrumsGuitarStatus" font-size="14" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
 
     <view class="CTextLabel" origin="20,397" size="940,28" title="TOP MASKING FINDING - CURRENT" font-size="15" font-color="#ccccccff" transparent="true"/>
     <view class="CParamDisplay" origin="20,432" size="210,32" control-tag="TopPair" font-size="14" font-color="#ffffffff" back-color="#303030ff" frame-color="#777777ff"/>

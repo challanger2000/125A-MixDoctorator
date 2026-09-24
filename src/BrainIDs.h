@@ -48,7 +48,15 @@ enum ParamID : Steinberg::Vst::ParamID {
 
     kDrumsTransient,
     kBassTransient,
-    kGuitarTransient
+    kGuitarTransient,
+
+    kDrumsCount,
+    kBassCount,
+    kGuitarCount,
+
+    kDrumsBassTransientCompetition,
+    kBassGuitarTransientCompetition,
+    kDrumsGuitarTransientCompetition
 };
 
 } // namespace MixDoctorator::Brain
