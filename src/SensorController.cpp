@@ -19,17 +19,17 @@ tresult PLUGIN_API Controller::initialize(FUnknown* c){
 
     auto* role=new StringListParameter(
         STR16("Source Role"),kRole,nullptr,ParameterInfo::kCanAutomate);
-    role->appendString(STR16("Drums"));
+    role->appendString(STR16("Schlagzeug"));
     role->appendString(STR16("Bass"));
-    role->appendString(STR16("Electric Guitar"));
+    role->appendString(STR16("E-Gitarre"));
     role->appendString(STR16("Kick"));
     role->appendString(STR16("Snare"));
     role->appendString(STR16("Toms"));
-    role->appendString(STR16("Cymbals / Hi-Hat"));
+    role->appendString(STR16("Becken / Hi-Hat"));
     role->appendString(STR16("Percussion"));
-    role->appendString(STR16("Acoustic Guitar"));
-    role->appendString(STR16("Lead Vocal"));
-    role->appendString(STR16("Backing Vocal"));
+    role->appendString(STR16("Akustikgitarre"));
+    role->appendString(STR16("Lead-Gesang"));
+    role->appendString(STR16("Backing-Gesang"));
     role->appendString(STR16("Piano / Keys"));
     role->appendString(STR16("Synth"));
     role->appendString(STR16("Pad"));
