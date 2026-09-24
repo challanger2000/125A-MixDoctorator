@@ -26,6 +26,19 @@ int main(){
     assert(isHarmonicRole(IPC::Role::ElectricGuitar));
     assert(!isHarmonicRole(IPC::Role::Kick));
 
+    assert(kRolePairCount==91);
+    assert(encodeRolePair(IPC::Role::Drums,IPC::Role::Bass)==0);
+    assert(encodeRolePair(IPC::Role::Bass,IPC::Role::Drums)==0);
+
+    IPC::Role a=IPC::Role::Unknown;
+    IPC::Role b=IPC::Role::Unknown;
+    assert(decodeRolePair(
+        encodeRolePair(IPC::Role::LeadVocal,IPC::Role::Synth),
+        a,b));
+    assert(a==IPC::Role::LeadVocal);
+    assert(b==IPC::Role::Synth);
+    assert(!decodeRolePair(-1,a,b));
+
     std::cout << "Role model tests passed\n";
     return 0;
 }
