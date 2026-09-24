@@ -104,10 +104,25 @@ public:
     static constexpr int kBandCount=kSpectralBandCount;
 
     void prepare(double sampleRate) noexcept {
-        sampleRate_=
+        inputSampleRate_=
             (std::isfinite(sampleRate) && sampleRate>8000.0)
             ? sampleRate
             : 44100.0;
+
+        decimationFactor_=1;
+        while(inputSampleRate_/
+                  static_cast<double>(decimationFactor_)>
+              50000.0 &&
+              decimationFactor_<16)
+            decimationFactor_*=2;
+
+        sampleRate_=
+            inputSampleRate_/
+            static_cast<double>(
+                decimationFactor_);
+
+        decimationPhase_=0;
+        prepareAntiAlias();
 
         write_=0;
         sinceFft_=0;
@@ -121,6 +136,18 @@ public:
     void push(double x) noexcept {
         if(!std::isfinite(x))
             x=0.0;
+
+        if(decimationFactor_>1){
+            for(auto& stage:antiAlias_)
+                x=stage.process(x);
+
+            ++decimationPhase_;
+            if(decimationPhase_<
+               decimationFactor_)
+                return;
+
+            decimationPhase_=0;
+        }
 
         time_[write_]=x;
         write_=(write_+1)%kFftSize;
@@ -140,20 +167,130 @@ public:
     }
 
 private:
+    struct Biquad {
+        double b0{1.0};
+        double b1{0.0};
+        double b2{0.0};
+        double a1{0.0};
+        double a2{0.0};
+        double z1{0.0};
+        double z2{0.0};
+
+        void reset() noexcept {
+            z1=0.0;
+            z2=0.0;
+        }
+
+        double process(double x) noexcept {
+            const double y=
+                b0*x+z1;
+
+            z1=
+                b1*x-
+                a1*y+
+                z2;
+
+            z2=
+                b2*x-
+                a2*y;
+
+            return
+                std::isfinite(y)
+                ? y
+                : 0.0;
+        }
+    };
+
     static constexpr double kPi=
         3.1415926535897932384626433832795;
 
     std::array<double,kFftSize> time_{};
     std::array<std::complex<double>,kFftSize> fft_{};
     std::array<double,kBandCount> energy_{};
+    std::array<Biquad,4> antiAlias_{};
     std::array<int,kFftSize/2+1> bandLower_{};
     std::array<int,kFftSize/2+1> bandUpper_{};
     std::array<double,kFftSize/2+1> bandUpperWeight_{};
 
+    double inputSampleRate_{44100.0};
     double sampleRate_{44100.0};
+    int decimationFactor_{1};
+    int decimationPhase_{0};
     int write_{0};
     int sinceFft_{0};
     int filled_{0};
+
+    void prepareAntiAlias() noexcept {
+        for(auto& stage:antiAlias_){
+            stage=Biquad{};
+            stage.reset();
+        }
+
+        if(decimationFactor_<=1)
+            return;
+
+        // Keep the full displayed range (up to 14 kHz) essentially flat,
+        // while strongly suppressing energy that would alias below the
+        // normalized analysis Nyquist after decimation.
+        const double cutoff=
+            std::min(
+                0.40*sampleRate_,
+                0.22*inputSampleRate_);
+
+        const double w0=
+            2.0*kPi*
+            cutoff/
+            inputSampleRate_;
+
+        const double cw=
+            std::cos(w0);
+
+        const double sw=
+            std::sin(w0);
+
+        for(int stageIndex=0;
+            stageIndex<4;
+            ++stageIndex){
+
+            // Q values are the four conjugate-pole sections of an
+            // eighth-order Butterworth low-pass.
+            const double angle=
+                (2.0*
+                 static_cast<double>(stageIndex)+
+                 1.0)*
+                kPi/
+                16.0;
+
+            const double q=
+                1.0/
+                (2.0*
+                 std::cos(angle));
+
+            const double alpha=
+                sw/
+                (2.0*q);
+
+            const double a0=
+                1.0+alpha;
+
+            auto& stage=
+                antiAlias_[
+                    static_cast<std::size_t>(
+                        stageIndex)];
+
+            stage.b0=
+                ((1.0-cw)*0.5)/a0;
+            stage.b1=
+                (1.0-cw)/a0;
+            stage.b2=
+                stage.b0;
+            stage.a1=
+                (-2.0*cw)/a0;
+            stage.a2=
+                (1.0-alpha)/a0;
+            stage.reset();
+        }
+    }
 
     void prepareBandMap() noexcept {
         for(int bin=1;
