@@ -620,8 +620,8 @@ int Processor::chooseCoachPair() noexcept{
 }
 
 int Processor::chooseCoachAttackPair() noexcept{
-    int best=-1;
-    double bestRank=0.30;
+    double scores[Analysis::kRolePairCount]{};
+    double observed[Analysis::kRolePairCount]{};
 
     for(int i=0;
         i<Analysis::kRolePairCount;
@@ -630,44 +630,36 @@ int Processor::chooseCoachAttackPair() noexcept{
         IPC::Role first=IPC::Role::Unknown;
         IPC::Role second=IPC::Role::Unknown;
 
-        if(!Analysis::decodeRolePair(
-               i,
-               first,
-               second) ||
-           !Analysis::rolesComparableForCoach(
-               first,
-               second))
+        const bool comparable=
+            Analysis::decodeRolePair(
+                i,
+                first,
+                second) &&
+            Analysis::rolesComparableForCoach(
+                first,
+                second);
+
+        if(!comparable){
+            scores[i]=-1.0;
+            observed[i]=0.0;
             continue;
-
-        const auto& state=
-            coachPairStates_[i];
-
-        if(!std::isfinite(
-               state.observedSeconds) ||
-           !std::isfinite(
-               state.transientCompetition) ||
-           !std::isfinite(
-               state.confidence) ||
-           state.observedSeconds<2.0 ||
-           state.transientCompetition<0.30)
-            continue;
-
-        const double rank=
-            state.transientCompetition *
-            (0.55+
-             0.45*
-             std::clamp(
-                 state.confidence,
-                 0.0,
-                 1.0));
-
-        if(rank>bestRank){
-            best=i;
-            bestRank=rank;
         }
+
+        scores[i]=
+            coachPairStates_[i].
+            transientCompetition;
+
+        observed[i]=
+            coachPairStates_[i].
+            observedSeconds;
     }
 
-    return best;
+    return Analysis::chooseAttackFindingCount(
+        scores,
+        observed,
+        Analysis::kRolePairCount,
+        0.30,
+        2.0).pair;
 }
 
 void Processor::updateSessionFinding() noexcept{
