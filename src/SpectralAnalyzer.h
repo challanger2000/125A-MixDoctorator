@@ -6,11 +6,82 @@
 
 namespace MixDoctorator::Analysis {
 
+constexpr int kSpectralBandCount=9;
+
+inline void distributeSmoothBandEnergy(
+    std::array<double,kSpectralBandCount>& bands,
+    double hz,
+    double power) noexcept {
+
+    if(!std::isfinite(hz) ||
+       !std::isfinite(power) ||
+       hz<=0.0 ||
+       power<=0.0)
+        return;
+
+    // Keep the existing musical band layout, but interpolate each FFT bin
+    // between neighbouring representative centres on a log-frequency axis.
+    // This removes hard boundary jumps while preserving total spectral power.
+    // It is intentionally not presented as a full psychoacoustic/Bark model.
+    static constexpr double centres[kSpectralBandCount]{
+        50.0,
+        120.0,
+        220.0,
+        430.0,
+        850.0,
+        1800.0,
+        3500.0,
+        7500.0,
+        14000.0
+    };
+
+    if(hz<=centres[0]){
+        bands[0]+=power;
+        return;
+    }
+
+    if(hz>=centres[kSpectralBandCount-1]){
+        bands[kSpectralBandCount-1]+=power;
+        return;
+    }
+
+    for(int i=0;
+        i<kSpectralBandCount-1;
+        ++i){
+
+        if(hz>centres[i+1])
+            continue;
+
+        const double lo=
+            std::log(centres[i]);
+
+        const double hi=
+            std::log(centres[i+1]);
+
+        const double x=
+            std::log(hz);
+
+        const double t=
+            std::clamp(
+                (x-lo)/(hi-lo),
+                0.0,
+                1.0);
+
+        bands[i]+=
+            power*(1.0-t);
+
+        bands[i+1]+=
+            power*t;
+
+        return;
+    }
+}
+
 class SpectralAnalyzer {
 public:
     static constexpr int kFftSize=1024;
     static constexpr int kHopSize=512;
-    static constexpr int kBandCount=9;
+    static constexpr int kBandCount=kSpectralBandCount;
 
     void prepare(double sampleRate) noexcept {
         sampleRate_=
@@ -59,18 +130,6 @@ private:
     int write_{0};
     int sinceFft_{0};
     int filled_{0};
-
-    static int bandFor(double hz) noexcept {
-        if(hz<80.0) return 0;
-        if(hz<160.0) return 1;
-        if(hz<300.0) return 2;
-        if(hz<600.0) return 3;
-        if(hz<1200.0) return 4;
-        if(hz<2500.0) return 5;
-        if(hz<5000.0) return 6;
-        if(hz<10000.0) return 7;
-        return 8;
-    }
 
     void fftInPlace() noexcept {
         for(int i=1,j=0;i<kFftSize;++i){
@@ -161,10 +220,11 @@ private:
                 static_cast<double>(
                     kFftSize);
 
-            raw[
-                bandFor(hz)]
-                +=std::norm(
-                    fft_[bin]);
+            distributeSmoothBandEnergy(
+                raw,
+                hz,
+                std::norm(
+                    fft_[bin]));
         }
 
         constexpr double kSmooth=0.35;
