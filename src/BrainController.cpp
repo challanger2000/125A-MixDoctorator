@@ -1,6 +1,7 @@
 #include "BrainController.h"
 #include "BrainIDs.h"
 #include "RoleModel.h"
+#include "RecommendationEngine.h"
 
 #include "base/source/fstreamer.h"
 #include "pluginterfaces/base/ustring.h"
