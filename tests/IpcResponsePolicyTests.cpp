@@ -15,6 +15,39 @@ int main(){
             session,generation,
             session,generation));
 
+    // Exhaustive Session isolation: only an exact Session match may ever
+    // drive the Brain. This protects all A-H combinations, not just one
+    // representative mismatch.
+    for(int currentSession=0;
+        currentSession<MixDoctorator::IPC::kSessionCount;
+        ++currentSession){
+
+        for(int responseSession=0;
+            responseSession<MixDoctorator::IPC::kSessionCount;
+            ++responseSession){
+
+            const bool expected=
+                responseSession==currentSession;
+
+            assert(
+                ipcResponseMatchesContext(
+                    responseSession,
+                    generation,
+                    currentSession,
+                    generation)==expected);
+
+            assert(
+                ipcResponseIsFresh(
+                    responseSession,
+                    generation,
+                    now,
+                    currentSession,
+                    generation,
+                    now,
+                    block)==expected);
+        }
+    }
+
     assert(
         !ipcResponseMatchesContext(
             session-1,generation,
