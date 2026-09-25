@@ -37,6 +37,13 @@ public:
 
         ++connectedCount_[roleIndex];
 
+        // Do not let a source with unknown timing inherit the Brain's current
+        // position through aggregation. If the Brain has a valid transport
+        // position, each contributing Sensor must provide one as well.
+        if(currentSamplePosition>=0 &&
+           source.samplePosition<0)
+            return;
+
         if(!samplePositionsCoherent(
                currentSamplePosition,
                source.samplePosition,
