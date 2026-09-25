@@ -168,6 +168,48 @@ int main(){
             expectedBand(hz));
     }
 
+    // Reset must discard spectral history without rebuilding the analyzer.
+    {
+        SpectralAnalyzer analyzer;
+        analyzer.prepare(sampleRate);
+
+        for(int n=0;n<24000;++n){
+            const double x=
+                std::sin(
+                    2.0*kPi*
+                    3500.0*
+                    static_cast<double>(n)/
+                    sampleRate);
+            analyzer.push(x);
+        }
+
+        double before=0.0;
+        for(double v:analyzer.energy())
+            before+=v;
+
+        assert(before>0.0);
+
+        analyzer.reset();
+
+        double after=0.0;
+        for(double v:analyzer.energy())
+            after+=v;
+
+        assert(after==0.0);
+
+        for(int n=0;n<24000;++n){
+            const double x=
+                std::sin(
+                    2.0*kPi*
+                    120.0*
+                    static_cast<double>(n)/
+                    sampleRate);
+            analyzer.push(x);
+        }
+
+        assert(strongestBand(analyzer.energy())==1);
+    }
+
     // Anti-phase stereo must not disappear from analysis.
     SpectralAnalyzer left;
     SpectralAnalyzer right;
