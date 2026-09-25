@@ -5,6 +5,7 @@
 #include "RoleModel.h"
 #include "PairUpdateRates.h"
 #include "PairMeasurement.h"
+#include "PairDynamics.h"
 #include <atomic>
 #include <cstdint>
 #include <thread>
@@ -34,16 +35,8 @@ public:
     Steinberg::tresult PLUGIN_API getState(Steinberg::IBStream*) override;
 
 private:
-    struct PairState {
-        double overlap{0.0};
-        double masking{0.0};
-        double bandRisk[IPC::kBandCount]{};
-        double observedSeconds{0.0};
-        double dominance{0.0};
-        double confidence{0.0};
-        double transientCompetition{0.0};
-        int dominantBand{0};
-    };
+    using PairState=
+        Analysis::PairDynamicsState;
 
     struct SessionFinding {
         int pair{-1};
