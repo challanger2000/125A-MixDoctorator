@@ -155,6 +155,23 @@ void Processor::ipcWorkerLoop() noexcept{
     while(ipcWorkerRunning_.load(
               std::memory_order_acquire)){
 
+        const auto currentGeneration=
+            configGeneration_.load(
+                std::memory_order_acquire);
+
+        if(lastPublishedSession_>=0 &&
+           lastPublishedGeneration_!=0 &&
+           lastPublishedGeneration_!=currentGeneration){
+            ipc_.release(
+                lastPublishedSession_,
+                instanceId_,
+                cachedSlot_[
+                    lastPublishedSession_]);
+
+            lastPublishedSession_=-1;
+            lastPublishedGeneration_=0;
+        }
+
         AnalysisPacket packet;
         AnalysisPacket newest;
         bool havePacket=false;
@@ -169,6 +186,13 @@ void Processor::ipcWorkerLoop() noexcept{
                 std::chrono::milliseconds(1));
             continue;
         }
+
+        const auto generation=
+            configGeneration_.load(
+                std::memory_order_acquire);
+
+        if(newest.generation!=generation)
+            continue;
 
         const int publishSession=
             IPC::clampSession(
@@ -198,6 +222,8 @@ void Processor::ipcWorkerLoop() noexcept{
 
         lastPublishedSession_=
             publishSession;
+        lastPublishedGeneration_=
+            newest.generation;
     }
 }
 
@@ -316,15 +342,27 @@ void Processor::readParameters(
                 static_cast<IPC::Role>(
                     index+1);
 
-            if(role_!=previousRole)
+            if(role_!=previousRole){
                 resetAnalysisMeters();
+                configGeneration_.fetch_add(
+                    1,
+                    std::memory_order_acq_rel);
+            }
         }else if(q->getParameterId()==kSession){
+            const int previousSession=
+                session_;
+
             session_=
                 std::clamp(
                     static_cast<int>(
                         std::lround(v*7.0)),
                     0,
                     7);
+
+            if(session_!=previousSession)
+                configGeneration_.fetch_add(
+                    1,
+                    std::memory_order_acq_rel);
         }
     }
 }
@@ -473,6 +511,9 @@ tresult PLUGIN_API Processor::process(
         : -1;
 
     AnalysisPacket packet;
+    packet.generation=
+        configGeneration_.load(
+            std::memory_order_acquire);
     packet.session=session_;
     packet.role=role_;
     packet.samplePosition=samplePosition;
@@ -518,6 +559,11 @@ tresult PLUGIN_API Processor::setState(
         session_=std::clamp(session,0,7);
     else
         session_=0;
+
+    resetAnalysisMeters();
+    configGeneration_.fetch_add(
+        1,
+        std::memory_order_acq_rel);
 
     return kResultOk;
 }
