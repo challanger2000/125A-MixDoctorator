@@ -6,6 +6,7 @@
 #include <chrono>
 #include <cmath>
 #include <iostream>
+#include <memory>
 
 int main(){
     using namespace MixDoctorator::Analysis;
@@ -23,9 +24,13 @@ int main(){
         TransientDetector transient;
     };
 
-    std::array<SensorState,sensorCount> sensors{};
+    auto sensors=
+        std::make_unique<
+            std::array<
+                SensorState,
+                sensorCount>>();
 
-    for(auto& sensor:sensors){
+    for(auto& sensor:*sensors){
         sensor.left.prepare(sampleRate);
         sensor.right.prepare(sampleRate);
         sensor.transient.prepare(sampleRate);
@@ -51,7 +56,7 @@ int main(){
             ++sensorIndex){
 
             auto& sensor=
-                sensors[
+                (*sensors)[
                     static_cast<std::size_t>(
                         sensorIndex)];
 
@@ -113,7 +118,7 @@ int main(){
 
     double energy=0.0;
 
-    for(const auto& sensor:sensors){
+    for(const auto& sensor:*sensors){
         for(double value:sensor.left.energy())
             energy+=value;
 
