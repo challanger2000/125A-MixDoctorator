@@ -2,6 +2,7 @@
 #include "../src/PairMeasurement.h"
 #include "../src/RecommendationEngine.h"
 #include "../src/TransientModel.h"
+#include "../src/RoleBankAggregate.h"
 #include <array>
 #include <cassert>
 #include <cmath>
@@ -213,6 +214,106 @@ int main(){
                RecommendationContext::KickBass);
         assert(rec.adjustRole==
                IPC::Role::Unknown);
+    }
+
+    // Multi-Sensor aggregation must preserve the same musical conclusion
+    // while excluding a connected but timing-incoherent contributor.
+    {
+        constexpr std::int64_t pos=480000;
+        constexpr int block=256;
+
+        RoleBankAggregate bank;
+        bank.reset();
+
+        auto kickA=
+            makeSnapshot(
+                IPC::Role::Kick,
+                analyzeTone(48000.0,80.0),
+                -18.0,
+                pos);
+
+        auto kickB=
+            makeSnapshot(
+                IPC::Role::Kick,
+                analyzeTone(48000.0,80.0),
+                -18.0,
+                pos+128);
+
+        auto staleKick=
+            makeSnapshot(
+                IPC::Role::Kick,
+                analyzeTone(48000.0,14000.0),
+                -6.0,
+                pos+50000);
+
+        auto bassA=
+            makeSnapshot(
+                IPC::Role::Bass,
+                analyzeTone(48000.0,120.0),
+                -18.0,
+                pos);
+
+        auto bassB=
+            makeSnapshot(
+                IPC::Role::Bass,
+                analyzeTone(48000.0,120.0),
+                -18.0,
+                pos+128);
+
+        bank.add(kickA,pos,block);
+        bank.add(kickB,pos,block);
+        bank.add(staleKick,pos,block);
+        bank.add(bassA,pos,block);
+        bank.add(bassB,pos,block);
+
+        IPC::Snapshot kick;
+        IPC::Snapshot bass;
+        int kickConnected=0;
+        int bassConnected=0;
+
+        assert(bank.result(
+            roleToIndex(IPC::Role::Kick),
+            pos,
+            kick,
+            kickConnected));
+
+        assert(bank.result(
+            roleToIndex(IPC::Role::Bass),
+            pos,
+            bass,
+            bassConnected));
+
+        assert(kickConnected==3);
+        assert(kick.aggregateCount==2);
+        assert(bassConnected==2);
+        assert(bass.aggregateCount==2);
+
+        const auto m=
+            measurePair(
+                kick,
+                bass,
+                pos,
+                block,
+                true);
+
+        assert(m.active);
+        assert(m.masking>=0.14);
+
+        const auto rec=
+            makeRecommendation(
+                IPC::Role::Kick,
+                IPC::Role::Bass,
+                strongestRiskBand(m),
+                m.masking,
+                0.75,
+                m.dominance,
+                m.transientCompetition);
+
+        assert(rec.valid);
+        assert(rec.context==
+               RecommendationContext::KickBass);
+        assert(rec.kind==
+               RecommendationKind::LowEndOwnership);
     }
 
     // Same scenario at 192 kHz should lead to the same musical conclusion.
