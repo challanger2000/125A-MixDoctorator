@@ -241,6 +241,96 @@ int main(){
     assert(replacement.instanceId==replacementId);
     assert(replacement.role==Role::Synth);
 
+    // Session migration must never leave one live Sensor visible in both
+    // sessions. Release old ownership first, then publish into the new Session.
+    {
+        int migrateSlotA=-1;
+
+        constexpr int sessionA=2;
+        constexpr int sessionB=3;
+        constexpr std::uint64_t migrateId=
+            0x125A00000000D4D4ull;
+
+        assert(
+            first.publish(
+                sessionA,
+                migrateId,
+                migrateSlotA,
+                Role::Bass,
+                110000,
+                -18.0,
+                -6.0,
+                0.8,
+                0.2,
+                bands.data()));
+
+        assert(migrateSlotA>=0);
+
+        assert(
+            first.release(
+                sessionA,
+                migrateId,
+                migrateSlotA));
+
+        assert(migrateSlotA<0);
+
+        int migrateSlotB=-1;
+
+        assert(
+            first.publish(
+                sessionB,
+                migrateId,
+                migrateSlotB,
+                Role::Bass,
+                110256,
+                -18.0,
+                -6.0,
+                0.8,
+                0.2,
+                bands.data()));
+
+        assert(migrateSlotB>=0);
+
+        bool seenInA=false;
+        bool seenInB=false;
+
+        const auto migrationNow=
+            static_cast<std::uint64_t>(
+                GetTickCount64());
+
+        for(int i=0;i<kSensorSlotCount;++i){
+            Snapshot aSnapshot;
+            Snapshot bSnapshot;
+
+            if(first.readSlot(
+                   sessionA,
+                   i,
+                   aSnapshot,
+                   migrationNow) &&
+               aSnapshot.connected &&
+               aSnapshot.instanceId==migrateId)
+                seenInA=true;
+
+            if(first.readSlot(
+                   sessionB,
+                   i,
+                   bSnapshot,
+                   migrationNow) &&
+               bSnapshot.connected &&
+               bSnapshot.instanceId==migrateId)
+                seenInB=true;
+        }
+
+        assert(!seenInA);
+        assert(seenInB);
+
+        assert(
+            first.release(
+                sessionB,
+                migrateId,
+                migrateSlotB));
+    }
+
     // A fresh session supports exactly the documented 24 live Sensor slots.
     constexpr int capacitySession=4;
     int capacitySlots[kSensorSlotCount]{};
