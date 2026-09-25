@@ -192,6 +192,17 @@ if(MIXDOCTORATOR_BUILD_TESTS)
     add_executable(ParameterEncodingTests
         tests/ParameterEncodingTests.cpp)
 
+    add_executable(CoachParameterMappingTests
+        tests/CoachParameterMappingTests.cpp)
+
+    target_compile_features(
+        CoachParameterMappingTests
+        PRIVATE cxx_std_17)
+
+    add_test(
+        NAME CoachParameterMappingTests
+        COMMAND CoachParameterMappingTests)
+
     target_compile_features(
         ParameterEncodingTests
         PRIVATE cxx_std_17)
@@ -464,6 +475,7 @@ if(MIXDOCTORATOR_BUILD_TESTS)
         SensorGenerationPolicyTests
         IpcQueueOverloadTests
         ParameterEncodingTests
+        CoachParameterMappingTests
         TransientInteractionTests
         AttackFindingTests
         TransportModelTests
