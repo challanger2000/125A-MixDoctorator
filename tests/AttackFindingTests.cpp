@@ -90,7 +90,7 @@ int main(){
         const double observed[3]{8.0,8.0,8.0};
 
         auto finding=
-            chooseStableAttackFindingCount(
+            MixDoctorator::Analysis::chooseStableAttackFindingCount(
                 scores,
                 observed,
                 3,
@@ -101,7 +101,7 @@ int main(){
         const double stronger[3]{0.50,0.57,0.20};
 
         finding=
-            chooseStableAttackFindingCount(
+            MixDoctorator::Analysis::chooseStableAttackFindingCount(
                 stronger,
                 observed,
                 3,
@@ -116,7 +116,7 @@ int main(){
         const double observed[3]{8.0,8.0,8.0};
 
         const auto finding=
-            chooseStableAttackFindingCount(
+            MixDoctorator::Analysis::chooseStableAttackFindingCount(
                 scores,
                 observed,
                 3,
