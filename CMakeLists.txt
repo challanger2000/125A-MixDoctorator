@@ -486,6 +486,7 @@ if(MIXDOCTORATOR_BUILD_TESTS)
         SensorGenerationPolicyTests
         IpcQueueOverloadTests
         ParameterEncodingTests
+        StateValueModelTests
         CoachParameterMappingTests
         TransientInteractionTests
         AttackFindingTests
