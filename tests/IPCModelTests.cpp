@@ -122,10 +122,12 @@ int main(){
         int wrongOwnerSlot=protectedSlot;
 
         assert(
-            !first.release(
+            first.release(
                 7,
                 idA,
                 wrongOwnerSlot));
+
+        assert(wrongOwnerSlot<0);
 
         Snapshot protectedSnapshot;
         assert(
@@ -162,6 +164,7 @@ int main(){
                 GetTickCount64())));
 
     assert(!released.connected);
+    assert(released.instanceId==0);
 
     // A later publication by the same Sensor may claim a slot again cleanly.
     assert(
