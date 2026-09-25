@@ -424,6 +424,73 @@ public:
 #endif
     }
 
+    bool release(
+        int session,
+        std::uint64_t instanceId,
+        int& cachedSlot) noexcept {
+
+#ifdef _WIN32
+        if(!opened_ ||
+           instanceId==0 ||
+           cachedSlot<0 ||
+           cachedSlot>=kSensorSlotCount)
+            return false;
+
+        const int sessionIndex=
+            clampSession(session);
+
+        auto* block=
+            block_[sessionIndex];
+
+        if(!block)
+            return false;
+
+        auto& s=
+            block->slots[cachedSlot];
+
+        if(InterlockedCompareExchange(
+               &s.writerLock,
+               1,
+               0)!=0)
+            return false;
+
+        if(static_cast<std::uint64_t>(
+               s.instanceId)!=instanceId){
+            InterlockedExchange(
+                &s.writerLock,
+                0);
+            cachedSlot=-1;
+            return false;
+        }
+
+        InterlockedIncrement(
+            &s.sequence);
+
+        MemoryBarrier();
+
+        s.active=0;
+        s.heartbeatMs=0;
+        s.samplePosition=-1;
+
+        MemoryBarrier();
+
+        InterlockedIncrement(
+            &s.sequence);
+
+        InterlockedExchange(
+            &s.writerLock,
+            0);
+
+        cachedSlot=-1;
+        return true;
+#else
+        (void)session;
+        (void)instanceId;
+        (void)cachedSlot;
+        return false;
+#endif
+    }
+
     bool readSlot(
         int session,
         int slotIndex,
