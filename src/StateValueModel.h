@@ -43,6 +43,17 @@ inline double encodeSessionNormalized(
             maximum);
 }
 
+inline int legacySensorSessionFallback(
+    bool hasStoredSession,
+    int storedSession) noexcept {
+
+    return
+        hasStoredSession
+        ? sanitizeSessionState(
+            storedSession)
+        : 0;
+}
+
 inline int decodeSessionNormalized(
     double normalized) noexcept {
 
