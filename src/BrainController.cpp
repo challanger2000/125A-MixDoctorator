@@ -537,7 +537,7 @@ tresult PLUGIN_API Controller::getParamStringByValue(
             "Mix weiterlaufen lassen. Erst etwas aendern, wenn der Hinweis stabil wird.",
             "Beide Quellen im Bereich vergleichen. Bei der stoerenderen Quelle vorsichtig Platz schaffen und im Mix gegenhoeren.",
             "Kick und Bass getrennt beurteilen. Festlegen, wer die Tiefe traegt; bei der anderen Quelle vorsichtig Platz schaffen.",
-            "Gesang als Bezugspunkt. Bei Synth, Keys, Pad oder Gitarre pruefen, ob eine kleine Absenkung die Stimme klaert.",
+            "Gesang als Bezugspunkt. Bei Synthesizer, Tasten, Flaeche oder Gitarre pruefen, ob eine kleine Absenkung die Stimme klaert.",
             "Becken und andere Quelle vergleichen. Nicht automatisch Hoehen wegnehmen; zuerst die dominantere Quelle pruefen.",
             "Anschlag- und harmonische Quelle getrennt pruefen: zuerst Zeitlage, Huellkurve oder kleine Entzerrung.",
             "Bei Bass gegen eine harmonische Quelle zuerst unnoetige Tiefen der anderen Quelle pruefen."
