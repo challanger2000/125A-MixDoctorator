@@ -16,19 +16,35 @@ inline bool shouldResetAnalysis(
         playing &&
         !wasPlaying;
 
-    const bool jumpedBackward=
-        !cycleActive &&
+    const auto tolerance=
+        std::max<std::int64_t>(
+            0,
+            rewindTolerance);
+
+    const bool havePositions=
         currentSample>=0 &&
-        lastSample>=0 &&
+        lastSample>=0;
+
+    const bool jumpedBackward=
+        havePositions &&
+        !cycleActive &&
         currentSample+
-            std::max<std::int64_t>(
-                0,
-                rewindTolerance)<
+            tolerance<
         lastSample;
+
+    // A large forward relocation is never a normal process-block advance.
+    // Reset even while cycle is enabled: a user seek inside a loop should not
+    // carry findings from the previous location into the new section.
+    const bool jumpedForward=
+        havePositions &&
+        currentSample>
+            lastSample+
+            tolerance;
 
     return
         restarted ||
-        jumpedBackward;
+        jumpedBackward ||
+        jumpedForward;
 }
 
 } // namespace MixDoctorator::Analysis
