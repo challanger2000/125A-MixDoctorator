@@ -100,8 +100,6 @@ if(MIXDOCTORATOR_BUILD_TESTS)
 
     target_compile_features(
         SpectralRealtimeTests
-        SensorLoadTests
-        SensorLoadTests
         PRIVATE cxx_std_17)
 
     add_test(
