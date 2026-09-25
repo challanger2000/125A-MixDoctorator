@@ -335,6 +335,17 @@ if(MIXDOCTORATOR_BUILD_TESTS)
     add_executable(RecommendationScenarioTests
         tests/RecommendationScenarioTests.cpp)
 
+    add_executable(CoachEndToEndTests
+        tests/CoachEndToEndTests.cpp)
+
+    target_compile_features(
+        CoachEndToEndTests
+        PRIVATE cxx_std_17)
+
+    add_test(
+        NAME CoachEndToEndTests
+        COMMAND CoachEndToEndTests)
+
     target_compile_features(
         RecommendationScenarioTests
         PRIVATE cxx_std_17)
@@ -419,6 +430,7 @@ if(MIXDOCTORATOR_BUILD_TESTS)
         FindingRankingTests
         TemporalFindingTests
         RecommendationScenarioTests
+        CoachEndToEndTests
         CoachMaskingModelTests
         RecommendationMatrixTests
         CoachPerformanceTests
