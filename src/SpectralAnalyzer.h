@@ -121,16 +121,9 @@ public:
             static_cast<double>(
                 decimationFactor_);
 
-        decimationPhase_=0;
         prepareAntiAlias();
-
-        write_=0;
-        sinceFft_=0;
-        filled_=0;
-
-        time_.fill(0.0);
-        energy_.fill(0.0);
         prepareBandMap();
+        reset();
     }
 
     void push(double x) noexcept {
