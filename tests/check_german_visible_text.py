@@ -21,6 +21,7 @@ forbidden = [
     "Hoehen oder Air",
     "Timing oder Ducking",
     "AIR 10k+",
+    "Synth, Keys, Pad",
 ]
 
 violations = []
