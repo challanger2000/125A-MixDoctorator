@@ -8,6 +8,8 @@
 int main(){
     using MixDoctorator::Analysis::
         sanitizeAudioSample;
+    using MixDoctorator::Analysis::
+        readAudioSample;
 
     const double finiteValues[]={
         0.0,
@@ -41,6 +43,33 @@ int main(){
         sanitizeAudioSample(
             -std::numeric_limits<double>::
                 infinity())==0.0);
+
+    const float floatBuffer[]{
+        0.25f,
+        -0.5f,
+        std::numeric_limits<float>::
+            quiet_NaN()
+    };
+
+    assert(std::abs(
+        readAudioSample(
+            floatBuffer,0)-0.25)<1.0e-7);
+
+    assert(std::abs(
+        readAudioSample(
+            floatBuffer,1)+0.5)<1.0e-7);
+
+    assert(
+        readAudioSample(
+            floatBuffer,2)==0.0);
+
+    assert(
+        readAudioSample<float>(
+            nullptr,0)==0.0);
+
+    assert(
+        readAudioSample(
+            floatBuffer,-1)==0.0);
 
     std::cout
         << "AudioSafety tests passed\n";
