@@ -623,13 +623,10 @@ static void pass(
             ? in[c]
             : nullptr;
 
-        for(int32 i=0;i<n;++i){
-            out[c][i]=
-                static_cast<T>(
-                    Analysis::readAudioSample(
-                        inputBuffer,
-                        i));
-        }
+        Analysis::copySanitizedAudioBlock(
+            inputBuffer,
+            out[c],
+            n);
     }
 }
 
