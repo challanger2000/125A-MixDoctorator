@@ -326,6 +326,13 @@ tresult PLUGIN_API Processor::setProcessing(
 
         transientDetector_.prepare(
             sampleRate_);
+    }else{
+        // Invalidate the last publication even if the host keeps the plugin
+        // instance alive. The worker notices the generation change and
+        // releases the Sensor slot without waiting for heartbeat expiry.
+        configGeneration_.fetch_add(
+            1,
+            std::memory_order_acq_rel);
     }
 
     AudioEffect::
