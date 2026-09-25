@@ -112,6 +112,49 @@ int main(){
     assert(suppressed==5*IPC::kBandCount);
     assert(suppressed==45);
 
+    {
+        auto aggregatedTarget=makeRecommendation(
+            IPC::Role::LeadVocal,
+            IPC::Role::Synth,
+            6,0.35,0.70,-0.40,0.10);
+
+        assert(aggregatedTarget.valid);
+        assert(aggregatedTarget.adjustRole==IPC::Role::Synth);
+
+        const auto singleSynth=
+            suppressAmbiguousAggregateTarget(
+                aggregatedTarget,
+                1,
+                1);
+
+        assert(singleSynth.adjustRole==IPC::Role::Synth);
+
+        const auto twoSynths=
+            suppressAmbiguousAggregateTarget(
+                aggregatedTarget,
+                1,
+                2);
+
+        assert(twoSynths.adjustRole==IPC::Role::Unknown);
+        assert(recommendationTargetCode(twoSynths)==1);
+
+        auto kickBass=makeRecommendation(
+            IPC::Role::Kick,
+            IPC::Role::Bass,
+            1,0.50,0.80,0.60,0.10);
+
+        assert(kickBass.valid);
+        assert(kickBass.adjustRole==IPC::Role::Unknown);
+
+        kickBass=
+            suppressAmbiguousAggregateTarget(
+                kickBass,
+                3,
+                1);
+
+        assert(kickBass.adjustRole==IPC::Role::Unknown);
+    }
+
     auto invalid=makeRecommendation(
         IPC::Role::Unknown,
         IPC::Role::Bass,
