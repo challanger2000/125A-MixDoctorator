@@ -18,6 +18,24 @@ int main(){
             true,true,false,
             20000,10000,4096));
 
+    // Small normal process-block advance does not reset.
+    assert(
+        !shouldResetAnalysis(
+            true,true,false,
+            10256,10000,4096));
+
+    // Large forward seek resets stale findings.
+    assert(
+        shouldResetAnalysis(
+            true,true,false,
+            30000,10000,4096));
+
+    // Forward user seek also resets while cycle is enabled.
+    assert(
+        shouldResetAnalysis(
+            true,true,true,
+            30000,10000,4096));
+
     // Manual rewind outside a cycle resets.
     assert(
         shouldResetAnalysis(
