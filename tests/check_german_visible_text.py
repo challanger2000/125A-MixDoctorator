@@ -15,6 +15,12 @@ forbidden = [
     "Attack- und harmonische",
     "Schlagzeug-Attack",
     "bei Attack/Praesenz",
+    "sanftes Ducking",
+    "getrennte Parts",
+    "Punch",
+    "Hoehen oder Air",
+    "Timing oder Ducking",
+    "AIR 10k+",
 ]
 
 violations = []
