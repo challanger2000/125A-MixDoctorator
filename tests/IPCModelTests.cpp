@@ -116,6 +116,45 @@ int main(){
     assert(foundB);
     assert(guitarCount>=2);
 
+    // Released slots must become disconnected immediately instead of waiting
+    // for heartbeat expiry after a Sensor changes Session or is removed.
+    const int releasedIndex=slotA;
+
+    assert(
+        first.release(
+            7,
+            idA,
+            slotA));
+
+    assert(slotA<0);
+
+    Snapshot released;
+    assert(
+        first.readSlot(
+            7,
+            releasedIndex,
+            released,
+            static_cast<std::uint64_t>(
+                GetTickCount64())));
+
+    assert(!released.connected);
+
+    // A later publication by the same Sensor may claim a slot again cleanly.
+    assert(
+        first.publish(
+            7,
+            idA,
+            slotA,
+            Role::ElectricGuitar,
+            100512,
+            -17.0,
+            -5.0,
+            0.9,
+            0.4,
+            bands.data()));
+
+    assert(slotA>=0);
+
     // A fresh session supports exactly the documented 24 live Sensor slots.
     constexpr int capacitySession=4;
     int capacitySlots[kSensorSlotCount]{};
