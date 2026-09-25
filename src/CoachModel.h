@@ -3,6 +3,8 @@
 
 namespace MixDoctorator::Analysis {
 
+constexpr int kCoachEvidenceCodeCount=3;
+
 // Returns one of 16 stable recommendation codes. The code selects explanatory
 // text in the controller; it is not itself a psychoacoustic score.
 inline int coachAdviceCode(
