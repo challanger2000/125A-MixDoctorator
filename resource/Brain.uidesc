@@ -121,7 +121,7 @@
     <view class="CParamDisplay" origin="536,344" size="160,30" control-tag="TopDominance" font-size="12" font-color="#ffffffff" back-color="#303030ff" frame-color="#777777ff"/>
     <view class="CParamDisplay" origin="708,344" size="100,30" control-tag="TopConfidence" font-size="12" font-color="#ffffffff" back-color="#303030ff" frame-color="#777777ff"/>
 
-    <view class="CTextLabel" origin="0,394" size="940,22" title="STAERKSTER SESSION-HINWEIS" font-size="13" font-color="#ccccccff" transparent="true"/>
+    <view class="CTextLabel" origin="0,394" size="940,22" title="STAERKSTER DETAIL-HINWEIS" font-size="13" font-color="#ccccccff" transparent="true"/>
     <view class="CParamDisplay" origin="0,420" size="220,30" control-tag="SessionPair" font-size="12" font-color="#ffffffff" back-color="#262626ff" frame-color="#666666ff"/>
     <view class="CParamDisplay" origin="232,420" size="90,30" control-tag="SessionScore" font-size="12" font-color="#ffffffff" back-color="#262626ff" frame-color="#666666ff"/>
     <view class="CParamDisplay" origin="334,420" size="240,30" control-tag="SessionBand" font-size="12" font-color="#ffffffff" back-color="#262626ff" frame-color="#666666ff"/>
