@@ -88,8 +88,8 @@
 
     <view class="CTextLabel" origin="0,145" size="940,22" title="PAAR-ANALYSE" font-size="13" font-color="#ccccccff" transparent="true"/>
     <view class="CTextLabel" origin="175,168" size="85,18" title="UEBERLAPPUNG" font-size="10" font-color="#888888ff" transparent="true"/>
-    <view class="CTextLabel" origin="270,168" size="95,18" title="MASKING" font-size="10" font-color="#888888ff" transparent="true"/>
-    <view class="CTextLabel" origin="375,168" size="85,18" title="ATTACK" font-size="10" font-color="#888888ff" transparent="true"/>
+    <view class="CTextLabel" origin="270,168" size="95,18" title="VERDECKUNG" font-size="10" font-color="#888888ff" transparent="true"/>
+    <view class="CTextLabel" origin="375,168" size="85,18" title="ANSCHLAG" font-size="10" font-color="#888888ff" transparent="true"/>
     <view class="CTextLabel" origin="470,168" size="245,18" title="HAUPTBEREICH" font-size="10" font-color="#888888ff" transparent="true"/>
     <view class="CTextLabel" origin="730,168" size="150,18" title="STATUS" font-size="10" font-color="#888888ff" transparent="true"/>
 
@@ -114,7 +114,7 @@
     <view class="CParamDisplay" origin="470,262" size="245,28" control-tag="DrumsGuitarBand" font-size="12" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
     <view class="CParamDisplay" origin="730,262" size="150,28" control-tag="DrumsGuitarStatus" font-size="12" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
 
-    <view class="CTextLabel" origin="0,318" size="940,22" title="WICHTIGSTER MASKING-HINWEIS" font-size="13" font-color="#ccccccff" transparent="true"/>
+    <view class="CTextLabel" origin="0,318" size="940,22" title="WICHTIGSTER VERDECKUNGS-HINWEIS" font-size="13" font-color="#ccccccff" transparent="true"/>
     <view class="CParamDisplay" origin="0,344" size="200,30" control-tag="TopPair" font-size="12" font-color="#ffffffff" back-color="#303030ff" frame-color="#777777ff"/>
     <view class="CParamDisplay" origin="212,344" size="80,30" control-tag="TopScore" font-size="12" font-color="#ffffffff" back-color="#303030ff" frame-color="#777777ff"/>
     <view class="CParamDisplay" origin="304,344" size="220,30" control-tag="TopBand" font-size="12" font-color="#ffffffff" back-color="#303030ff" frame-color="#777777ff"/>
