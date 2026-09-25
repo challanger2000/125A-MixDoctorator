@@ -111,6 +111,29 @@ tresult PLUGIN_API Processor::initialize(
 
 tresult PLUGIN_API Processor::terminate(){
     stopIpcWorker();
+
+    for(int session=0;
+        session<IPC::kSessionCount;
+        ++session){
+
+        for(int attempt=0;
+            attempt<4 &&
+            cachedSlot_[session]>=0;
+            ++attempt){
+
+            if(ipc_.release(
+                   session,
+                   instanceId_,
+                   cachedSlot_[session]))
+                break;
+
+            std::this_thread::yield();
+        }
+    }
+
+    lastPublishedSession_=-1;
+    lastPublishedGeneration_=0;
+
     ipc_.close();
     ipcReady_=false;
     return AudioEffect::terminate();
@@ -162,11 +185,16 @@ void Processor::ipcWorkerLoop() noexcept{
         if(lastPublishedSession_>=0 &&
            lastPublishedGeneration_!=0 &&
            lastPublishedGeneration_!=currentGeneration){
-            ipc_.release(
-                lastPublishedSession_,
-                instanceId_,
-                cachedSlot_[
-                    lastPublishedSession_]);
+
+            if(!ipc_.release(
+                   lastPublishedSession_,
+                   instanceId_,
+                   cachedSlot_[
+                       lastPublishedSession_])){
+                std::this_thread::sleep_for(
+                    std::chrono::milliseconds(1));
+                continue;
+            }
 
             lastPublishedSession_=-1;
             lastPublishedGeneration_=0;
@@ -199,31 +227,39 @@ void Processor::ipcWorkerLoop() noexcept{
                 newest.session);
 
         if(lastPublishedSession_>=0 &&
-           lastPublishedSession_!=publishSession)
-            ipc_.release(
-                lastPublishedSession_,
+           lastPublishedSession_!=publishSession){
+
+            if(!ipc_.release(
+                   lastPublishedSession_,
+                   instanceId_,
+                   cachedSlot_[
+                       lastPublishedSession_]))
+                continue;
+
+            lastPublishedSession_=-1;
+            lastPublishedGeneration_=0;
+        }
+
+        const bool published=
+            ipc_.publish(
+                publishSession,
                 instanceId_,
                 cachedSlot_[
-                    lastPublishedSession_]);
+                    publishSession],
+                newest.role,
+                newest.samplePosition,
+                newest.rmsDb,
+                newest.peakDb,
+                newest.activity,
+                newest.transient,
+                newest.bands);
 
-        ipc_.publish(
-            publishSession,
-            instanceId_,
-            cachedSlot_[
-                IPC::clampSession(
-                    newest.session)],
-            newest.role,
-            newest.samplePosition,
-            newest.rmsDb,
-            newest.peakDb,
-            newest.activity,
-            newest.transient,
-            newest.bands);
-
-        lastPublishedSession_=
-            publishSession;
-        lastPublishedGeneration_=
-            newest.generation;
+        if(published){
+            lastPublishedSession_=
+                publishSession;
+            lastPublishedGeneration_=
+                newest.generation;
+        }
     }
 }
 
