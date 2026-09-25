@@ -407,10 +407,10 @@ tresult PLUGIN_API Controller::getParamStringByValue(
     if(id==kTopAttackAdvice){
 
         static const char* advice[4]={
-            "Keine anhaltende Attack-Konkurrenz erkannt",
+            "Keine anhaltende Anschlag-Konkurrenz erkannt",
             "Schlagzeug und Bass treffen gleichzeitig: Huellkurven, Timing oder Ducking pruefen",
             "Bass und Gitarre treffen gleichzeitig: Artikulation und Transienten pruefen",
-            "Schlagzeug und Gitarre konkurrieren bei Attack: Anschlag, Snare und Becken pruefen"
+            "Schlagzeug und Gitarre konkurrieren beim Anschlag: Snare und Becken pruefen"
         };
 
         const int index=
@@ -474,7 +474,7 @@ tresult PLUGIN_API Controller::getParamStringByValue(
             "Mitten-Ueberlappung kann die Trennung verwischen",
             "Praesenz-Ueberlappung kann Definition verdecken",
             "Hoehen-Ueberlappung kann den Mix verdichten",
-            "Zwei Quellen konkurrieren moeglicherweise in den Attacks"
+            "Zwei Quellen konkurrieren moeglicherweise bei den Anschlaegen"
         };
 
         static const char* listen[7]={
@@ -484,7 +484,7 @@ tresult PLUGIN_API Controller::getParamStringByValue(
             "Achte auf getrennte Parts statt verschwommener Mitten. Verliert eine Quelle Charakter, rueckgaengig machen.",
             "Achte auf mehr Definition, ohne den Mix dumpf zu machen oder die andere Quelle zu weit nach vorn zu holen.",
             "Achte auf weniger Haerte oder Gedraenge, ohne nuetzliche Helligkeit und Air zu verlieren.",
-            "Achte auf klarere Attacks und Groove. Wird der Mix schwaecher oder unnatuerlich, rueckgaengig machen."
+            "Achte auf klarere Anschlaege und Groove. Wird der Mix schwaecher oder unnatuerlich, rueckgaengig machen."
         };
 
         static const char* reason[7]={
@@ -527,7 +527,7 @@ tresult PLUGIN_API Controller::getParamStringByValue(
             "Kick und Bass getrennt beurteilen. Festlegen, wer die Tiefe traegt; bei der anderen Quelle vorsichtig Platz schaffen.",
             "Gesang als Bezugspunkt. Bei Synth, Keys, Pad oder Gitarre pruefen, ob eine kleine Absenkung die Stimme klaert.",
             "Becken und andere Quelle vergleichen. Nicht automatisch Hoehen wegnehmen; zuerst die dominantere Quelle pruefen.",
-            "Attack- und harmonische Quelle getrennt pruefen: Timing, Huellkurve oder kleine Entzerrung vor grossen EQ-Eingriffen.",
+            "Anschlag- und harmonische Quelle getrennt pruefen: Timing, Huellkurve oder kleine Entzerrung vor grossen EQ-Eingriffen.",
             "Bei Bass gegen eine harmonische Quelle zuerst unnoetige Tiefen der anderen Quelle pruefen."
         };
 
@@ -651,7 +651,7 @@ tresult PLUGIN_API Controller::getParamStringByValue(
         s.fromAscii(
             v>=0.5
             ? "Timing, Huellkurven, Transienten oder sanftes Ducking zwischen diesen Quellen pruefen"
-            : "Keine anhaltende Attack-Konkurrenz erkannt");
+            : "Keine anhaltende Anschlag-Konkurrenz erkannt");
         s.copyTo(out,128);
         return kResultTrue;
     }
@@ -659,13 +659,13 @@ tresult PLUGIN_API Controller::getParamStringByValue(
     if(id==kTopAdvice){
 
         static const char* advice[16]={
-            "Weiterhoeren - noch kein verlaesslicher Masking-Hinweis",
+            "Weiterhoeren - noch kein verlaesslicher Verdeckungs-Hinweis",
 
             "Schlagzeug dominiert Sub/Bass: Kick/Toms pruefen, bevor Bass angehoben wird",
             "Bass dominiert Sub/Bass: Bassgewicht pruefen, bevor Kick angehoben wird",
             "Schlagzeug und Bass konkurrieren unten: entscheiden, wer fuehren soll",
             "Schlagzeug/Bass-Aufbau in tiefen Mitten und Koerper pruefen",
-            "Schlagzeug-Attack gegen Bassdefinition pruefen",
+            "Schlagzeug-Anschlag gegen Bassdefinition pruefen",
 
             "Bass dominiert Gitarrentiefe: Bass-Koerper und Obertone pruefen",
             "Gitarre dominiert Basstiefe: zuerst Gitarren-Tiefen/Koerper pruefen",
@@ -676,7 +676,7 @@ tresult PLUGIN_API Controller::getParamStringByValue(
             "Gitarren-Tiefen gegen Kick/Toms pruefen",
             "Schlagzeug dominiert Mitten/Praesenz: Snare/Becken pruefen",
             "Gitarre dominiert Mitten/Praesenz: Biss/Praesenz pruefen",
-            "Schlagzeug und Gitarre konkurrieren bei Attack/Praesenz: Platz schaffen",
+            "Schlagzeug und Gitarre konkurrieren bei Anschlag/Praesenz: Platz schaffen",
             "Becken/Gitarren-Hoehen pruefen, bevor mehr Hoehen angehoben werden"
         };
 
