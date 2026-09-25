@@ -1108,6 +1108,26 @@ tresult PLUGIN_API Processor::process(
                     state.confidence,
                     state.dominance,
                     state.transientCompetition);
+
+            const int firstIndex=
+                Analysis::roleToIndex(first);
+
+            const int secondIndex=
+                Analysis::roleToIndex(second);
+
+            if(responseFresh &&
+               firstIndex>=0 &&
+               secondIndex>=0){
+
+                recommendation=
+                    Analysis::
+                    suppressAmbiguousAggregateTarget(
+                        recommendation,
+                        latestIpc_.roleCount[
+                            firstIndex],
+                        latestIpc_.roleCount[
+                            secondIndex]);
+            }
         }
     }
 
