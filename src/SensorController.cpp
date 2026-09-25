@@ -18,7 +18,7 @@ tresult PLUGIN_API Controller::initialize(FUnknown* c){
     if(r!=kResultOk) return r;
 
     auto* role=new StringListParameter(
-        STR16("Source Role"),kRole,nullptr,0);
+        STR16("Quellenrolle"),kRole,nullptr,0);
     role->appendString(STR16("Schlagzeug"));
     role->appendString(STR16("Bass"));
     role->appendString(STR16("E-Gitarre"));
