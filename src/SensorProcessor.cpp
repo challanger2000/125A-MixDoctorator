@@ -438,26 +438,36 @@ static void copyMeasure(
         i<n;
         ++i){
 
+        const T* leftBuffer=
+            (in && input.numChannels>0)
+            ? in[0]
+            : nullptr;
+
+        const T* rightBuffer=
+            (in && input.numChannels>1)
+            ? in[1]
+            : nullptr;
+
         const double left=
-            input.numChannels>0
-            ? Analysis::readAudioSample(
-                in[0],
-                i)
-            : 0.0;
+            Analysis::readAudioSample(
+                leftBuffer,
+                i);
 
         const double right=
             input.numChannels>1
             ? Analysis::readAudioSample(
-                in[1],
+                rightBuffer,
                 i)
             : left;
 
-        if(output.numChannels>0 &&
+        if(out &&
+           output.numChannels>0 &&
            out[0])
             out[0][i]=
                 static_cast<T>(left);
 
-        if(output.numChannels>1 &&
+        if(out &&
+           output.numChannels>1 &&
            out[1])
             out[1][i]=
                 static_cast<T>(right);
