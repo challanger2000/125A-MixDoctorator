@@ -438,27 +438,19 @@ static void copyMeasure(
         i<n;
         ++i){
 
-        const double rawLeft=
-            (input.numChannels>0 &&
-             in[0])
-            ? static_cast<double>(
-                in[0][i])
+        const double left=
+            input.numChannels>0
+            ? Analysis::readAudioSample(
+                in[0],
+                i)
             : 0.0;
 
-        const double rawRight=
-            (input.numChannels>1 &&
-             in[1])
-            ? static_cast<double>(
-                in[1][i])
-            : rawLeft;
-
-        const double left=
-            Analysis::sanitizeAudioSample(
-                rawLeft);
-
         const double right=
-            Analysis::sanitizeAudioSample(
-                rawRight);
+            input.numChannels>1
+            ? Analysis::readAudioSample(
+                in[1],
+                i)
+            : left;
 
         if(output.numChannels>0 &&
            out[0])
