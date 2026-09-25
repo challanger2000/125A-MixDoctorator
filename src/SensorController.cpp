@@ -1,6 +1,7 @@
 #include "SensorController.h"
 #include "SensorIDs.h"
 #include "MixDoctoratorIPC.h"
+#include "StateValueModel.h"
 
 #include "base/source/fstreamer.h"
 #include "public.sdk/source/vst/vstparameters.h"
@@ -61,14 +62,16 @@ tresult PLUGIN_API Controller::setComponentState(IBStream* state){
 
     setParamNormalized(
         kRole,
-        static_cast<double>(std::clamp(role,1,IPC::kRoleCount)-1)/
-            static_cast<double>(IPC::kRoleCount-1));
+        Analysis::encodeRoleNormalized(
+            Analysis::sanitizeRoleState(
+                role)));
 
     int32 session=0;
     if(s.readInt32(session)){
         setParamNormalized(
             kSession,
-            static_cast<double>(std::clamp(session,0,7))/7.0);
+            Analysis::encodeSessionNormalized(
+                session));
     }else{
         setParamNormalized(kSession,0.0);
     }
