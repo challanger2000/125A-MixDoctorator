@@ -132,16 +132,9 @@ void Processor::ipcWorkerLoop() noexcept{
     while(ipcWorkerRunning_.load(
               std::memory_order_acquire)){
 
-        IpcRequest request;
         IpcRequest newest;
-        bool haveRequest=false;
 
-        while(ipcRequests_.pop(request)){
-            newest=request;
-            haveRequest=true;
-        }
-
-        if(!haveRequest){
+        if(!ipcRequests_.drainNewest(newest)){
             std::this_thread::sleep_for(
                 std::chrono::milliseconds(1));
             continue;
