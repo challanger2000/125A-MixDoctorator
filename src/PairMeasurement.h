@@ -28,10 +28,14 @@ inline PairMeasurement measurePair(
     PairMeasurement out;
 
     const bool timeCoherent=
-        samplePositionsCoherent(
+        sampleRangesCoherent(
             currentSamplePosition,
             a.samplePosition,
+            a.samplePositionMin,
+            a.samplePositionMax,
             b.samplePosition,
+            b.samplePositionMin,
+            b.samplePositionMax,
             numSamples);
 
     out.active=
