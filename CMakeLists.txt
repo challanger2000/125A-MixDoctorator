@@ -243,12 +243,15 @@ if(MIXDOCTORATOR_BUILD_TESTS)
 
     target_compile_features(
         SensorGenerationPolicyTests
-        RuntimeInstanceIdTests
         PRIVATE cxx_std_17)
 
     add_test(
         NAME SensorGenerationPolicyTests
         COMMAND SensorGenerationPolicyTests)
+
+    target_compile_features(
+        RuntimeInstanceIdTests
+        PRIVATE cxx_std_17)
 
     target_compile_features(
         IpcResponsePolicyTests
