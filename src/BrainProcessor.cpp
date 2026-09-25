@@ -1115,7 +1115,7 @@ tresult PLUGIN_API Processor::process(
             const int secondIndex=
                 Analysis::roleToIndex(second);
 
-            if(responseFresh &&
+            if(responseForSession &&
                firstIndex>=0 &&
                secondIndex>=0){
 
