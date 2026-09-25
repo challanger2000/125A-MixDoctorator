@@ -13,4 +13,17 @@ inline double sanitizeAudioSample(
         : 0.0;
 }
 
+template<typename T>
+inline double readAudioSample(
+    const T* buffer,
+    int index) noexcept {
+
+    if(!buffer || index<0)
+        return 0.0;
+
+    return sanitizeAudioSample(
+        static_cast<double>(
+            buffer[index]));
+}
+
 } // namespace MixDoctorator::Analysis
