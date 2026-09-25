@@ -180,6 +180,17 @@ if(MIXDOCTORATOR_BUILD_TESTS)
     add_executable(IPCModelTests
         tests/IPCModelTests.cpp)
 
+    add_executable(IpcResponsePolicyTests
+        tests/IpcResponsePolicyTests.cpp)
+
+    target_compile_features(
+        IpcResponsePolicyTests
+        PRIVATE cxx_std_17)
+
+    add_test(
+        NAME IpcResponsePolicyTests
+        COMMAND IpcResponsePolicyTests)
+
     target_compile_features(
         IPCModelTests
         PRIVATE cxx_std_17)
@@ -416,6 +427,7 @@ if(MIXDOCTORATOR_BUILD_TESTS)
         RoleBankAggregateTests
         RoleAggregateTests
         IPCModelTests
+        IpcResponsePolicyTests
         TransientInteractionTests
         AttackFindingTests
         TransportModelTests
