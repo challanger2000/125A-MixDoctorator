@@ -166,13 +166,17 @@ int main(){
     assert(!released.connected);
     assert(released.instanceId==0);
 
-    // A later publication by the same Sensor may claim a slot again cleanly.
+    // A different Sensor can reclaim the released slot immediately.
+    int replacementSlot=-1;
+    constexpr std::uint64_t replacementId=
+        0x125A0000000000C3ull;
+
     assert(
         first.publish(
             7,
-            idA,
-            slotA,
-            Role::ElectricGuitar,
+            replacementId,
+            replacementSlot,
+            Role::Synth,
             100512,
             -17.0,
             -5.0,
@@ -180,7 +184,20 @@ int main(){
             0.4,
             bands.data()));
 
-    assert(slotA>=0);
+    assert(replacementSlot==releasedIndex);
+
+    Snapshot replacement;
+    assert(
+        first.readSlot(
+            7,
+            replacementSlot,
+            replacement,
+            static_cast<std::uint64_t>(
+                GetTickCount64())));
+
+    assert(replacement.connected);
+    assert(replacement.instanceId==replacementId);
+    assert(replacement.role==Role::Synth);
 
     // A fresh session supports exactly the documented 24 live Sensor slots.
     constexpr int capacitySession=4;
