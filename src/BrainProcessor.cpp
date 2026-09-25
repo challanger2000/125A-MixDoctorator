@@ -1123,10 +1123,12 @@ tresult PLUGIN_API Processor::process(
                     Analysis::
                     suppressAmbiguousAggregateTarget(
                         recommendation,
-                        latestIpc_.roleCount[
-                            firstIndex],
-                        latestIpc_.roleCount[
-                            secondIndex]);
+                        latestIpc_.roles[
+                            firstIndex].
+                            aggregateCount,
+                        latestIpc_.roles[
+                            secondIndex].
+                            aggregateCount);
             }
         }
     }
