@@ -45,12 +45,38 @@ int main(){
             104000,
             256));
 
-    // Unknown host positions fall back to heartbeat freshness.
+    // Unknown host positions fall back to heartbeat freshness, but if both
+    // sensor positions are known they must still agree with each other.
     assert(
         samplePositionsCoherent(
             -1,
             100000,
             100000,
+            256));
+
+    assert(
+        !samplePositionsCoherent(
+            -1,
+            100000,
+            110000,
+            256));
+
+    // Mixed known/unknown sensor timing must not be paired when the host has
+    // a valid transport position.
+    assert(
+        !samplePositionsCoherent(
+            100000,
+            100000,
+            -1,
+            256));
+
+    // If neither sensor exposes positions, heartbeat freshness remains the
+    // fallback path.
+    assert(
+        samplePositionsCoherent(
+            100000,
+            -1,
+            -1,
             256));
 
     std::cout
