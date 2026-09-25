@@ -103,6 +103,19 @@ public:
     static constexpr int kHopSize=1024;
     static constexpr int kBandCount=kSpectralBandCount;
 
+    void reset() noexcept {
+        decimationPhase_=0;
+        write_=0;
+        sinceFft_=0;
+        filled_=0;
+
+        time_.fill(0.0);
+        energy_.fill(0.0);
+
+        for(auto& stage:antiAlias_)
+            stage.reset();
+    }
+
     void prepare(double sampleRate) noexcept {
         inputSampleRate_=
             (std::isfinite(sampleRate) && sampleRate>8000.0)
