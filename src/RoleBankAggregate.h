@@ -16,6 +16,8 @@ public:
             aggregates_[i].reset();
             connectedCount_[i]=0;
             contributorCount_[i]=0;
+            earliestPosition_[i]=-1;
+            latestPosition_[i]=-1;
             freshest_[i]=0;
         }
     }
@@ -65,6 +67,27 @@ public:
 
         ++contributorCount_[roleIndex];
 
+        if(source.samplePosition>=0){
+            auto& earliest=
+                earliestPosition_[roleIndex];
+            auto& latest=
+                latestPosition_[roleIndex];
+
+            earliest=
+                earliest<0
+                ? source.samplePosition
+                : std::min(
+                    earliest,
+                    source.samplePosition);
+
+            latest=
+                latest<0
+                ? source.samplePosition
+                : std::max(
+                    latest,
+                    source.samplePosition);
+        }
+
         freshest_[roleIndex]=
             std::max(
                 freshest_[roleIndex],
@@ -100,6 +123,10 @@ public:
             freshest_[roleIndex];
         out.samplePosition=
             currentSamplePosition;
+        out.samplePositionMin=
+            earliestPosition_[roleIndex];
+        out.samplePositionMax=
+            latestPosition_[roleIndex];
         out.rmsDb=
             aggregate.rmsDb;
         out.peakDb=
@@ -124,6 +151,8 @@ private:
     RoleAggregate aggregates_[IPC::kRoleCount]{};
     int connectedCount_[IPC::kRoleCount]{};
     int contributorCount_[IPC::kRoleCount]{};
+    std::int64_t earliestPosition_[IPC::kRoleCount]{};
+    std::int64_t latestPosition_[IPC::kRoleCount]{};
     std::uint64_t freshest_[IPC::kRoleCount]{};
 };
 
