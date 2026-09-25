@@ -618,17 +618,11 @@ static void pass(
             continue;
 
         for(int32 i=0;i<n;++i){
-            const double raw=
-                in[c]
-                ? static_cast<double>(
-                    in[c][i])
-                : 0.0;
-
             out[c][i]=
                 static_cast<T>(
-                    Analysis::
-                    sanitizeAudioSample(
-                        raw));
+                    Analysis::readAudioSample(
+                        in[c],
+                        i));
         }
     }
 }
