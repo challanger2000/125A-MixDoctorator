@@ -186,6 +186,17 @@ if(MIXDOCTORATOR_BUILD_TESTS)
     add_executable(SensorGenerationPolicyTests
         tests/SensorGenerationPolicyTests.cpp)
 
+    add_executable(RuntimeInstanceIdTests
+        tests/RuntimeInstanceIdTests.cpp)
+
+    target_compile_features(
+        RuntimeInstanceIdTests
+        PRIVATE cxx_std_17)
+
+    add_test(
+        NAME RuntimeInstanceIdTests
+        COMMAND RuntimeInstanceIdTests)
+
     add_executable(IpcQueueOverloadTests
         tests/IpcQueueOverloadTests.cpp)
 
@@ -232,6 +243,7 @@ if(MIXDOCTORATOR_BUILD_TESTS)
 
     target_compile_features(
         SensorGenerationPolicyTests
+        RuntimeInstanceIdTests
         PRIVATE cxx_std_17)
 
     add_test(
