@@ -97,7 +97,9 @@ Recommendation evaluateScenario(
     double bHz,
     double bDb,
     double sampleRate,
-    PairMeasurement* measured=nullptr){
+    PairMeasurement* measured=nullptr,
+    double transientA=0.10,
+    double transientB=0.10){
 
     constexpr std::int64_t pos=
         480000;
@@ -108,19 +110,22 @@ Recommendation evaluateScenario(
     const auto bBands=
         analyzeTone(sampleRate,bHz);
 
-    const auto a=
+    auto a=
         makeSnapshot(
             aRole,
             aBands,
             aDb,
             pos);
 
-    const auto b=
+    auto b=
         makeSnapshot(
             bRole,
             bBands,
             bDb,
             pos);
+
+    a.transient=transientA;
+    b.transient=transientB;
 
     const auto m=
         measurePair(
@@ -242,6 +247,27 @@ int main(){
         assert(rec.valid);
         assert(rec.context==
                RecommendationContext::VocalVsHarmonic);
+    }
+
+    // Snare and guitar with strong transient competition in the upper mids
+    // should become an attack-separation recommendation instead of generic EQ.
+    {
+        PairMeasurement m;
+        const auto rec=evaluateScenario(
+            IPC::Role::Snare,1800.0,-14.0,
+            IPC::Role::ElectricGuitar,1800.0,-14.5,
+            48000.0,
+            &m,
+            0.95,
+            0.85);
+
+        assert(m.active);
+        assert(m.transientCompetition>=0.35);
+        assert(rec.valid);
+        assert(rec.kind==
+               RecommendationKind::AttackSeparation);
+        assert(rec.context==
+               RecommendationContext::RhythmVsHarmonic);
     }
 
     // Clearly separated sources must not turn into a recommendation merely
