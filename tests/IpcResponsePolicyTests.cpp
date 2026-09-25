@@ -49,6 +49,19 @@ int main(){
             session,generation,now-50000,
             session,generation,now,block));
 
+    // A known host timeline must reject an untimed worker response.
+    assert(
+        !ipcResponseIsFresh(
+            session,generation,-1,
+            session,generation,now,block));
+
+    // If the host itself has no sample timeline, heartbeat/generation
+    // freshness remains the intentional fallback.
+    assert(
+        ipcResponseIsFresh(
+            session,generation,-1,
+            session,generation,-1,block));
+
     // A one-block worker delay remains inside the intentional grace zone.
     assert(
         ipcResponseIsFresh(
