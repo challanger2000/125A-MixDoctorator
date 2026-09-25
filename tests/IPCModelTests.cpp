@@ -166,6 +166,48 @@ int main(){
     assert(!released.connected);
     assert(released.instanceId==0);
 
+    // The same Sensor instance must also be able to stop/restart cleanly:
+    // after release it may reclaim a slot immediately without stale ownership.
+    {
+        int restartSlot=-1;
+
+        assert(
+            first.publish(
+                7,
+                idA,
+                restartSlot,
+                Role::ElectricGuitar,
+                100384,
+                -16.0,
+                -4.0,
+                0.9,
+                0.4,
+                bands.data()));
+
+        assert(restartSlot==releasedIndex);
+
+        Snapshot restarted;
+        assert(
+            first.readSlot(
+                7,
+                restartSlot,
+                restarted,
+                static_cast<std::uint64_t>(
+                    GetTickCount64())));
+
+        assert(restarted.connected);
+        assert(restarted.instanceId==idA);
+        assert(restarted.role==Role::ElectricGuitar);
+
+        assert(
+            first.release(
+                7,
+                idA,
+                restartSlot));
+
+        assert(restartSlot<0);
+    }
+
     // A different Sensor can reclaim the released slot immediately.
     int replacementSlot=-1;
     constexpr std::uint64_t replacementId=
