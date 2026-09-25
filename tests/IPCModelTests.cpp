@@ -116,6 +116,30 @@ int main(){
     assert(foundB);
     assert(guitarCount>=2);
 
+    // A wrong owner must never deactivate another Sensor's slot.
+    {
+        const int protectedSlot=slotB;
+        int wrongOwnerSlot=protectedSlot;
+
+        assert(
+            !first.release(
+                7,
+                idA,
+                wrongOwnerSlot));
+
+        Snapshot protectedSnapshot;
+        assert(
+            first.readSlot(
+                7,
+                protectedSlot,
+                protectedSnapshot,
+                static_cast<std::uint64_t>(
+                    GetTickCount64())));
+
+        assert(protectedSnapshot.connected);
+        assert(protectedSnapshot.instanceId==idB);
+    }
+
     // Released slots must become disconnected immediately instead of waiting
     // for heartbeat expiry after a Sensor changes Session or is removed.
     const int releasedIndex=slotA;
