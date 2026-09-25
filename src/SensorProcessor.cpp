@@ -1,6 +1,7 @@
 #include "SensorProcessor.h"
 #include "SensorIDs.h"
 #include "AudioSafety.h"
+#include "SensorGenerationPolicy.h"
 
 #include "base/source/fstreamer.h"
 #include "pluginterfaces/vst/ivstparameterchanges.h"
@@ -182,9 +183,10 @@ void Processor::ipcWorkerLoop() noexcept{
             configGeneration_.load(
                 std::memory_order_acquire);
 
-        if(lastPublishedSession_>=0 &&
-           lastPublishedGeneration_!=0 &&
-           lastPublishedGeneration_!=currentGeneration){
+        if(Analysis::sensorPublicationNeedsRelease(
+               lastPublishedSession_,
+               lastPublishedGeneration_,
+               currentGeneration)){
 
             if(!ipc_.release(
                    lastPublishedSession_,
@@ -219,7 +221,9 @@ void Processor::ipcWorkerLoop() noexcept{
             configGeneration_.load(
                 std::memory_order_acquire);
 
-        if(newest.generation!=generation)
+        if(!Analysis::sensorPacketGenerationCurrent(
+               newest.generation,
+               generation))
             continue;
 
         const int publishSession=
