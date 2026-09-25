@@ -59,6 +59,7 @@ private:
 
     void readParameters(Steinberg::Vst::IParameterChanges*);
     void resetAnalysisMeters() noexcept;
+    void releaseIpcSlots() noexcept;
     void startIpcWorker();
     void stopIpcWorker() noexcept;
     void ipcWorkerLoop() noexcept;
