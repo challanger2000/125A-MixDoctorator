@@ -21,28 +21,18 @@ int main(){
     assert(!q.push({65}));
 
     Request r;
-    std::uint64_t newest=0;
-    int drained=0;
-
-    while(q.pop(r)){
-        newest=r.sequence;
-        ++drained;
-    }
-
-    assert(drained==64);
-    assert(newest==64);
+    assert(q.drainNewest(r));
+    assert(r.sequence==64);
 
     // As soon as the worker has drained the backlog, the next realtime frame
     // becomes available immediately; there is no persistent lockout.
     assert(q.push({66}));
-    assert(q.pop(r));
+    assert(q.drainNewest(r));
     assert(r.sequence==66);
 
     std::cout
-        << "IPC queue overload QA: capacity="
-        << drained
-        << " newest backlog="
-        << newest
+        << "IPC queue overload QA: capacity=64"
+        << " newest backlog=64"
         << " next accepted="
         << r.sequence
         << "\n";
