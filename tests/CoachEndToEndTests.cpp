@@ -1,6 +1,7 @@
 #include "../src/SpectralAnalyzer.h"
 #include "../src/PairMeasurement.h"
 #include "../src/RecommendationEngine.h"
+#include "../src/TransientModel.h"
 #include <array>
 #include <cassert>
 #include <cmath>
@@ -43,6 +44,47 @@ analyzeTone(
     return combineStereoFractions(
         left,
         right);
+}
+
+double measureBurstTransient(
+    double sampleRate,
+    double hz,
+    double amplitude){
+
+    TransientDetector detector;
+    detector.prepare(sampleRate);
+
+    const int silenceSamples=
+        static_cast<int>(
+            sampleRate*0.20);
+
+    for(int n=0;n<silenceSamples;++n)
+        detector.pushPower(0.0);
+
+    const int burstSamples=
+        static_cast<int>(
+            sampleRate*0.03);
+
+    double peakTransient=0.0;
+
+    for(int n=0;n<burstSamples;++n){
+        const double x=
+            amplitude*
+            std::sin(
+                2.0*kPi*
+                hz*
+                static_cast<double>(n)/
+                sampleRate);
+
+        detector.pushPower(x*x);
+
+        peakTransient=
+            std::max(
+                peakTransient,
+                detector.value());
+    }
+
+    return peakTransient;
 }
 
 IPC::Snapshot makeSnapshot(
@@ -253,13 +295,28 @@ int main(){
     // should become an attack-separation recommendation instead of generic EQ.
     {
         PairMeasurement m;
+        const double snareTransient=
+            measureBurstTransient(
+                48000.0,
+                1800.0,
+                0.95);
+
+        const double guitarTransient=
+            measureBurstTransient(
+                48000.0,
+                1800.0,
+                0.75);
+
+        assert(snareTransient>0.35);
+        assert(guitarTransient>0.35);
+
         const auto rec=evaluateScenario(
             IPC::Role::Snare,1800.0,-14.0,
             IPC::Role::ElectricGuitar,1800.0,-14.5,
             48000.0,
             &m,
-            0.95,
-            0.85);
+            snareTransient,
+            guitarTransient);
 
         assert(m.active);
         assert(m.transientCompetition>=0.35);
