@@ -2,6 +2,7 @@
 #include "BrainIDs.h"
 #include "MaskingModel.h"
 #include "TimingModel.h"
+#include "IpcResponsePolicy.h"
 #include "RoleAggregate.h"
 #include "RoleBankAggregate.h"
 #include "TransientInteraction.h"
@@ -827,15 +828,21 @@ tresult PLUGIN_API Processor::process(
 
     const bool responseForSession=
         haveLatestIpc_ &&
-        latestIpc_.session==session_ &&
-        latestIpc_.generation==ipcGeneration_;
+        Analysis::ipcResponseMatchesContext(
+            latestIpc_.session,
+            latestIpc_.generation,
+            session_,
+            ipcGeneration_);
 
     const bool responseFresh=
-        responseForSession &&
-        Analysis::samplePositionsCoherent(
+        haveLatestIpc_ &&
+        Analysis::ipcResponseIsFresh(
+            latestIpc_.session,
+            latestIpc_.generation,
+            latestIpc_.samplePosition,
+            session_,
+            ipcGeneration_,
             currentSamplePosition,
-            latestIpc_.samplePosition,
-            latestIpc_.samplePosition,
             data.numSamples);
 
     IPC::Snapshot drums,bass,guitar;
