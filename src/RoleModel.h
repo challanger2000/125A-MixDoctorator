@@ -142,13 +142,13 @@ inline const char* roleName(IPC::Role role) noexcept {
         case IPC::Role::Snare: return "SNARE";
         case IPC::Role::Toms: return "TOMS";
         case IPC::Role::Cymbals: return "BECKEN / HI-HAT";
-        case IPC::Role::Percussion: return "PERCUSSION";
+        case IPC::Role::Percussion: return "PERKUSSION";
         case IPC::Role::AcousticGuitar: return "AKUSTIKGITARRE";
         case IPC::Role::LeadVocal: return "HAUPTGESANG";
         case IPC::Role::BackingVocal: return "HINTERGRUNDGESANG";
-        case IPC::Role::PianoKeys: return "PIANO / KEYS";
-        case IPC::Role::Synth: return "SYNTH";
-        case IPC::Role::Pad: return "PAD";
+        case IPC::Role::PianoKeys: return "PIANO / TASTEN";
+        case IPC::Role::Synth: return "SYNTHESIZER";
+        case IPC::Role::Pad: return "FLAECHE";
         default: return "UNKNOWN";
     }
 }
