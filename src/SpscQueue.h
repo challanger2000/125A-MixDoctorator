@@ -43,6 +43,18 @@ public:
         return true;
     }
 
+    bool drainNewest(T& newest) noexcept {
+        T value;
+        bool haveValue=false;
+
+        while(pop(value)){
+            newest=value;
+            haveValue=true;
+        }
+
+        return haveValue;
+    }
+
 private:
     static constexpr std::size_t kStorage=
         Capacity+1;
