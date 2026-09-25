@@ -1,5 +1,6 @@
 #include "../src/RoleBankAggregate.h"
 #include "../src/PairMeasurement.h"
+#include "../src/RecommendationEngine.h"
 #include <cassert>
 #include <cmath>
 #include <iostream>
@@ -274,6 +275,123 @@ int main(){
 
     assert(!edgePair.active);
     assert(edgePair.masking==0.0);
+
+    // Coach target ambiguity must use coherent contributors rather than
+    // merely connected Sensors. One coherent Synth plus one incoherent Synth
+    // is still a single analyzable Synth role for a source-specific hint.
+    {
+        RoleBankAggregate ambiguityBank;
+        ambiguityBank.reset();
+
+        auto vocalSingle=snapshot(
+            IPC::Role::LeadVocal,
+            now,
+            -18.0,
+            6,
+            260);
+
+        auto synthCoherent=snapshot(
+            IPC::Role::Synth,
+            now,
+            -18.0,
+            6,
+            261);
+
+        auto synthIncoherent=snapshot(
+            IPC::Role::Synth,
+            now+50000,
+            -18.0,
+            6,
+            262);
+
+        ambiguityBank.add(
+            vocalSingle,
+            now,
+            block);
+
+        ambiguityBank.add(
+            synthCoherent,
+            now,
+            block);
+
+        ambiguityBank.add(
+            synthIncoherent,
+            now,
+            block);
+
+        IPC::Snapshot vocalOut;
+        IPC::Snapshot synthOut;
+        int vocalConnected=0;
+        int synthConnected=0;
+
+        assert(ambiguityBank.result(
+            roleToIndex(IPC::Role::LeadVocal),
+            now,
+            vocalOut,
+            vocalConnected));
+
+        assert(ambiguityBank.result(
+            roleToIndex(IPC::Role::Synth),
+            now,
+            synthOut,
+            synthConnected));
+
+        assert(vocalOut.aggregateCount==1);
+        assert(synthConnected==2);
+        assert(synthOut.aggregateCount==1);
+
+        auto recommendation=makeRecommendation(
+            IPC::Role::LeadVocal,
+            IPC::Role::Synth,
+            6,
+            0.35,
+            0.70,
+            -0.40,
+            0.10);
+
+        assert(recommendation.valid);
+        assert(recommendation.adjustRole==IPC::Role::Synth);
+
+        auto filtered=suppressAmbiguousAggregateTarget(
+            recommendation,
+            vocalOut.aggregateCount,
+            synthOut.aggregateCount);
+
+        assert(filtered.adjustRole==IPC::Role::Synth);
+
+        // Once the second Synth is coherent, the Brain can no longer know
+        // which concrete Synth track should be changed first.
+        RoleBankAggregate twoCoherent;
+        twoCoherent.reset();
+
+        auto synthSecond=snapshot(
+            IPC::Role::Synth,
+            now+128,
+            -18.0,
+            6,
+            263);
+
+        twoCoherent.add(vocalSingle,now,block);
+        twoCoherent.add(synthCoherent,now,block);
+        twoCoherent.add(synthSecond,now,block);
+
+        assert(twoCoherent.result(
+            roleToIndex(IPC::Role::Synth),
+            now,
+            synthOut,
+            synthConnected));
+
+        assert(synthConnected==2);
+        assert(synthOut.aggregateCount==2);
+
+        filtered=suppressAmbiguousAggregateTarget(
+            recommendation,
+            1,
+            synthOut.aggregateCount);
+
+        assert(filtered.adjustRole==IPC::Role::Unknown);
+        assert(recommendationTargetCode(filtered)==1);
+    }
 
     // Every declared role must route to its own aggregate slot.
     RoleBankAggregate allRoles;
