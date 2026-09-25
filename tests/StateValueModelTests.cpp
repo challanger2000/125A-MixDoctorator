@@ -32,6 +32,23 @@ int main(){
             std::numeric_limits<double>::
                 quiet_NaN())==0);
 
+    // Sensor versions before Session storage contained only the role.
+    assert(
+        legacySensorSessionFallback(
+            false,
+            6)==0);
+
+    assert(
+        legacySensorSessionFallback(
+            true,
+            6)==6);
+
+    assert(
+        legacySensorSessionFallback(
+            true,
+            999)==
+        IPC::kSessionCount-1);
+
     assert(
         sanitizeRoleState(-99)==
         IPC::Role::Drums);
