@@ -26,13 +26,13 @@ tresult PLUGIN_API Controller::initialize(FUnknown* c){
     role->appendString(STR16("Snare"));
     role->appendString(STR16("Toms"));
     role->appendString(STR16("Becken / Hi-Hat"));
-    role->appendString(STR16("Percussion"));
+    role->appendString(STR16("Perkussion"));
     role->appendString(STR16("Akustikgitarre"));
     role->appendString(STR16("Hauptgesang"));
     role->appendString(STR16("Hintergrundgesang"));
-    role->appendString(STR16("Piano / Keys"));
-    role->appendString(STR16("Synth"));
-    role->appendString(STR16("Pad"));
+    role->appendString(STR16("Piano / Tasten"));
+    role->appendString(STR16("Synthesizer"));
+    role->appendString(STR16("Flaeche"));
     parameters.addParameter(role);
 
     auto* session=new StringListParameter(
