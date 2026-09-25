@@ -16,6 +16,7 @@
 #include "FindingRanking.h"
 #include "PairUpdateRates.h"
 #include "RoleModel.h"
+#include "ParameterEncoding.h"
 
 #include "base/source/fstreamer.h"
 #include "pluginterfaces/vst/ivstparameterchanges.h"
@@ -1104,24 +1105,23 @@ tresult PLUGIN_API Processor::process(
 
     const double coachAdviceValue=
         recommendation.valid
-        ? static_cast<double>(
+        ? Analysis::encodeDiscreteCode(
             Analysis::recommendationCode(
-                recommendation.kind))/6.0
+                recommendation.kind),
+            6)
         : 0.0;
 
     const double coachPairValue=
         recommendation.valid
-        ? static_cast<double>(
-            coachPair+1)/
-          static_cast<double>(
+        ? Analysis::encodeDiscreteCode(
+            coachPair+1,
             Analysis::kRolePairCount)
         : 0.0;
 
     const double coachBandValue=
-        static_cast<double>(
+        Analysis::encodeDiscreteCode(
             Analysis::recommendationBandCode(
-                recommendation))/
-        static_cast<double>(
+                recommendation),
             Analysis::
             kRecommendationBandCodeCount);
 
@@ -1132,9 +1132,10 @@ tresult PLUGIN_API Processor::process(
 
     const double coachActionValue=
         recommendation.valid
-        ? static_cast<double>(
+        ? Analysis::encodeDiscreteCode(
             Analysis::recommendationActionCode(
-                recommendation))/6.0
+                recommendation),
+            6)
         : 0.0;
 
     const int coachTargetCode=
@@ -1142,10 +1143,10 @@ tresult PLUGIN_API Processor::process(
             recommendation);
 
     const double coachTargetValue=
-        static_cast<double>(
-            coachTargetCode)/
-        static_cast<double>(
-            Analysis::kRecommendationTargetCodeCount);
+        Analysis::encodeDiscreteCode(
+            coachTargetCode,
+            Analysis::
+            kRecommendationTargetCodeCount);
 
     publishParam(data,kCoachHeadline,coachAdviceValue,39);
     publishParam(data,kCoachAction,coachActionValue,40);
@@ -1153,9 +1154,10 @@ tresult PLUGIN_API Processor::process(
     publishParam(data,kCoachReason,coachAdviceValue,42);
 
     const double evidenceValue=
-        static_cast<double>(
+        Analysis::encodeDiscreteCode(
             Analysis::coachEvidenceBand(
-                coachConfidence))/3.0;
+                coachConfidence),
+            3);
 
     publishParam(data,kCoachEvidence,evidenceValue,43);
     publishParam(data,kCoachPair,coachPairValue,44);
