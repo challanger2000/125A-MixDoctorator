@@ -88,6 +88,7 @@ private:
     SessionFinding sessionFinding_{};
     int heldTopPair_{-1};
     int heldCoachPair_{-1};
+    int heldCoachAttackPair_{-1};
     int session_{0};
     bool wasPlaying_{false};
     std::int64_t lastProjectSample_{-1};
