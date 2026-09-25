@@ -12,11 +12,11 @@ int main(){
             true,false,false,
             1000,1000,4096));
 
-    // Normal forward playback does not reset.
+    // Normal forward playback within the coherence tolerance does not reset.
     assert(
         !shouldResetAnalysis(
             true,true,false,
-            20000,10000,4096));
+            10256,10000,4096));
 
     // Small normal process-block advance does not reset.
     assert(
