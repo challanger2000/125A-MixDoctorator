@@ -26,6 +26,14 @@ enum class RecommendationContext {
     BassVsHarmonic
 };
 
+constexpr int kRecommendationKindCodeCount=
+    static_cast<int>(
+        RecommendationKind::AttackSeparation);
+
+constexpr int kRecommendationContextCodeCount=
+    static_cast<int>(
+        RecommendationContext::BassVsHarmonic);
+
 struct Recommendation {
     bool valid{false};
     RecommendationKind kind{RecommendationKind::None};
