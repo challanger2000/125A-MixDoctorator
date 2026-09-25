@@ -183,6 +183,17 @@ if(MIXDOCTORATOR_BUILD_TESTS)
     add_executable(IpcResponsePolicyTests
         tests/IpcResponsePolicyTests.cpp)
 
+    add_executable(SensorGenerationPolicyTests
+        tests/SensorGenerationPolicyTests.cpp)
+
+    target_compile_features(
+        SensorGenerationPolicyTests
+        PRIVATE cxx_std_17)
+
+    add_test(
+        NAME SensorGenerationPolicyTests
+        COMMAND SensorGenerationPolicyTests)
+
     target_compile_features(
         IpcResponsePolicyTests
         PRIVATE cxx_std_17)
@@ -428,6 +439,7 @@ if(MIXDOCTORATOR_BUILD_TESTS)
         RoleAggregateTests
         IPCModelTests
         IpcResponsePolicyTests
+        SensorGenerationPolicyTests
         TransientInteractionTests
         AttackFindingTests
         TransportModelTests
