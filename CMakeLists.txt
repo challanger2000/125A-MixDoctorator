@@ -192,6 +192,17 @@ if(MIXDOCTORATOR_BUILD_TESTS)
     add_executable(ParameterEncodingTests
         tests/ParameterEncodingTests.cpp)
 
+    add_executable(StateValueModelTests
+        tests/StateValueModelTests.cpp)
+
+    target_compile_features(
+        StateValueModelTests
+        PRIVATE cxx_std_17)
+
+    add_test(
+        NAME StateValueModelTests
+        COMMAND StateValueModelTests)
+
     add_executable(CoachParameterMappingTests
         tests/CoachParameterMappingTests.cpp)
 
