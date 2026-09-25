@@ -82,71 +82,184 @@ static bool eligible(const State& s){
         });
 }
 
-int main(){
-    constexpr double sampleRate=48000.0;
-    constexpr int block=256;
-    const int blocksPerSecond=
-        static_cast<int>(
-            std::round(
-                sampleRate/
-                static_cast<double>(block)));
+struct TimingResult {
+    double firstEligible{-1.0};
+    double clearsAfter{-1.0};
+};
+
+static TimingResult runScenario(
+    double sampleRate,
+    int block){
+
+    const double blockSeconds=
+        static_cast<double>(block)/
+        sampleRate;
+
+    auto runFor=[
+        sampleRate,
+        block,
+        blockSeconds
+    ](
+        State& s,
+        double seconds,
+        bool active,
+        double maskingTarget,
+        bool requireIneligible){
+
+        const int blocks=
+            static_cast<int>(
+                std::ceil(
+                    seconds/
+                    blockSeconds));
+
+        for(int i=0;i<blocks;++i){
+            step(
+                s,
+                active,
+                maskingTarget,
+                block,
+                sampleRate);
+
+            if(requireIneligible)
+                assert(!eligible(s));
+        }
+    };
 
     State s;
 
-    // 0.5 s strong collision must not become a stable Coach finding.
-    for(int i=0;i<blocksPerSecond/2;++i)
-        step(s,true,0.85,block,sampleRate);
+    // Short collision must not become a stable Coach finding.
+    runFor(
+        s,
+        0.5,
+        true,
+        0.85,
+        false);
 
     assert(!eligible(s));
 
-    // Follow with 3 s quiet/inactive time. The short burst must decay away
-    // and remain ineligible throughout.
-    for(int i=0;i<blocksPerSecond*3;++i){
-        step(s,false,0.0,block,sampleRate);
-        assert(!eligible(s));
-    }
+    // Quiet time after the short burst must keep it ineligible.
+    runFor(
+        s,
+        3.0,
+        false,
+        0.0,
+        true);
 
-    // A genuinely persistent problem should eventually become eligible.
-    double firstEligibleSeconds=-1.0;
+    TimingResult result;
 
-    for(int i=0;i<blocksPerSecond*12;++i){
-        step(s,true,0.50,block,sampleRate);
+    const int attackBlocks=
+        static_cast<int>(
+            std::ceil(
+                12.0/
+                blockSeconds));
 
-        if(firstEligibleSeconds<0.0 &&
+    for(int i=0;i<attackBlocks;++i){
+        step(
+            s,
+            true,
+            0.50,
+            block,
+            sampleRate);
+
+        if(result.firstEligible<0.0 &&
            eligible(s))
-            firstEligibleSeconds=
-                static_cast<double>(i+1)/
-                static_cast<double>(
-                    blocksPerSecond);
+            result.firstEligible=
+                static_cast<double>(i+1)*
+                blockSeconds;
     }
 
-    assert(firstEligibleSeconds>=2.5);
-    assert(firstEligibleSeconds<8.0);
+    assert(result.firstEligible>=2.5);
+    assert(result.firstEligible<8.0);
 
-    // Once the problem disappears, it should not remain eligible for an
-    // excessive period. Measure the real hold time rather than assuming.
-    double clearSeconds=-1.0;
+    const int clearBlocks=
+        static_cast<int>(
+            std::ceil(
+                12.0/
+                blockSeconds));
 
-    for(int i=0;i<blocksPerSecond*12;++i){
-        step(s,false,0.0,block,sampleRate);
+    for(int i=0;i<clearBlocks;++i){
+        step(
+            s,
+            false,
+            0.0,
+            block,
+            sampleRate);
 
         if(!eligible(s)){
-            clearSeconds=
-                static_cast<double>(i+1)/
-                static_cast<double>(
-                    blocksPerSecond);
+            result.clearsAfter=
+                static_cast<double>(i+1)*
+                blockSeconds;
             break;
         }
     }
 
-    assert(clearSeconds>0.0);
-    assert(clearSeconds<3.5);
+    assert(result.clearsAfter>0.0);
+    assert(result.clearsAfter<3.5);
+
+    return result;
+}
+
+int main(){
+    const double sampleRates[]{
+        44100.0,
+        48000.0,
+        96000.0,
+        192000.0
+    };
+
+    const int blocks[]{
+        64,
+        128,
+        256,
+        512,
+        1024
+    };
+
+    const auto reference=
+        runScenario(
+            48000.0,
+            256);
+
+    double worstAttackDrift=0.0;
+    double worstClearDrift=0.0;
+
+    for(double sampleRate:sampleRates){
+        for(int block:blocks){
+            const auto result=
+                runScenario(
+                    sampleRate,
+                    block);
+
+            worstAttackDrift=
+                std::max(
+                    worstAttackDrift,
+                    std::abs(
+                        result.firstEligible-
+                        reference.firstEligible));
+
+            worstClearDrift=
+                std::max(
+                    worstClearDrift,
+                    std::abs(
+                        result.clearsAfter-
+                        reference.clearsAfter));
+        }
+    }
+
+    // Host buffer size and sample rate must not materially alter what the
+    // beginner sees. Allow only small quantization error from block boundaries.
+    assert(worstAttackDrift<0.08);
+    assert(worstClearDrift<0.12);
 
     std::cout
         << "Temporal finding QA: first eligible="
-        << firstEligibleSeconds
+        << reference.firstEligible
         << " s, clears after="
-        << clearSeconds
+        << reference.clearsAfter
+        << " s, worst attack drift="
+        << worstAttackDrift
+        << " s, worst clear drift="
+        << worstClearDrift
         << " s\n";
 
     return 0;
