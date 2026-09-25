@@ -6,6 +6,8 @@
 
 using MixDoctorator::Analysis::
     samplePositionsCoherent;
+using MixDoctorator::Analysis::
+    sampleRangesCoherent;
 
 int main(){
     using MixDoctorator::IPC::clampSession;
