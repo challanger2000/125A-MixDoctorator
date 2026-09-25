@@ -207,6 +207,43 @@ int main(){
                IPC::Role::Synth);
     }
 
+    // Cymbals and guitar sharing the top end should retain the conservative
+    // cymbal-vs-harmonic context rather than blindly telling the user to cut
+    // cymbals.
+    {
+        PairMeasurement m;
+        const auto rec=evaluateScenario(
+            IPC::Role::Cymbals,7500.0,-18.0,
+            IPC::Role::ElectricGuitar,7500.0,-19.0,
+            48000.0,
+            &m);
+
+        assert(m.active);
+        assert(m.masking>=0.14);
+        assert(rec.valid);
+        assert(rec.kind==
+               RecommendationKind::TopEndSeparation);
+        assert(rec.context==
+               RecommendationContext::CymbalVsHarmonic);
+    }
+
+    // Closely neighbouring but not identical presence bands may still be a
+    // legitimate masking hint through the conservative neighbour model.
+    {
+        PairMeasurement m;
+        const auto rec=evaluateScenario(
+            IPC::Role::LeadVocal,3500.0,-16.0,
+            IPC::Role::Pad,5000.0,-16.0,
+            48000.0,
+            &m);
+
+        assert(m.active);
+        assert(m.masking>0.05);
+        assert(rec.valid);
+        assert(rec.context==
+               RecommendationContext::VocalVsHarmonic);
+    }
+
     // Clearly separated sources must not turn into a recommendation merely
     // because both are active and well above the Sensor activity threshold.
     {
