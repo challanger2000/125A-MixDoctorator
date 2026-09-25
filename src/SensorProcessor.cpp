@@ -116,6 +116,12 @@ tresult PLUGIN_API Processor::terminate(){
     return AudioEffect::terminate();
 }
 
+void Processor::resetAnalysisMeters() noexcept{
+    analyzerLeft_.reset();
+    analyzerRight_.reset();
+    transientDetector_.reset();
+}
+
 void Processor::startIpcWorker(){
     if(ipcWorkerRunning_.exchange(
            true,
@@ -164,8 +170,20 @@ void Processor::ipcWorkerLoop() noexcept{
             continue;
         }
 
+        const int publishSession=
+            IPC::clampSession(
+                newest.session);
+
+        if(lastPublishedSession_>=0 &&
+           lastPublishedSession_!=publishSession)
+            ipc_.release(
+                lastPublishedSession_,
+                instanceId_,
+                cachedSlot_[
+                    lastPublishedSession_]);
+
         ipc_.publish(
-            newest.session,
+            publishSession,
             instanceId_,
             cachedSlot_[
                 IPC::clampSession(
@@ -177,6 +195,9 @@ void Processor::ipcWorkerLoop() noexcept{
             newest.activity,
             newest.transient,
             newest.bands);
+
+        lastPublishedSession_=
+            publishSession;
     }
 }
 
@@ -278,6 +299,9 @@ void Processor::readParameters(
             continue;
 
         if(q->getParameterId()==kRole){
+            const auto previousRole=
+                role_;
+
             const int index=
                 std::clamp(
                     static_cast<int>(
@@ -291,6 +315,9 @@ void Processor::readParameters(
             role_=
                 static_cast<IPC::Role>(
                     index+1);
+
+            if(role_!=previousRole)
+                resetAnalysisMeters();
         }else if(q->getParameterId()==kSession){
             session_=
                 std::clamp(
