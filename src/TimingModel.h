@@ -30,6 +30,9 @@ inline bool samplePositionsCoherent(
             tolerance &&
         std::llabs(
             b-current)<=
+            tolerance &&
+        std::llabs(
+            a-b)<=
             tolerance;
 }
 
