@@ -4,6 +4,7 @@
 #include "RecommendationEngine.h"
 #include "CoachModel.h"
 #include "ParameterEncoding.h"
+#include "StateValueModel.h"
 
 #include "base/source/fstreamer.h"
 #include "pluginterfaces/base/ustring.h"
@@ -133,8 +134,8 @@ tresult PLUGIN_API Controller::setComponentState(
     if(s.readInt32(session)){
         setParamNormalized(
             kSession,
-            static_cast<double>(
-                std::clamp(session,0,7))/7.0);
+            Analysis::encodeSessionNormalized(
+                session));
     }else{
         setParamNormalized(kSession,0.0);
     }
