@@ -2,6 +2,7 @@
 #include "BrainIDs.h"
 #include "RoleModel.h"
 #include "RecommendationEngine.h"
+#include "ParameterEncoding.h"
 
 #include "base/source/fstreamer.h"
 #include "pluginterfaces/base/ustring.h"
@@ -211,9 +212,10 @@ tresult PLUGIN_API Controller::getParamStringByValue(
                 static_cast<int>(
                     std::lround(
                         std::clamp(v,0.0,1.0)*
-                        24.0)),
+                        static_cast<double>(
+                            IPC::kSensorSlotCount))),
                 0,
-                24);
+                IPC::kSensorSlotCount);
 
         char b[32]{};
         std::snprintf(
@@ -325,15 +327,8 @@ tresult PLUGIN_API Controller::getParamStringByValue(
         };
 
         const int encoded=
-            std::clamp(
-                static_cast<int>(
-                    std::lround(
-                        std::clamp(
-                            v,0.0,1.0)*
-                        static_cast<double>(
-                            Analysis::
-                            kRecommendationBandCodeCount))),
-                0,
+            Analysis::decodeDiscreteCode(
+                v,
                 Analysis::
                 kRecommendationBandCodeCount);
 
@@ -569,13 +564,8 @@ tresult PLUGIN_API Controller::getParamStringByValue(
     if(id==kCoachPair ||
        id==kCoachAttackPair){
         const int encoded=
-            std::clamp(
-                static_cast<int>(
-                    std::lround(
-                        std::clamp(v,0.0,1.0)*
-                        static_cast<double>(
-                            Analysis::kRolePairCount))),
-                0,
+            Analysis::decodeDiscreteCode(
+                v,
                 Analysis::kRolePairCount);
 
         if(encoded==0){
@@ -616,14 +606,8 @@ tresult PLUGIN_API Controller::getParamStringByValue(
 
     if(id==kCoachTarget){
         const int encoded=
-            std::clamp(
-                static_cast<int>(
-                    std::lround(
-                        std::clamp(v,0.0,1.0)*
-                        static_cast<double>(
-                            Analysis::
-                            kRecommendationTargetCodeCount))),
-                0,
+            Analysis::decodeDiscreteCode(
+                v,
                 Analysis::
                 kRecommendationTargetCodeCount);
 
