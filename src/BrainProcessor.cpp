@@ -17,6 +17,7 @@
 #include "PairUpdateRates.h"
 #include "RoleModel.h"
 #include "ParameterEncoding.h"
+#include "StateValueModel.h"
 
 #include "base/source/fstreamer.h"
 #include "pluginterfaces/vst/ivstparameterchanges.h"
@@ -310,11 +311,8 @@ void Processor::readParameters(
             continue;
 
         const int newSession=
-            std::clamp(
-                static_cast<int>(
-                    std::lround(v*7.0)),
-                0,
-                7);
+            Analysis::decodeSessionNormalized(
+                v);
 
         if(newSession!=session_){
             session_=newSession;
@@ -1322,7 +1320,9 @@ tresult PLUGIN_API Processor::setState(
     int32 session=0;
 
     if(s.readInt32(session))
-        session_=std::clamp(session,0,7);
+        session_=
+            Analysis::sanitizeSessionState(
+                session);
     else
         session_=0;
 
