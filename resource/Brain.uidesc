@@ -134,6 +134,6 @@
     <view class="CTextLabel" origin="0,555" size="940,22" title="TECHNISCHER HINWEIS" font-size="12" font-color="#888888ff" transparent="true"/>
     <view class="CParamDisplay" origin="0,580" size="940,36" control-tag="TopAdvice" font-size="12" font-color="#ffffffff" back-color="#252525ff" frame-color="#555555ff"/>
 
-    <view class="CTextLabel" origin="0,645" size="940,22" title="Anzeigen sind experimentell und keine kalibrierten Masking-Wahrscheinlichkeiten." font-size="12" font-color="#888888ff" transparent="true"/>
+    <view class="CTextLabel" origin="0,645" size="940,22" title="Anzeigen sind experimentell und keine kalibrierten Verdeckungs-Wahrscheinlichkeiten." font-size="12" font-color="#888888ff" transparent="true"/>
   </template>
 </vstgui-ui-description>
