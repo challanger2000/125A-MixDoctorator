@@ -83,4 +83,88 @@ inline AttackFinding chooseAttackFinding(
         minimumObservation);
 }
 
+inline AttackFinding chooseStableAttackFindingCount(
+    const double* scores,
+    const double* observedSeconds,
+    int count,
+    int heldPair,
+    double minimumScore=kCoachAttackMinimumScore,
+    double minimumObservation=kCoachAttackMinimumObservation,
+    double switchMargin=0.05) noexcept {
+
+    if(!scores ||
+       !observedSeconds ||
+       count<=0)
+        return {};
+
+    minimumScore=
+        std::clamp(
+            std::isfinite(minimumScore)
+            ? minimumScore
+            : kCoachAttackMinimumScore,
+            0.0,
+            1.0);
+
+    minimumObservation=
+        std::max(
+            0.0,
+            std::isfinite(minimumObservation)
+            ? minimumObservation
+            : kCoachAttackMinimumObservation);
+
+    switchMargin=
+        std::max(
+            0.0,
+            std::isfinite(switchMargin)
+            ? switchMargin
+            : 0.05);
+
+    auto eligible=[&](int i) noexcept {
+        return
+            i>=0 &&
+            i<count &&
+            std::isfinite(scores[i]) &&
+            std::isfinite(observedSeconds[i]) &&
+            observedSeconds[i]>=minimumObservation &&
+            scores[i]>=minimumScore;
+    };
+
+    if(eligible(heldPair)){
+        AttackFinding out{
+            heldPair,
+            std::clamp(
+                scores[heldPair],
+                0.0,
+                1.0)
+        };
+
+        for(int i=0;i<count;++i){
+            if(!eligible(i))
+                continue;
+
+            const double score=
+                std::clamp(
+                    scores[i],
+                    0.0,
+                    1.0);
+
+            if(score>
+               out.score+
+               switchMargin){
+                out.pair=i;
+                out.score=score;
+            }
+        }
+
+        return out;
+    }
+
+    return chooseAttackFindingCount(
+        scores,
+        observedSeconds,
+        count,
+        minimumScore,
+        minimumObservation);
+}
+
 } // namespace MixDoctorator::Analysis
