@@ -28,7 +28,7 @@ public:
         bandPower_.fill(0.0);
     }
 
-    void add(
+    bool add(
         double rmsDb,
         double peakDb,
         double activity,
@@ -37,7 +37,7 @@ public:
 
         if(!bands ||
            !std::isfinite(rmsDb))
-            return;
+            return false;
 
         peakDb=
             std::isfinite(peakDb)
@@ -61,7 +61,7 @@ public:
 
         if(!std::isfinite(power) ||
            power<=0.0)
-            return;
+            return false;
 
         totalPower_+=power;
 
@@ -103,6 +103,7 @@ public:
         }
 
         ++count_;
+        return true;
     }
 
     AggregateMetrics result() const noexcept {
