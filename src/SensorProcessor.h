@@ -57,6 +57,7 @@ private:
     };
 
     void readParameters(Steinberg::Vst::IParameterChanges*);
+    void resetAnalysisMeters() noexcept;
     void startIpcWorker();
     void stopIpcWorker() noexcept;
     void ipcWorkerLoop() noexcept;
@@ -67,6 +68,7 @@ private:
     int cachedSlot_[IPC::kSessionCount]{
         -1,-1,-1,-1,-1,-1,-1,-1
     };
+    int lastPublishedSession_{-1};
 
     IPC::SharedMemory ipc_;
     Realtime::SpscQueue<AnalysisPacket,64> ipcQueue_;
