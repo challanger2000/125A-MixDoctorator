@@ -2,7 +2,7 @@ name: Build Windows VST3 PoC
 on:
   workflow_dispatch:
   push:
-    branches: [ "poc/sensor-brain" ]
+    branches: [ "dev/masking-lab" ]
 
 jobs:
   build:
