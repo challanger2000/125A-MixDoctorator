@@ -482,11 +482,11 @@ tresult PLUGIN_API Controller::getParamStringByValue(
 
         static const char* listen[7]={
             "Warte auf einen stabilen Hinweis. Ein bewegter Messwert allein ist kein Grund, den Mix zu aendern.",
-            "Achte auf klarere Bassrollen ohne Gewicht oder Punch zu verlieren. Wird es duenn, Aenderung rueckgaengig.",
+            "Achte auf klarere Bassrollen ohne Gewicht oder Druck zu verlieren. Wird es duenn, Aenderung rueckgaengig.",
             "Achte auf weniger Matsch und klarere Noten, ohne dass eine Quelle hohl klingt.",
-            "Achte auf getrennte Parts statt verschwommener Mitten. Verliert eine Quelle Charakter, rueckgaengig machen.",
+            "Achte auf getrennte Instrumente statt verschwommener Mitten. Verliert eine Quelle Charakter, rueckgaengig machen.",
             "Achte auf mehr Definition, ohne den Mix dumpf zu machen oder die andere Quelle zu weit nach vorn zu holen.",
-            "Achte auf weniger Haerte oder Gedraenge, ohne nuetzliche Helligkeit und Air zu verlieren.",
+            "Achte auf weniger Haerte oder Gedraenge, ohne nuetzliche Helligkeit und Luftigkeit zu verlieren.",
             "Achte auf klarere Anschlaege und Groove. Wird der Mix schwaecher oder unnatuerlich, rueckgaengig machen."
         };
 
@@ -538,7 +538,7 @@ tresult PLUGIN_API Controller::getParamStringByValue(
             "Kick und Bass getrennt beurteilen. Festlegen, wer die Tiefe traegt; bei der anderen Quelle vorsichtig Platz schaffen.",
             "Gesang als Bezugspunkt. Bei Synth, Keys, Pad oder Gitarre pruefen, ob eine kleine Absenkung die Stimme klaert.",
             "Becken und andere Quelle vergleichen. Nicht automatisch Hoehen wegnehmen; zuerst die dominantere Quelle pruefen.",
-            "Anschlag- und harmonische Quelle getrennt pruefen: zuerst Timing, Huellkurve oder kleine Entzerrung.",
+            "Anschlag- und harmonische Quelle getrennt pruefen: zuerst Zeitlage, Huellkurve oder kleine Entzerrung.",
             "Bei Bass gegen eine harmonische Quelle zuerst unnoetige Tiefen der anderen Quelle pruefen."
         };
 
@@ -669,7 +669,7 @@ tresult PLUGIN_API Controller::getParamStringByValue(
         UString128 s;
         s.fromAscii(
             v>=0.5
-            ? "Timing, Huellkurven, Transienten oder sanftes Ducking zwischen diesen Quellen pruefen"
+            ? "Zeitlage, Huellkurven, Transienten oder sanftes Absenken zwischen diesen Quellen pruefen"
             : "Keine anhaltende Anschlag-Konkurrenz erkannt");
         s.copyTo(out,128);
         return kResultTrue;
