@@ -77,8 +77,8 @@ int main(){
                 scores,
                 observed,
                 3,
-                kCoachAttackMinimumScore,
-                kCoachAttackMinimumObservation);
+                MixDoctorator::Analysis::kCoachAttackMinimumScore,
+                MixDoctorator::Analysis::kCoachAttackMinimumObservation);
 
         assert(finding.pair==1);
         assert(finding.score==0.35);
