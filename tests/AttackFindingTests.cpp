@@ -66,6 +66,24 @@ int main(){
         assert(finding.score>0.74);
     }
 
+    // Coach-specific threshold must not surface a borderline transient hint
+    // before the stable beginner-facing window is reached.
+    {
+        const double scores[3]{0.34,0.35,0.80};
+        const double observed[3]{10.0,2.5,2.49};
+
+        const auto finding=
+            chooseAttackFindingCount(
+                scores,
+                observed,
+                3,
+                kCoachAttackMinimumScore,
+                kCoachAttackMinimumObservation);
+
+        assert(finding.pair==1);
+        assert(finding.score==0.35);
+    }
+
     {
         const double nan=
             std::numeric_limits<double>::
