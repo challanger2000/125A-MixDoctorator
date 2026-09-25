@@ -541,8 +541,8 @@ int Processor::chooseCoachAttackPair() noexcept{
         scores,
         observed,
         Analysis::kRolePairCount,
-        0.30,
-        2.0).pair;
+        Analysis::kCoachAttackMinimumScore,
+        Analysis::kCoachAttackMinimumObservation).pair;
 }
 
 void Processor::updateSessionFinding() noexcept{
