@@ -15,6 +15,9 @@ jobs:
       - name: Check UI text length safety
         run: python tests/check_text_lengths.py
 
+      - name: Check German visible Coach wording
+        run: python tests/check_german_visible_text.py
+
       - name: Check UIDesc parameter/tag consistency
         run: python tests/check_uidesc_tags.py
 
