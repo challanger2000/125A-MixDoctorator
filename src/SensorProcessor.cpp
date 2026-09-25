@@ -2,6 +2,7 @@
 #include "SensorIDs.h"
 #include "AudioSafety.h"
 #include "SensorGenerationPolicy.h"
+#include "StateValueModel.h"
 
 #include "base/source/fstreamer.h"
 #include "pluginterfaces/vst/ivstparameterchanges.h"
@@ -374,19 +375,9 @@ void Processor::readParameters(
             const auto previousRole=
                 role_;
 
-            const int index=
-                std::clamp(
-                    static_cast<int>(
-                        std::lround(
-                            v*
-                            static_cast<double>(
-                                IPC::kRoleCount-1))),
-                    0,
-                    IPC::kRoleCount-1);
-
             role_=
-                static_cast<IPC::Role>(
-                    index+1);
+                Analysis::decodeRoleNormalized(
+                    v);
 
             if(role_!=previousRole){
                 resetAnalysisMeters();
@@ -399,11 +390,8 @@ void Processor::readParameters(
                 session_;
 
             session_=
-                std::clamp(
-                    static_cast<int>(
-                        std::lround(v*7.0)),
-                    0,
-                    7);
+                Analysis::decodeSessionNormalized(
+                    v);
 
             if(session_!=previousSession)
                 configGeneration_.fetch_add(
@@ -598,13 +586,15 @@ tresult PLUGIN_API Processor::setState(
         return kResultFalse;
 
     role_=
-        static_cast<IPC::Role>(
-            std::clamp(r,1,IPC::kRoleCount));
+        Analysis::sanitizeRoleState(
+            r);
 
     int32 session=0;
 
     if(s.readInt32(session))
-        session_=std::clamp(session,0,7);
+        session_=
+            Analysis::sanitizeSessionState(
+                session);
     else
         session_=0;
 
