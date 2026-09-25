@@ -24,12 +24,20 @@ inline bool ipcResponseIsFresh(
     std::int64_t currentSamplePosition,
     int numSamples) noexcept {
 
+    if(!ipcResponseMatchesContext(
+           responseSession,
+           responseGeneration,
+           currentSession,
+           currentGeneration))
+        return false;
+
+    // If the Brain has a valid host timeline, a worker response without a
+    // sample position cannot be proven current and must not drive diagnosis.
+    if(currentSamplePosition>=0 &&
+       responseSamplePosition<0)
+        return false;
+
     return
-        ipcResponseMatchesContext(
-            responseSession,
-            responseGeneration,
-            currentSession,
-            currentGeneration) &&
         samplePositionsCoherent(
             currentSamplePosition,
             responseSamplePosition,
