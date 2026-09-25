@@ -79,6 +79,10 @@ struct Snapshot {
     bool connected{false};
     std::uint64_t heartbeatMs{0};
     std::int64_t samplePosition{-1};
+    // Local analysis metadata. These fields are not part of SharedBlock and
+    // therefore do not change the cross-process IPC layout/version.
+    std::int64_t samplePositionMin{-1};
+    std::int64_t samplePositionMax{-1};
     double rmsDb{-120.0};
     double peakDb{-120.0};
     double activity{0.0};
@@ -548,6 +552,11 @@ public:
             t.samplePosition=
                 static_cast<std::int64_t>(
                     s.samplePosition);
+
+            t.samplePositionMin=
+                t.samplePosition;
+            t.samplePositionMax=
+                t.samplePosition;
 
             t.rmsDb=s.rmsDb;
             t.peakDb=s.peakDb;
