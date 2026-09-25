@@ -503,6 +503,7 @@ if(MIXDOCTORATOR_BUILD_TESTS)
         SpectralAnalyzerTests
         SpectralSampleRateTests
         SpectralRealtimeTests
+        SensorLoadTests
         PairMeasurementTests
         PairUpdateRatesTests
         TimingModelTests
