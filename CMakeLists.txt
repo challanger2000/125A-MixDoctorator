@@ -189,6 +189,17 @@ if(MIXDOCTORATOR_BUILD_TESTS)
     add_executable(IpcQueueOverloadTests
         tests/IpcQueueOverloadTests.cpp)
 
+    add_executable(ParameterEncodingTests
+        tests/ParameterEncodingTests.cpp)
+
+    target_compile_features(
+        ParameterEncodingTests
+        PRIVATE cxx_std_17)
+
+    add_test(
+        NAME ParameterEncodingTests
+        COMMAND ParameterEncodingTests)
+
     target_compile_features(
         IpcQueueOverloadTests
         PRIVATE cxx_std_17)
@@ -452,6 +463,7 @@ if(MIXDOCTORATOR_BUILD_TESTS)
         IpcResponsePolicyTests
         SensorGenerationPolicyTests
         IpcQueueOverloadTests
+        ParameterEncodingTests
         TransientInteractionTests
         AttackFindingTests
         TransportModelTests
