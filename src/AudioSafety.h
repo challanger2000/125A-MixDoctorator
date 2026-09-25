@@ -26,4 +26,24 @@ inline double readAudioSample(
             buffer[index]));
 }
 
+template<typename T>
+inline void copySanitizedAudioBlock(
+    const T* input,
+    T* output,
+    int numSamples) noexcept {
+
+    if(!output ||
+       numSamples<=0)
+        return;
+
+    for(int i=0;
+        i<numSamples;
+        ++i)
+        output[i]=
+            static_cast<T>(
+                readAudioSample(
+                    input,
+                    i));
+}
+
 } // namespace MixDoctorator::Analysis
