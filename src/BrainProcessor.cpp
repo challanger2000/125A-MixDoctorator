@@ -846,13 +846,10 @@ tresult PLUGIN_API Processor::process(
     bool bassOk=false;
     bool guitarOk=false;
 
-    if(responseForSession){
+    if(responseFresh){
         drumsCount=latestIpc_.drumsCount;
         bassCount=latestIpc_.bassCount;
         guitarCount=latestIpc_.guitarCount;
-    }
-
-    if(responseFresh){
         drums=latestIpc_.drums;
         bass=latestIpc_.bass;
         guitar=latestIpc_.guitar;
@@ -929,7 +926,7 @@ tresult PLUGIN_API Processor::process(
 
     const auto overallSummary=
         Analysis::summarizeRoleCounts(
-            responseForSession
+            responseFresh
             ? latestIpc_.roleCount
             : nullptr);
 
@@ -1068,6 +1065,28 @@ tresult PLUGIN_API Processor::process(
                     pairRates);
             }
         }
+    }else if(responseForSession){
+        // A response outside the coherence grace is materially stale, not
+        // merely one worker frame behind. Let old evidence decay instead of
+        // freezing a diagnosis indefinitely if IPC stalls.
+        const auto pairRates=
+            Analysis::makePairUpdateRates(
+                data.numSamples,
+                sampleRate_);
+
+        const Analysis::PairMeasurement inactive{};
+
+        for(auto& state:pairStates_)
+            applyPairMeasurement(
+                inactive,
+                state,
+                pairRates);
+
+        for(auto& state:coachPairStates_)
+            applyPairMeasurement(
+                inactive,
+                state,
+                pairRates);
     }
 
     publishParam(data,kDrumsBassOverlap,pairStates_[0].overlap,6);
