@@ -1,4 +1,5 @@
 #include "../src/RoleBankAggregate.h"
+#include "../src/PairMeasurement.h"
 #include <cassert>
 #include <cmath>
 #include <iostream>
@@ -211,6 +212,68 @@ int main(){
         count));
 
     assert(count==0);
+
+    // Opposite-edge contributors can each be close enough to the Brain while
+    // still being too far apart for a valid cross-role comparison.
+    RoleBankAggregate edgeTiming;
+    edgeTiming.reset();
+
+    auto edgeKick=snapshot(
+        IPC::Role::Kick,
+        now-4096,
+        -12.0,
+        1,
+        250);
+
+    auto edgeBass=snapshot(
+        IPC::Role::Bass,
+        now+4096,
+        -12.0,
+        1,
+        251);
+
+    edgeTiming.add(
+        edgeKick,
+        now,
+        block);
+
+    edgeTiming.add(
+        edgeBass,
+        now,
+        block);
+
+    IPC::Snapshot edgeKickOut;
+    IPC::Snapshot edgeBassOut;
+    int edgeKickCount=0;
+    int edgeBassCount=0;
+
+    assert(edgeTiming.result(
+        roleToIndex(IPC::Role::Kick),
+        now,
+        edgeKickOut,
+        edgeKickCount));
+
+    assert(edgeTiming.result(
+        roleToIndex(IPC::Role::Bass),
+        now,
+        edgeBassOut,
+        edgeBassCount));
+
+    assert(edgeKickOut.samplePositionMin==now-4096);
+    assert(edgeKickOut.samplePositionMax==now-4096);
+    assert(edgeBassOut.samplePositionMin==now+4096);
+    assert(edgeBassOut.samplePositionMax==now+4096);
+
+    const auto edgePair=
+        measurePair(
+            edgeKickOut,
+            edgeBassOut,
+            now,
+            block,
+            true);
+
+    assert(!edgePair.active);
+    assert(edgePair.masking==0.0);
 
     // Every declared role must route to its own aggregate slot.
     RoleBankAggregate allRoles;
