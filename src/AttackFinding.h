@@ -4,6 +4,9 @@
 
 namespace MixDoctorator::Analysis {
 
+constexpr double kCoachAttackMinimumScore=0.35;
+constexpr double kCoachAttackMinimumObservation=2.5;
+
 struct AttackFinding {
     int pair{-1};
     double score{0.0};
