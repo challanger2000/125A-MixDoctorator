@@ -15,6 +15,7 @@ public:
         for(int i=0;i<IPC::kRoleCount;++i){
             aggregates_[i].reset();
             connectedCount_[i]=0;
+            contributorCount_[i]=0;
             freshest_[i]=0;
         }
     }
@@ -51,12 +52,18 @@ public:
                numSamples))
             return;
 
-        aggregates_[roleIndex].add(
-            source.rmsDb,
-            source.peakDb,
-            source.activity,
-            source.transient,
-            source.bands);
+        const bool accepted=
+            aggregates_[roleIndex].add(
+                source.rmsDb,
+                source.peakDb,
+                source.activity,
+                source.transient,
+                source.bands);
+
+        if(!accepted)
+            return;
+
+        ++contributorCount_[roleIndex];
 
         freshest_[roleIndex]=
             std::max(
@@ -102,7 +109,7 @@ public:
         out.transient=
             aggregate.transient;
         out.aggregateCount=
-            connectedCount;
+            contributorCount_[roleIndex];
 
         for(int band=0;
             band<IPC::kBandCount;
@@ -116,6 +123,7 @@ public:
 private:
     RoleAggregate aggregates_[IPC::kRoleCount]{};
     int connectedCount_[IPC::kRoleCount]{};
+    int contributorCount_[IPC::kRoleCount]{};
     std::uint64_t freshest_[IPC::kRoleCount]{};
 };
 
