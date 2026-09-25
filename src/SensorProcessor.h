@@ -46,6 +46,7 @@ public:
 
 private:
     struct AnalysisPacket {
+        std::uint64_t generation{0};
         int session{0};
         IPC::Role role{IPC::Role::Unknown};
         std::int64_t samplePosition{-1};
@@ -69,6 +70,8 @@ private:
         -1,-1,-1,-1,-1,-1,-1,-1
     };
     int lastPublishedSession_{-1};
+    std::uint64_t lastPublishedGeneration_{0};
+    std::atomic<std::uint64_t> configGeneration_{1};
 
     IPC::SharedMemory ipc_;
     Realtime::SpscQueue<AnalysisPacket,64> ipcQueue_;
