@@ -12,6 +12,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <cstddef>
 #include <cstdio>
 #include <cstring>
 
@@ -295,7 +296,7 @@ tresult PLUGIN_API Controller::getParamStringByValue(
             "OBERE MITTEN 1.2-2.5k",
             "PRAESENZ 2.5-5k",
             "HOEHEN 5-10k",
-            "AIR 10k+"
+            "LUFTIGKEIT 10k+"
         };
 
         const int index=
@@ -324,7 +325,7 @@ tresult PLUGIN_API Controller::getParamStringByValue(
             "OBERE MITTEN 1.2-2.5k",
             "PRAESENZ 2.5-5k",
             "HOEHEN 5-10k",
-            "AIR 10k+"
+            "LUFTIGKEIT 10k+"
         };
 
         const int encoded=
@@ -409,7 +410,7 @@ tresult PLUGIN_API Controller::getParamStringByValue(
 
         static const char* advice[4]={
             "Keine anhaltende Anschlag-Konkurrenz erkannt",
-            "Schlagzeug und Bass treffen gleichzeitig: Huellkurven, Timing oder Ducking pruefen",
+            "Schlagzeug und Bass treffen gleichzeitig: Huellkurven, Zeitlage oder Absenkung pruefen",
             "Bass und Gitarre treffen gleichzeitig: Artikulation und Transienten pruefen",
             "Schlagzeug und Gitarre konkurrieren beim Anschlag: Snare und Becken pruefen"
         };
@@ -502,7 +503,7 @@ tresult PLUGIN_API Controller::getParamStringByValue(
             "Die beiden Quellen ueberlappen sich am staerksten in tiefen Mitten oder Koerperbereich.",
             "Die beiden Quellen ueberlappen sich am staerksten in den Mitten.",
             "Die beiden Quellen ueberlappen sich am staerksten im Praesenzbereich.",
-            "Die beiden Quellen ueberlappen sich am staerksten in Hoehen oder Air.",
+            "Die beiden Quellen ueberlappen sich am staerksten in Hoehen oder Luftigkeit.",
             "Die gemessene Ueberlappung enthaelt zusaetzlich anhaltende Transienten-Konkurrenz."
         };
 
