@@ -613,15 +613,23 @@ static void pass(
         out=output.channelBuffers64;
     }
 
+    if(!out)
+        return;
+
     for(int32 c=0;c<ch;++c){
         if(!out[c])
             continue;
+
+        const T* inputBuffer=
+            in
+            ? in[c]
+            : nullptr;
 
         for(int32 i=0;i<n;++i){
             out[c][i]=
                 static_cast<T>(
                     Analysis::readAudioSample(
-                        in[c],
+                        inputBuffer,
                         i));
         }
     }
