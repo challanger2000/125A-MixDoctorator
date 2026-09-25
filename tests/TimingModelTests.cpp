@@ -79,6 +79,30 @@ int main(){
             -1,
             256));
 
+    // Aggregate timing ranges may each be close to the Brain while still
+    // being too far apart from one another.
+    assert(
+        !sampleRangesCoherent(
+            100000,
+            100000,
+            95904,
+            95904,
+            100000,
+            104096,
+            104096,
+            256));
+
+    assert(
+        sampleRangesCoherent(
+            100000,
+            100000,
+            99000,
+            100000,
+            100000,
+            100000,
+            101000,
+            256));
+
     std::cout
         << "TimingModel tests passed\n";
 
