@@ -590,13 +590,13 @@ tresult PLUGIN_API Processor::setState(
             r);
 
     int32 session=0;
+    const bool hasStoredSession=
+        s.readInt32(session);
 
-    if(s.readInt32(session))
-        session_=
-            Analysis::sanitizeSessionState(
-                session);
-    else
-        session_=0;
+    session_=
+        Analysis::legacySensorSessionFallback(
+            hasStoredSession,
+            session);
 
     resetAnalysisMeters();
     configGeneration_.fetch_add(
