@@ -79,6 +79,7 @@ Processor::Processor(){
 
 Processor::~Processor(){
     stopIpcWorker();
+    releaseIpcSlots();
 }
 
 tresult PLUGIN_API Processor::initialize(
@@ -112,6 +113,21 @@ tresult PLUGIN_API Processor::initialize(
 
 tresult PLUGIN_API Processor::terminate(){
     stopIpcWorker();
+    releaseIpcSlots();
+    ipc_.close();
+    ipcReady_=false;
+    return AudioEffect::terminate();
+}
+
+void Processor::resetAnalysisMeters() noexcept{
+    analyzerLeft_.reset();
+    analyzerRight_.reset();
+    transientDetector_.reset();
+}
+
+void Processor::releaseIpcSlots() noexcept{
+    if(!ipcReady_ || instanceId_==0)
+        return;
 
     for(int session=0;
         session<IPC::kSessionCount;
@@ -134,16 +150,6 @@ tresult PLUGIN_API Processor::terminate(){
 
     lastPublishedSession_=-1;
     lastPublishedGeneration_=0;
-
-    ipc_.close();
-    ipcReady_=false;
-    return AudioEffect::terminate();
-}
-
-void Processor::resetAnalysisMeters() noexcept{
-    analyzerLeft_.reset();
-    analyzerRight_.reset();
-    transientDetector_.reset();
 }
 
 void Processor::startIpcWorker(){
