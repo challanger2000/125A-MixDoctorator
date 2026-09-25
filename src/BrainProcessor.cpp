@@ -1108,7 +1108,7 @@ tresult PLUGIN_API Processor::process(
         ? Analysis::encodeDiscreteCode(
             Analysis::recommendationCode(
                 recommendation.kind),
-            6)
+            Analysis::kRecommendationKindCodeCount)
         : 0.0;
 
     const double coachPairValue=
@@ -1135,7 +1135,7 @@ tresult PLUGIN_API Processor::process(
         ? Analysis::encodeDiscreteCode(
             Analysis::recommendationActionCode(
                 recommendation),
-            6)
+            Analysis::kRecommendationContextCodeCount)
         : 0.0;
 
     const int coachTargetCode=
@@ -1157,7 +1157,7 @@ tresult PLUGIN_API Processor::process(
         Analysis::encodeDiscreteCode(
             Analysis::coachEvidenceBand(
                 coachConfidence),
-            3);
+            Analysis::kCoachEvidenceCodeCount);
 
     publishParam(data,kCoachEvidence,evidenceValue,43);
     publishParam(data,kCoachPair,coachPairValue,44);
