@@ -87,8 +87,20 @@ if(MIXDOCTORATOR_BUILD_TESTS)
     add_executable(SpectralRealtimeTests
         tests/SpectralRealtimeTests.cpp)
 
+    add_executable(SensorLoadTests
+        tests/SensorLoadTests.cpp)
+
+    target_compile_features(
+        SensorLoadTests
+        PRIVATE cxx_std_17)
+
+    add_test(
+        NAME SensorLoadTests
+        COMMAND SensorLoadTests)
+
     target_compile_features(
         SpectralRealtimeTests
+        SensorLoadTests
         PRIVATE cxx_std_17)
 
     add_test(
