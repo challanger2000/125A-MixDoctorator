@@ -1,4 +1,5 @@
 #include "../src/PairUpdateRates.h"
+#include "../src/PairDynamics.h"
 #include "../src/FindingRanking.h"
 #include <cassert>
 #include <cmath>
@@ -6,12 +7,8 @@
 
 using namespace MixDoctorator::Analysis;
 
-struct State {
-    double masking{0.0};
-    double confidence{0.0};
-    double observedSeconds{0.0};
-    int dominantBand{4};
-};
+using State=
+    PairDynamicsState;
 
 static void step(
     State& s,
@@ -25,52 +22,22 @@ static void step(
             numSamples,
             sampleRate);
 
-    const double dt=
-        rates.dt;
+    PairMeasurement measurement;
+    measurement.active=active;
+    measurement.masking=
+        active
+        ? maskingTarget
+        : 0.0;
 
+    // Keep the dominant band stable so this timing test isolates the same
+    // confidence/eligibility dynamics used by the production Brain.
     if(active)
-        s.observedSeconds=
-            std::min(
-                45.0,
-                s.observedSeconds+dt);
-    else
-        s.observedSeconds=
-            std::max(
-                0.0,
-                s.observedSeconds-dt*0.20);
+        measurement.bandRisk[4]=maskingTarget;
 
-    const double alpha=
-        maskingTarget>s.masking
-        ? rates.maskingUpAlpha
-        : rates.maskingDownAlpha;
-
-    s.masking+=
-        alpha*
-        (maskingTarget-s.masking);
-
-    const double timeConfidence=
-        std::clamp(
-            s.observedSeconds/10.0,
-            0.0,
-            1.0);
-
-    const double riskConfidence=
-        std::clamp(
-            (s.masking-0.08)/0.34,
-            0.0,
-            1.0);
-
-    const double targetConfidence=
-        timeConfidence*
-        (
-            0.60*riskConfidence+
-            0.40*1.0
-        );
-
-    s.confidence+=
-        rates.confidenceAlpha*
-        (targetConfidence-
-         s.confidence);
+    updatePairDynamics(
+        measurement,
+        s,
+        rates);
 }
 
 static bool eligible(const State& s){
@@ -126,6 +93,7 @@ static TimingResult runScenario(
     };
 
     State s;
+    s.dominantBand=4;
 
     // Short collision must not become a stable Coach finding.
     runFor(
