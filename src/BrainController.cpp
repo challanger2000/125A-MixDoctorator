@@ -2,6 +2,7 @@
 #include "BrainIDs.h"
 #include "RoleModel.h"
 #include "RecommendationEngine.h"
+#include "CoachModel.h"
 #include "ParameterEncoding.h"
 
 #include "base/source/fstreamer.h"
