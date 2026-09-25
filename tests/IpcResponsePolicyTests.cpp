@@ -1,4 +1,5 @@
 #include "../src/IpcResponsePolicy.h"
+#include "../src/MixDoctoratorIPC.h"
 #include <cassert>
 #include <iostream>
 
