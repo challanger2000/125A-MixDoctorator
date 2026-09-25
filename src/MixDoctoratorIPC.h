@@ -474,6 +474,7 @@ public:
         MemoryBarrier();
 
         s.active=0;
+        s.instanceId=0;
         s.heartbeatMs=0;
         s.samplePosition=-1;
 
