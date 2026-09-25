@@ -92,11 +92,11 @@ tresult PLUGIN_API Controller::initialize(FUnknown* c){
     parameters.addParameter(STR16("Anschlag-Index"),STR16("%"),0,0.0,ro,kTopAttackScore);
     parameters.addParameter(STR16("Anschlag-Hinweis"),nullptr,3,0.0,ro,kTopAttackAdvice);
 
-    parameters.addParameter(STR16("Coach Hauptaussage"),nullptr,6,0.0,ro,kCoachHeadline);
-    parameters.addParameter(STR16("Coach Aktion"),nullptr,6,0.0,ro,kCoachAction);
-    parameters.addParameter(STR16("Coach Hoerziel"),nullptr,6,0.0,ro,kCoachListen);
-    parameters.addParameter(STR16("Coach Begruendung"),nullptr,6,0.0,ro,kCoachReason);
-    parameters.addParameter(STR16("Coach Sicherheit"),nullptr,3,0.0,ro,kCoachEvidence);
+    parameters.addParameter(STR16("Coach Hauptaussage"),nullptr,Analysis::kRecommendationKindCodeCount,0.0,ro,kCoachHeadline);
+    parameters.addParameter(STR16("Coach Aktion"),nullptr,Analysis::kRecommendationContextCodeCount,0.0,ro,kCoachAction);
+    parameters.addParameter(STR16("Coach Hoerziel"),nullptr,Analysis::kRecommendationKindCodeCount,0.0,ro,kCoachListen);
+    parameters.addParameter(STR16("Coach Begruendung"),nullptr,Analysis::kRecommendationKindCodeCount,0.0,ro,kCoachReason);
+    parameters.addParameter(STR16("Coach Sicherheit"),nullptr,Analysis::kCoachEvidenceCodeCount,0.0,ro,kCoachEvidence);
     parameters.addParameter(STR16("Coach Paar"),nullptr,Analysis::kRolePairCount,0.0,ro,kCoachPair);
     parameters.addParameter(STR16("Coach Bereich"),nullptr,Analysis::kRecommendationBandCodeCount,0.0,ro,kCoachBand);
     parameters.addParameter(STR16("Coach Ziel"),nullptr,Analysis::kRecommendationTargetCodeCount,0.0,ro,kCoachTarget);
