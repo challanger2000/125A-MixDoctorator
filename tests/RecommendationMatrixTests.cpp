@@ -51,9 +51,9 @@ int main(){
                 assert(normal.confidence>=0.0 && normal.confidence<=1.0);
                 assert(normal.dominance>=-1.0 && normal.dominance<=1.0);
                 assert(recommendationCode(normal.kind)>=1);
-                assert(recommendationCode(normal.kind)<=6);
+                assert(recommendationCode(normal.kind)<=kRecommendationKindCodeCount);
                 assert(recommendationActionCode(normal.context)>=1);
-                assert(recommendationActionCode(normal.context)<=6);
+                assert(recommendationActionCode(normal.context)<=kRecommendationContextCodeCount);
                 assert(recommendationActionCode(normal)>=1);
                 assert(recommendationTargetCode(normal)>=1);
 
