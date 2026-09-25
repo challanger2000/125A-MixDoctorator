@@ -36,6 +36,15 @@ int main(){
             100000,
             256));
 
+    // Both can individually fit the host tolerance while still being too far
+    // apart from each other. That must not count as a coherent pair.
+    assert(
+        !samplePositionsCoherent(
+            100000,
+            96000,
+            104000,
+            256));
+
     // Unknown host positions fall back to heartbeat freshness.
     assert(
         samplePositionsCoherent(
