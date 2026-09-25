@@ -43,67 +43,67 @@ tresult PLUGIN_API Controller::initialize(FUnknown* c){
     session->appendString(STR16("H"));
     parameters.addParameter(session);
 
-    parameters.addParameter(STR16("Drums Connected"),nullptr,1,0.0,ro,kDrumsConnected);
-    parameters.addParameter(STR16("Drums RMS"),STR16("dB"),0,0.0,ro,kDrumsLevel);
-    parameters.addParameter(STR16("Bass Connected"),nullptr,1,0.0,ro,kBassConnected);
+    parameters.addParameter(STR16("Schlagzeug verbunden"),nullptr,1,0.0,ro,kDrumsConnected);
+    parameters.addParameter(STR16("Schlagzeug RMS"),STR16("dB"),0,0.0,ro,kDrumsLevel);
+    parameters.addParameter(STR16("Bass verbunden"),nullptr,1,0.0,ro,kBassConnected);
     parameters.addParameter(STR16("Bass RMS"),STR16("dB"),0,0.0,ro,kBassLevel);
-    parameters.addParameter(STR16("Guitar Connected"),nullptr,1,0.0,ro,kGuitarConnected);
-    parameters.addParameter(STR16("Guitar RMS"),STR16("dB"),0,0.0,ro,kGuitarLevel);
+    parameters.addParameter(STR16("E-Gitarre verbunden"),nullptr,1,0.0,ro,kGuitarConnected);
+    parameters.addParameter(STR16("E-Gitarre RMS"),STR16("dB"),0,0.0,ro,kGuitarLevel);
 
-    parameters.addParameter(STR16("Drums Bass Overlap"),STR16("%"),0,0.0,ro,kDrumsBassOverlap);
-    parameters.addParameter(STR16("Drums Bass Masking"),STR16("%"),0,0.0,ro,kDrumsBassMasking);
-    parameters.addParameter(STR16("Drums Bass Band"),nullptr,8,0.0,ro,kDrumsBassBand);
-    parameters.addParameter(STR16("Drums Bass Attention"),nullptr,4,0.0,ro,kDrumsBassStatus);
+    parameters.addParameter(STR16("Schlagzeug Bass Ueberlappung"),STR16("%"),0,0.0,ro,kDrumsBassOverlap);
+    parameters.addParameter(STR16("Schlagzeug Bass Verdeckung"),STR16("%"),0,0.0,ro,kDrumsBassMasking);
+    parameters.addParameter(STR16("Schlagzeug Bass Bereich"),nullptr,8,0.0,ro,kDrumsBassBand);
+    parameters.addParameter(STR16("Schlagzeug Bass Status"),nullptr,4,0.0,ro,kDrumsBassStatus);
 
-    parameters.addParameter(STR16("Bass Guitar Overlap"),STR16("%"),0,0.0,ro,kBassGuitarOverlap);
-    parameters.addParameter(STR16("Bass Guitar Masking"),STR16("%"),0,0.0,ro,kBassGuitarMasking);
-    parameters.addParameter(STR16("Bass Guitar Band"),nullptr,8,0.0,ro,kBassGuitarBand);
-    parameters.addParameter(STR16("Bass Guitar Attention"),nullptr,4,0.0,ro,kBassGuitarStatus);
+    parameters.addParameter(STR16("Bass Gitarre Ueberlappung"),STR16("%"),0,0.0,ro,kBassGuitarOverlap);
+    parameters.addParameter(STR16("Bass Gitarre Verdeckung"),STR16("%"),0,0.0,ro,kBassGuitarMasking);
+    parameters.addParameter(STR16("Bass Gitarre Bereich"),nullptr,8,0.0,ro,kBassGuitarBand);
+    parameters.addParameter(STR16("Bass Gitarre Status"),nullptr,4,0.0,ro,kBassGuitarStatus);
 
-    parameters.addParameter(STR16("Drums Guitar Overlap"),STR16("%"),0,0.0,ro,kDrumsGuitarOverlap);
-    parameters.addParameter(STR16("Drums Guitar Masking"),STR16("%"),0,0.0,ro,kDrumsGuitarMasking);
-    parameters.addParameter(STR16("Drums Guitar Band"),nullptr,8,0.0,ro,kDrumsGuitarBand);
-    parameters.addParameter(STR16("Drums Guitar Attention"),nullptr,4,0.0,ro,kDrumsGuitarStatus);
+    parameters.addParameter(STR16("Schlagzeug Gitarre Ueberlappung"),STR16("%"),0,0.0,ro,kDrumsGuitarOverlap);
+    parameters.addParameter(STR16("Schlagzeug Gitarre Verdeckung"),STR16("%"),0,0.0,ro,kDrumsGuitarMasking);
+    parameters.addParameter(STR16("Schlagzeug Gitarre Bereich"),nullptr,8,0.0,ro,kDrumsGuitarBand);
+    parameters.addParameter(STR16("Schlagzeug Gitarre Status"),nullptr,4,0.0,ro,kDrumsGuitarStatus);
 
-    parameters.addParameter(STR16("Top Finding Pair"),nullptr,3,0.0,ro,kTopPair);
-    parameters.addParameter(STR16("Top Masking Index"),STR16("%"),0,0.0,ro,kTopScore);
-    parameters.addParameter(STR16("Top Finding Band"),nullptr,8,0.0,ro,kTopBand);
-    parameters.addParameter(STR16("Suggested Check"),nullptr,15,0.0,ro,kTopAdvice);
-    parameters.addParameter(STR16("Dominant Source"),nullptr,2,0.5,ro,kTopDominance);
-    parameters.addParameter(STR16("Confidence"),STR16("%"),0,0.0,ro,kTopConfidence);
+    parameters.addParameter(STR16("Wichtigstes Paar"),nullptr,3,0.0,ro,kTopPair);
+    parameters.addParameter(STR16("Wichtigster Verdeckungsindex"),STR16("%"),0,0.0,ro,kTopScore);
+    parameters.addParameter(STR16("Wichtigster Bereich"),nullptr,8,0.0,ro,kTopBand);
+    parameters.addParameter(STR16("Empfohlene Pruefung"),nullptr,15,0.0,ro,kTopAdvice);
+    parameters.addParameter(STR16("Dominante Quelle"),nullptr,2,0.5,ro,kTopDominance);
+    parameters.addParameter(STR16("Sicherheit"),STR16("%"),0,0.0,ro,kTopConfidence);
 
-    parameters.addParameter(STR16("Session Pair"),nullptr,3,0.0,ro,kSessionPair);
-    parameters.addParameter(STR16("Session Masking Index"),STR16("%"),0,0.0,ro,kSessionScore);
-    parameters.addParameter(STR16("Session Band"),nullptr,8,0.0,ro,kSessionBand);
+    parameters.addParameter(STR16("Session Paar"),nullptr,3,0.0,ro,kSessionPair);
+    parameters.addParameter(STR16("Session Verdeckungsindex"),STR16("%"),0,0.0,ro,kSessionScore);
+    parameters.addParameter(STR16("Session Bereich"),nullptr,8,0.0,ro,kSessionBand);
 
-    parameters.addParameter(STR16("Drums Transient"),STR16("%"),0,0.0,ro,kDrumsTransient);
+    parameters.addParameter(STR16("Schlagzeug Transient"),STR16("%"),0,0.0,ro,kDrumsTransient);
     parameters.addParameter(STR16("Bass Transient"),STR16("%"),0,0.0,ro,kBassTransient);
-    parameters.addParameter(STR16("Guitar Transient"),STR16("%"),0,0.0,ro,kGuitarTransient);
+    parameters.addParameter(STR16("E-Gitarre Transient"),STR16("%"),0,0.0,ro,kGuitarTransient);
 
-    parameters.addParameter(STR16("Drums Sensor Count"),nullptr,IPC::kSensorSlotCount,0.0,ro,kDrumsCount);
-    parameters.addParameter(STR16("Bass Sensor Count"),nullptr,IPC::kSensorSlotCount,0.0,ro,kBassCount);
-    parameters.addParameter(STR16("Guitar Sensor Count"),nullptr,IPC::kSensorSlotCount,0.0,ro,kGuitarCount);
+    parameters.addParameter(STR16("Schlagzeug Sensoren"),nullptr,IPC::kSensorSlotCount,0.0,ro,kDrumsCount);
+    parameters.addParameter(STR16("Bass Sensoren"),nullptr,IPC::kSensorSlotCount,0.0,ro,kBassCount);
+    parameters.addParameter(STR16("E-Gitarre Sensoren"),nullptr,IPC::kSensorSlotCount,0.0,ro,kGuitarCount);
 
-    parameters.addParameter(STR16("Drums Bass Transient Competition"),STR16("%"),0,0.0,ro,kDrumsBassTransientCompetition);
-    parameters.addParameter(STR16("Bass Guitar Transient Competition"),STR16("%"),0,0.0,ro,kBassGuitarTransientCompetition);
-    parameters.addParameter(STR16("Drums Guitar Transient Competition"),STR16("%"),0,0.0,ro,kDrumsGuitarTransientCompetition);
+    parameters.addParameter(STR16("Schlagzeug Bass Transienten-Konflikt"),STR16("%"),0,0.0,ro,kDrumsBassTransientCompetition);
+    parameters.addParameter(STR16("Bass Gitarre Transienten-Konflikt"),STR16("%"),0,0.0,ro,kBassGuitarTransientCompetition);
+    parameters.addParameter(STR16("Schlagzeug Gitarre Transienten-Konflikt"),STR16("%"),0,0.0,ro,kDrumsGuitarTransientCompetition);
 
-    parameters.addParameter(STR16("Top Attack Pair"),nullptr,3,0.0,ro,kTopAttackPair);
-    parameters.addParameter(STR16("Top Attack Index"),STR16("%"),0,0.0,ro,kTopAttackScore);
-    parameters.addParameter(STR16("Top Attack Advice"),nullptr,3,0.0,ro,kTopAttackAdvice);
+    parameters.addParameter(STR16("Wichtigstes Anschlag-Paar"),nullptr,3,0.0,ro,kTopAttackPair);
+    parameters.addParameter(STR16("Anschlag-Index"),STR16("%"),0,0.0,ro,kTopAttackScore);
+    parameters.addParameter(STR16("Anschlag-Hinweis"),nullptr,3,0.0,ro,kTopAttackAdvice);
 
-    parameters.addParameter(STR16("Coach Headline"),nullptr,6,0.0,ro,kCoachHeadline);
-    parameters.addParameter(STR16("Coach Action"),nullptr,6,0.0,ro,kCoachAction);
-    parameters.addParameter(STR16("Coach Listen"),nullptr,6,0.0,ro,kCoachListen);
-    parameters.addParameter(STR16("Coach Reason"),nullptr,6,0.0,ro,kCoachReason);
-    parameters.addParameter(STR16("Coach Evidence"),nullptr,3,0.0,ro,kCoachEvidence);
-    parameters.addParameter(STR16("Coach Pair"),nullptr,Analysis::kRolePairCount,0.0,ro,kCoachPair);
-    parameters.addParameter(STR16("Coach Band"),nullptr,Analysis::kRecommendationBandCodeCount,0.0,ro,kCoachBand);
-    parameters.addParameter(STR16("Coach Target"),nullptr,Analysis::kRecommendationTargetCodeCount,0.0,ro,kCoachTarget);
-    parameters.addParameter(STR16("Coach Attack Pair"),nullptr,Analysis::kRolePairCount,0.0,ro,kCoachAttackPair);
-    parameters.addParameter(STR16("Coach Attack Advice"),nullptr,1,0.0,ro,kCoachAttackAdvice);
-    parameters.addParameter(STR16("All Sensor Count"),nullptr,IPC::kSensorSlotCount,0.0,ro,kAllSensorCount);
-    parameters.addParameter(STR16("All Role Count"),nullptr,IPC::kRoleCount,0.0,ro,kAllRoleCount);
+    parameters.addParameter(STR16("Coach Hauptaussage"),nullptr,6,0.0,ro,kCoachHeadline);
+    parameters.addParameter(STR16("Coach Aktion"),nullptr,6,0.0,ro,kCoachAction);
+    parameters.addParameter(STR16("Coach Hoerziel"),nullptr,6,0.0,ro,kCoachListen);
+    parameters.addParameter(STR16("Coach Begruendung"),nullptr,6,0.0,ro,kCoachReason);
+    parameters.addParameter(STR16("Coach Sicherheit"),nullptr,3,0.0,ro,kCoachEvidence);
+    parameters.addParameter(STR16("Coach Paar"),nullptr,Analysis::kRolePairCount,0.0,ro,kCoachPair);
+    parameters.addParameter(STR16("Coach Bereich"),nullptr,Analysis::kRecommendationBandCodeCount,0.0,ro,kCoachBand);
+    parameters.addParameter(STR16("Coach Ziel"),nullptr,Analysis::kRecommendationTargetCodeCount,0.0,ro,kCoachTarget);
+    parameters.addParameter(STR16("Coach Anschlag-Paar"),nullptr,Analysis::kRolePairCount,0.0,ro,kCoachAttackPair);
+    parameters.addParameter(STR16("Coach Anschlag-Hinweis"),nullptr,1,0.0,ro,kCoachAttackAdvice);
+    parameters.addParameter(STR16("Sensoren gesamt"),nullptr,IPC::kSensorSlotCount,0.0,ro,kAllSensorCount);
+    parameters.addParameter(STR16("Rollen gesamt"),nullptr,IPC::kRoleCount,0.0,ro,kAllRoleCount);
 
     // UIViewSwitchContainer is driven by a real controller parameter. Leaving
     // the tag unbound creates a null-parameter listener path in VST3Editor
