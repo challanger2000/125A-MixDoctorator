@@ -459,14 +459,10 @@ tresult PLUGIN_API Controller::getParamStringByValue(
        id==kCoachReason){
 
         const int index=
-            std::clamp(
-                static_cast<int>(
-                    std::lround(
-                        std::clamp(
-                            v,0.0,1.0)*
-                        6.0)),
-                0,
-                6);
+            Analysis::decodeDiscreteCode(
+                v,
+                Analysis::
+                kRecommendationKindCodeCount);
 
         static const char* headline[7]={
             "Noch kein verlaessliches Mix-Problem erkannt",
@@ -513,14 +509,10 @@ tresult PLUGIN_API Controller::getParamStringByValue(
 
     if(id==kCoachAction){
         const int index=
-            std::clamp(
-                static_cast<int>(
-                    std::lround(
-                        std::clamp(
-                            v,0.0,1.0)*
-                        6.0)),
-                0,
-                6);
+            Analysis::decodeDiscreteCode(
+                v,
+                Analysis::
+                kRecommendationContextCodeCount);
 
         static const char* action[7]={
             "Mix weiterlaufen lassen. Erst etwas aendern, wenn der Hinweis stabil wird.",
@@ -547,14 +539,10 @@ tresult PLUGIN_API Controller::getParamStringByValue(
         };
 
         const int index=
-            std::clamp(
-                static_cast<int>(
-                    std::lround(
-                        std::clamp(
-                            v,0.0,1.0)*
-                        3.0)),
-                0,
-                3);
+            Analysis::decodeDiscreteCode(
+                v,
+                Analysis::
+                kCoachEvidenceCodeCount);
 
         UString128 s;
         s.fromAscii(evidence[index]);
