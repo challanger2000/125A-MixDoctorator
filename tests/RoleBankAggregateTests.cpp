@@ -151,6 +151,53 @@ int main(){
     assert(count==1);
     assert(!out.connected);
 
+    // Unknown Sensor timing must not be promoted to the Brain's known host
+    // position through aggregation.
+    RoleBankAggregate unknownTiming;
+    unknownTiming.reset();
+
+    auto unknownPos=snapshot(
+        IPC::Role::Synth,
+        -1,
+        -12.0,
+        6,
+        210);
+
+    unknownTiming.add(
+        unknownPos,
+        now,
+        block);
+
+    const int synthIndex=
+        roleToIndex(
+            IPC::Role::Synth);
+
+    assert(!unknownTiming.result(
+        synthIndex,
+        now,
+        out,
+        count));
+
+    assert(count==1);
+
+    // If the Brain also has no host position, heartbeat freshness remains the
+    // intentional fallback and the source may participate.
+    RoleBankAggregate heartbeatFallback;
+    heartbeatFallback.reset();
+    heartbeatFallback.add(
+        unknownPos,
+        -1,
+        block);
+
+    assert(heartbeatFallback.result(
+        synthIndex,
+        -1,
+        out,
+        count));
+
+    assert(count==1);
+    assert(out.samplePosition==-1);
+
     // Disconnected snapshots never count.
     vocal.connected=false;
     RoleBankAggregate disconnected;
