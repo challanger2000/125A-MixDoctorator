@@ -496,6 +496,7 @@ if(MIXDOCTORATOR_BUILD_TESTS)
         IPCModelTests
         IpcResponsePolicyTests
         SensorGenerationPolicyTests
+        RuntimeInstanceIdTests
         IpcQueueOverloadTests
         ParameterEncodingTests
         StateValueModelTests
