@@ -474,6 +474,12 @@ tresult PLUGIN_API Controller::getParamStringByValue(
             "Zwei Quellen konkurrieren moeglicherweise bei den Anschlaegen"
         };
 
+        static_assert(
+            sizeof(headline)/sizeof(headline[0])==
+            static_cast<std::size_t>(
+                Analysis::kRecommendationKindCodeCount+1),
+            "Headline table must match RecommendationKind codes");
+
         static const char* listen[7]={
             "Warte auf einen stabilen Hinweis. Ein bewegter Messwert allein ist kein Grund, den Mix zu aendern.",
             "Achte auf klarere Bassrollen ohne Gewicht oder Punch zu verlieren. Wird es duenn, Aenderung rueckgaengig.",
@@ -484,6 +490,12 @@ tresult PLUGIN_API Controller::getParamStringByValue(
             "Achte auf klarere Anschlaege und Groove. Wird der Mix schwaecher oder unnatuerlich, rueckgaengig machen."
         };
 
+        static_assert(
+            sizeof(listen)/sizeof(listen[0])==
+            static_cast<std::size_t>(
+                Analysis::kRecommendationKindCodeCount+1),
+            "Listen table must match RecommendationKind codes");
+
         static const char* reason[7]={
             "Noch kein ausreichend stabiler Konflikt gemessen.",
             "Die beiden Quellen ueberlappen sich am staerksten im Sub- oder Bassbereich.",
@@ -493,6 +505,12 @@ tresult PLUGIN_API Controller::getParamStringByValue(
             "Die beiden Quellen ueberlappen sich am staerksten in Hoehen oder Air.",
             "Die gemessene Ueberlappung enthaelt zusaetzlich anhaltende Transienten-Konkurrenz."
         };
+
+        static_assert(
+            sizeof(reason)/sizeof(reason[0])==
+            static_cast<std::size_t>(
+                Analysis::kRecommendationKindCodeCount+1),
+            "Reason table must match RecommendationKind codes");
 
         const char* text=
             id==kCoachHeadline
@@ -524,6 +542,12 @@ tresult PLUGIN_API Controller::getParamStringByValue(
             "Bei Bass gegen eine harmonische Quelle zuerst unnoetige Tiefen der anderen Quelle pruefen."
         };
 
+        static_assert(
+            sizeof(action)/sizeof(action[0])==
+            static_cast<std::size_t>(
+                Analysis::kRecommendationContextCodeCount+1),
+            "Action table must match RecommendationContext codes");
+
         UString128 s;
         s.fromAscii(action[index]);
         s.copyTo(out,128);
@@ -537,6 +561,12 @@ tresult PLUGIN_API Controller::getParamStringByValue(
             "STABILER HINWEIS",
             "STARKER HINWEIS"
         };
+
+        static_assert(
+            sizeof(evidence)/sizeof(evidence[0])==
+            static_cast<std::size_t>(
+                Analysis::kCoachEvidenceCodeCount+1),
+            "Evidence table must match Coach evidence codes");
 
         const int index=
             Analysis::decodeDiscreteCode(
