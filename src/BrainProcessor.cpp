@@ -59,6 +59,7 @@ void Processor::resetAnalysisState() noexcept{
     sessionFinding_=SessionFinding{};
     heldTopPair_=-1;
     heldCoachPair_=-1;
+    heldCoachAttackPair_=-1;
 
     ++ipcGeneration_;
     if(ipcGeneration_==0)
@@ -537,12 +538,19 @@ int Processor::chooseCoachAttackPair() noexcept{
             observedSeconds;
     }
 
-    return Analysis::chooseAttackFindingCount(
-        scores,
-        observed,
-        Analysis::kRolePairCount,
-        Analysis::kCoachAttackMinimumScore,
-        Analysis::kCoachAttackMinimumObservation).pair;
+    const auto finding=
+        Analysis::chooseStableAttackFindingCount(
+            scores,
+            observed,
+            Analysis::kRolePairCount,
+            heldCoachAttackPair_,
+            Analysis::kCoachAttackMinimumScore,
+            Analysis::kCoachAttackMinimumObservation);
+
+    heldCoachAttackPair_=
+        finding.pair;
+
+    return finding.pair;
 }
 
 void Processor::updateSessionFinding() noexcept{
