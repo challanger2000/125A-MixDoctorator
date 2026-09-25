@@ -430,9 +430,11 @@ public:
         int& cachedSlot) noexcept {
 
 #ifdef _WIN32
+        if(cachedSlot<0)
+            return true;
+
         if(!opened_ ||
            instanceId==0 ||
-           cachedSlot<0 ||
            cachedSlot>=kSensorSlotCount)
             return false;
 
@@ -459,8 +461,11 @@ public:
             InterlockedExchange(
                 &s.writerLock,
                 0);
+
+            // Ownership is already gone. From this instance's perspective
+            // cleanup is complete; do not trap the worker in a retry loop.
             cachedSlot=-1;
-            return false;
+            return true;
         }
 
         InterlockedIncrement(
