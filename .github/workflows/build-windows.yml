@@ -24,6 +24,9 @@ jobs:
       - name: Check Release assert target coverage
         run: python tests/check_release_assert_targets.py
 
+      - name: Check Windows test target coverage
+        run: python tests/check_windows_test_targets.py
+
       - name: Check Brain publication slot consistency
         run: python tests/check_publish_slots.py
 
