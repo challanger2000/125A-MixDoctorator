@@ -96,6 +96,46 @@ int main(){
             session,generation,-1,
             session,generation,-1,block));
 
+    // Repeated Brain resets must reject every earlier worker response,
+    // not only the immediately previous generation.
+    {
+        std::uint64_t currentGeneration=1000;
+
+        for(int reset=0;reset<64;++reset){
+            const auto staleGeneration=
+                currentGeneration;
+
+            ++currentGeneration;
+
+            assert(
+                !ipcResponseMatchesContext(
+                    session,
+                    staleGeneration,
+                    session,
+                    currentGeneration));
+
+            assert(
+                !ipcResponseIsFresh(
+                    session,
+                    staleGeneration,
+                    now,
+                    session,
+                    currentGeneration,
+                    now,
+                    block));
+
+            assert(
+                ipcResponseIsFresh(
+                    session,
+                    currentGeneration,
+                    now,
+                    session,
+                    currentGeneration,
+                    now,
+                    block));
+        }
+    }
+
     // A one-block worker delay remains inside the intentional grace zone.
     assert(
         ipcResponseIsFresh(
