@@ -84,6 +84,47 @@ int main(){
         assert(finding.score==0.35);
     }
 
+    // Held Coach attack finding should not flap to a nearly equal challenger.
+    {
+        const double scores[3]{0.50,0.53,0.20};
+        const double observed[3]{8.0,8.0,8.0};
+
+        auto finding=
+            chooseStableAttackFindingCount(
+                scores,
+                observed,
+                3,
+                0);
+
+        assert(finding.pair==0);
+
+        const double stronger[3]{0.50,0.57,0.20};
+
+        finding=
+            chooseStableAttackFindingCount(
+                stronger,
+                observed,
+                3,
+                0);
+
+        assert(finding.pair==1);
+    }
+
+    // If the held pair becomes ineligible, the strongest valid pair takes over.
+    {
+        const double scores[3]{0.20,0.48,0.42};
+        const double observed[3]{8.0,8.0,8.0};
+
+        const auto finding=
+            chooseStableAttackFindingCount(
+                scores,
+                observed,
+                3,
+                0);
+
+        assert(finding.pair==1);
+    }
+
     {
         const double nan=
             std::numeric_limits<double>::
