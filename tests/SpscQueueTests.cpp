@@ -33,6 +33,17 @@ int main(){
     Packet empty;
     assert(!queue.pop(empty));
 
+    Queue newestQueue;
+    assert(newestQueue.push({10,10.0}));
+    assert(newestQueue.push({11,11.0}));
+    assert(newestQueue.push({12,12.0}));
+
+    Packet newest;
+    assert(newestQueue.drainNewest(newest));
+    assert(newest.sequence==12);
+    assert(newest.value==12.0);
+    assert(!newestQueue.drainNewest(newest));
+
     Queue concurrent;
     constexpr std::uint64_t kCount=100000;
     std::atomic<bool> done{false};
