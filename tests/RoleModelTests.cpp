@@ -31,6 +31,11 @@ int main(){
     assert(isTransientRole(IPC::Role::Snare));
     assert(!isTransientRole(IPC::Role::Pad));
 
+    assert(std::string(roleName(IPC::Role::Percussion))=="PERKUSSION");
+    assert(std::string(roleName(IPC::Role::PianoKeys))=="PIANO / TASTEN");
+    assert(std::string(roleName(IPC::Role::Synth))=="SYNTHESIZER");
+    assert(std::string(roleName(IPC::Role::Pad))=="FLAECHE");
+
     assert(isHarmonicRole(IPC::Role::LeadVocal));
     assert(isHarmonicRole(IPC::Role::ElectricGuitar));
     assert(!isHarmonicRole(IPC::Role::Kick));
