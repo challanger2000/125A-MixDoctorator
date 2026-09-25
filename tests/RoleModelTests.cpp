@@ -21,7 +21,7 @@ int main(){
         assert(role!=IPC::Role::Unknown);
         assert(roleFamily(role)!=RoleFamily::Unknown);
         assert(roleDisplayRank(role)<1000);
-        assert(std::string(roleName(role))!="UNKNOWN");
+        assert(std::string(roleName(role))!="UNBEKANNT");
     }
 
     assert(isLowEndRole(IPC::Role::Kick));
@@ -35,6 +35,7 @@ int main(){
     assert(std::string(roleName(IPC::Role::PianoKeys))=="PIANO / TASTEN");
     assert(std::string(roleName(IPC::Role::Synth))=="SYNTHESIZER");
     assert(std::string(roleName(IPC::Role::Pad))=="FLAECHE");
+    assert(std::string(roleName(IPC::Role::Unknown))=="UNBEKANNT");
 
     assert(isHarmonicRole(IPC::Role::LeadVocal));
     assert(isHarmonicRole(IPC::Role::ElectricGuitar));
