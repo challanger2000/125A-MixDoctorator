@@ -202,16 +202,9 @@ void Processor::ipcWorkerLoop() noexcept{
             lastPublishedGeneration_=0;
         }
 
-        AnalysisPacket packet;
         AnalysisPacket newest;
-        bool havePacket=false;
 
-        while(ipcQueue_.pop(packet)){
-            newest=packet;
-            havePacket=true;
-        }
-
-        if(!havePacket){
+        if(!ipcQueue_.drainNewest(newest)){
             std::this_thread::sleep_for(
                 std::chrono::milliseconds(1));
             continue;
