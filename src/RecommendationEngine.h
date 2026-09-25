@@ -209,6 +209,31 @@ inline int recommendationBandCode(
             IPC::kBandCount-1)+1;
 }
 
+inline Recommendation suppressAmbiguousAggregateTarget(
+    Recommendation recommendation,
+    int firstCount,
+    int secondCount) noexcept {
+
+    if(!recommendation.valid ||
+       recommendation.adjustRole==IPC::Role::Unknown)
+        return recommendation;
+
+    const int safeFirstCount=
+        std::max(0,firstCount);
+
+    const int safeSecondCount=
+        std::max(0,secondCount);
+
+    if((recommendation.adjustRole==recommendation.first &&
+        safeFirstCount>1) ||
+       (recommendation.adjustRole==recommendation.second &&
+        safeSecondCount>1))
+        recommendation.adjustRole=
+            IPC::Role::Unknown;
+
+    return recommendation;
+}
+
 inline int recommendationTargetCode(
     const Recommendation& recommendation) noexcept {
 
