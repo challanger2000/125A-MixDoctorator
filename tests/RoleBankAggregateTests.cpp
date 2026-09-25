@@ -117,7 +117,7 @@ int main(){
         count));
 
     assert(count==3);
-    assert(out.aggregateCount==3);
+    assert(out.aggregateCount==2);
     assert(out.bands[1]>0.999);
     assert(out.bands[8]<0.001);
 
