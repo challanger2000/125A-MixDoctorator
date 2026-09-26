@@ -1158,6 +1158,20 @@ tresult PLUGIN_API Processor::process(
         ? recommendation.confidence
         : 0.0;
 
+    const double coachMasking=
+        (recommendation.valid &&
+         coachPair>=0)
+        ? coachPairStates_[coachPair].masking
+        : 0.0;
+
+    const double coachDominance=
+        (recommendation.valid &&
+         coachPair>=0)
+        ? dominanceParam(
+            coachPairStates_[coachPair].
+                dominance)
+        : 0.5;
+
     const double coachActionValue=
         recommendation.valid
         ? Analysis::encodeDiscreteCode(
@@ -1191,6 +1205,9 @@ tresult PLUGIN_API Processor::process(
     publishParam(data,kCoachPair,coachPairValue,44);
     publishParam(data,kCoachBand,coachBandValue,45);
     publishParam(data,kCoachTarget,coachTargetValue,48);
+    publishParam(data,kCoachMasking,coachMasking,51);
+    publishParam(data,kCoachDominance,coachDominance,52);
+    publishParam(data,kCoachConfidence,coachConfidence,53);
 
     const double sessionPair=
         (sessionFinding_.pair<0)
