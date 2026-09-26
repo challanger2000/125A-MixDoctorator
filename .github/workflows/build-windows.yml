@@ -63,6 +63,9 @@ jobs:
       - name: Report spectral realtime measurement
         run: ctest --test-dir build -C Release -R SpectralRealtimeTests -V
 
+      - name: Report Sensor load distribution
+        run: ctest --test-dir build -C Release -R SensorLoadTests -V
+
       - name: Run Steinberg VST3 validator
         shell: pwsh
         run: |
