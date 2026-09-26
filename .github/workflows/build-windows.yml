@@ -39,6 +39,9 @@ jobs:
       - name: Check role and session menu counts
         run: python tests/check_menu_counts.py
 
+      - name: Check stopped diagnostic freeze order
+        run: python tests/check_stopped_freeze_order.py
+
       - name: Configure
         run: cmake -S . -B build -G "Visual Studio 17 2022" -A x64 -DMIXDOCTORATOR_BUILD_TESTS=ON -DMIXDOCTORATOR_BUILD_VALIDATOR=ON
 
