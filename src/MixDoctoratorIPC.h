@@ -35,18 +35,102 @@ constexpr int kBandCount=9;
 constexpr int kSessionCount=8;
 constexpr int kSensorSlotCount=24;
 constexpr std::uint32_t kMagic=0x4D445038u;
-constexpr std::uint32_t kVersion=9u;
+constexpr std::uint32_t kVersion=10u;
 
 inline int clampSession(int session) noexcept {
     return std::clamp(session,0,kSessionCount-1);
 }
+
+#ifdef _WIN32
+inline LONG currentWriterProcessId() noexcept {
+    const DWORD pid=GetCurrentProcessId();
+    return static_cast<LONG>(pid==0 ? 1u : pid);
+}
+
+inline bool writerProcessIsAlive(
+    LONG processId) noexcept {
+
+    if(processId==0)
+        return false;
+
+    HANDLE process=
+        OpenProcess(
+            SYNCHRONIZE,
+            FALSE,
+            static_cast<DWORD>(
+                processId));
+
+    if(!process){
+        // Access denied means the PID exists but cannot be inspected from the
+        // current token. Stay conservative and never steal that lock.
+        return GetLastError()==ERROR_ACCESS_DENIED;
+    }
+
+    const DWORD state=
+        WaitForSingleObject(
+            process,
+            0);
+
+    CloseHandle(process);
+
+    return state==WAIT_TIMEOUT;
+}
+
+inline bool acquireWriterLock(
+    volatile LONG& writerLock,
+    std::uint64_t nowMs,
+    std::uint64_t heartbeatMs) noexcept {
+
+    const LONG self=
+        currentWriterProcessId();
+
+    const LONG observed=
+        InterlockedCompareExchange(
+            &writerLock,
+            self,
+            0);
+
+    if(observed==0)
+        return true;
+
+    // Locks are not re-entrant. Another plug-in instance in the same process
+    // may legitimately own the slot for a very short worker-thread interval.
+    if(observed==self)
+        return false;
+
+    const bool heartbeatStale=
+        nowMs>=heartbeatMs &&
+        (nowMs-heartbeatMs)>
+            Analysis::kSensorReclaimTimeoutMs;
+
+    if(!heartbeatStale ||
+       writerProcessIsAlive(observed))
+        return false;
+
+    // The old process is confirmed dead. Replace only the exact owner token
+    // observed above; a new live owner may have acquired the lock meanwhile.
+    return
+        InterlockedCompareExchange(
+            &writerLock,
+            self,
+            observed)==observed;
+}
+
+inline void releaseWriterLock(
+    volatile LONG& writerLock) noexcept {
+
+    InterlockedExchange(
+        &writerLock,
+        0);
+}
+#endif
 
 struct alignas(64) Slot {
 #ifdef _WIN32
     volatile LONG sequence{0};
     volatile LONG role{0};
     volatile LONG active{0};
-    volatile LONG writerLock{0};
+    volatile LONG writerLock{0}; // 0=free, otherwise owning Windows process ID
     volatile LONG64 instanceId{0};
     volatile LONG64 heartbeatMs{0};
     volatile LONG64 samplePosition{-1};
@@ -116,7 +200,7 @@ public:
             std::swprintf(
                 name,
                 sizeof(name)/sizeof(name[0]),
-                L"Local\\125A_MixDoctorator_POC_v9_S%d",
+                L"Local\\125A_MixDoctorator_POC_v10_S%d",
                 session+1);
 
             mapping_[session]=CreateFileMappingW(
@@ -262,18 +346,18 @@ public:
             auto& candidate=
                 block->slots[index];
 
-            if(InterlockedCompareExchange(
-                   &candidate.writerLock,
-                   1,
-                   0)!=0)
+            if(!acquireWriterLock(
+                   candidate.writerLock,
+                   now,
+                   static_cast<std::uint64_t>(
+                       candidate.heartbeatMs)))
                 return false;
 
             if(static_cast<std::uint64_t>(
                    candidate.instanceId)!=
                instanceId){
-                InterlockedExchange(
-                    &candidate.writerLock,
-                    0);
+                releaseWriterLock(
+                    candidate.writerLock);
                 return false;
             }
 
@@ -301,10 +385,11 @@ public:
                 auto& candidate=
                     block->slots[i];
 
-                if(InterlockedCompareExchange(
-                       &candidate.writerLock,
-                       1,
-                       0)!=0)
+                if(!acquireWriterLock(
+                       candidate.writerLock,
+                       now,
+                       static_cast<std::uint64_t>(
+                           candidate.heartbeatMs)))
                     continue;
 
                 const LONG64 currentId=
@@ -378,9 +463,8 @@ public:
         InterlockedIncrement(
             &s.sequence);
 
-        InterlockedExchange(
-            &s.writerLock,
-            0);
+        releaseWriterLock(
+            s.writerLock);
 
         return true;
 #else
@@ -425,10 +509,15 @@ public:
         auto& s=
             block->slots[cachedSlot];
 
-        if(InterlockedCompareExchange(
-               &s.writerLock,
-               1,
-               0)!=0)
+        const auto now=
+            static_cast<std::uint64_t>(
+                GetTickCount64());
+
+        if(!acquireWriterLock(
+               s.writerLock,
+               now,
+               static_cast<std::uint64_t>(
+                   s.heartbeatMs)))
             return false;
 
         if(static_cast<std::uint64_t>(
