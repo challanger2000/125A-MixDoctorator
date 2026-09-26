@@ -230,7 +230,6 @@ if(MIXDOCTORATOR_BUILD_TESTS)
 
     target_compile_features(
         StateValueModelTests
-        ResetStateModelTests
         PRIVATE cxx_std_17)
 
     add_test(
