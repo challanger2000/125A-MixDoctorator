@@ -49,15 +49,19 @@ static double percentile(
 }
 
 static LoadStats runScenario(
-    int sensorCount){
+    int sensorCount,
+    double sampleRate,
+    int blockSize){
 
     constexpr int maxSensors=24;
-    constexpr double sampleRate=48000.0;
-    constexpr int blockSize=256;
     constexpr double seconds=1.0;
-    constexpr int totalSamples=
+    const int totalSamples=
         static_cast<int>(
             sampleRate*seconds);
+
+    assert(std::isfinite(sampleRate));
+    assert(sampleRate>=44100.0);
+    assert(blockSize>0);
 
     assert(sensorCount>=1);
     assert(sensorCount<=maxSensors);
@@ -192,7 +196,7 @@ static LoadStats runScenario(
     double maxMs=0.0;
     int overruns=0;
 
-    constexpr double blockDeadlineMs=
+    const double blockDeadlineMs=
         1000.0*
         static_cast<double>(blockSize)/
         sampleRate;
@@ -230,7 +234,6 @@ static LoadStats runScenario(
     out.maxMs=maxMs;
     out.overruns=overruns;
 
-    // 256 samples at 48 kHz provide about 5.33 ms of wall-clock time.
     // The test does not claim host CPU percentage because a DAW may schedule
     // plugin instances across cores. This guards catastrophic single-thread
     // regressions while still recording useful distribution statistics.
@@ -247,7 +250,9 @@ int main(){
     for(int sensorCount:counts){
         const auto stats=
             runScenario(
-                sensorCount);
+                sensorCount,
+                48000.0,
+                256);
 
         std::cout
             << "Sensor load "
@@ -256,6 +261,40 @@ int main(){
             << stats.meanMs
             << " ms, p95="
             << stats.p95Ms
+            << " ms, p99="
+            << stats.p99Ms
+            << " ms, max="
+            << stats.maxMs
+            << " ms, overruns="
+            << stats.overruns
+            << "\n";
+    }
+
+    struct SensorConfig {
+        double sampleRate;
+        int blockSize;
+    };
+
+    const SensorConfig configs[]{
+        {44100.0,128},
+        {48000.0,256},
+        {96000.0,512}
+    };
+
+    for(const auto& config:configs){
+        const auto stats=
+            runScenario(
+                4,
+                config.sampleRate,
+                config.blockSize);
+
+        std::cout
+            << "Sensor config 4: rate="
+            << config.sampleRate
+            << " Hz, block="
+            << config.blockSize
+            << ", mean="
+            << stats.meanMs
             << " ms, p99="
             << stats.p99Ms
             << " ms, max="
