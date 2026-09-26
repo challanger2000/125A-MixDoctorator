@@ -3,6 +3,7 @@
 #include <array>
 #include <cmath>
 #include <complex>
+#include "AudioSafety.h"
 
 namespace MixDoctorator::Analysis {
 
@@ -140,8 +141,7 @@ public:
     }
 
     void push(double x) noexcept {
-        if(!std::isfinite(x))
-            x=0.0;
+        x=sanitizeAnalysisSample(x);
 
         if(decimationFactor_>1){
             for(auto& stage:antiAlias_)
