@@ -107,6 +107,9 @@ tresult PLUGIN_API Controller::initialize(FUnknown* c){
     parameters.addParameter(STR16("Coach Anschlag-Hinweis"),nullptr,1,0.0,ro,kCoachAttackAdvice);
     parameters.addParameter(STR16("Sensoren gesamt"),nullptr,IPC::kSensorSlotCount,0.0,ro,kAllSensorCount);
     parameters.addParameter(STR16("Rollen gesamt"),nullptr,IPC::kRoleCount,0.0,ro,kAllRoleCount);
+    parameters.addParameter(STR16("Coach Verdeckungsindex"),STR16("%"),0,0.0,ro,kCoachMasking);
+    parameters.addParameter(STR16("Coach Dominanz"),nullptr,2,0.5,ro,kCoachDominance);
+    parameters.addParameter(STR16("Coach Sicherheit"),STR16("%"),0,0.0,ro,kCoachConfidence);
 
     // UIViewSwitchContainer is driven by a real controller parameter. Leaving
     // the tag unbound creates a null-parameter listener path in VST3Editor
@@ -267,7 +270,9 @@ tresult PLUGIN_API Controller::getParamStringByValue(
        id==kDrumsBassTransientCompetition ||
        id==kBassGuitarTransientCompetition ||
        id==kDrumsGuitarTransientCompetition ||
-       id==kTopAttackScore){
+       id==kTopAttackScore ||
+       id==kCoachMasking ||
+       id==kCoachConfidence){
 
         char b[32]{};
         std::snprintf(
@@ -432,7 +437,8 @@ tresult PLUGIN_API Controller::getParamStringByValue(
         return kResultTrue;
     }
 
-    if(id==kTopDominance){
+    if(id==kTopDominance ||
+       id==kCoachDominance){
 
         static const char* labels[3]={
             "ZWEITE QUELLE",
