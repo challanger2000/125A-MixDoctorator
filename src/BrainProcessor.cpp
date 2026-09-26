@@ -18,6 +18,7 @@
 #include "RoleModel.h"
 #include "ParameterEncoding.h"
 #include "StateValueModel.h"
+#include "ResetStateModel.h"
 
 #include "base/source/fstreamer.h"
 #include "pluginterfaces/vst/ivstparameterchanges.h"
@@ -62,15 +63,15 @@ void Processor::resetAnalysisState() noexcept{
     heldCoachPair_=-1;
     heldCoachAttackPair_=-1;
 
-    ++ipcGeneration_;
-    if(ipcGeneration_==0)
-        ipcGeneration_=1;
+    ipcGeneration_=
+        Analysis::nextNonZeroGeneration(
+            ipcGeneration_);
 
     haveLatestIpc_=false;
     latestIpc_=IpcResponse{};
 
-    for(double& value:last_)
-        value=-1.0;
+    Analysis::invalidatePublishedValues(
+        last_);
 }
 
 tresult PLUGIN_API Processor::initialize(FUnknown* c){
