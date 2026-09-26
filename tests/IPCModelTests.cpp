@@ -463,6 +463,92 @@ int main(){
         assert(capacitySlots[n]<0);
     }
 
+    // Every documented Session must remain isolated from every other
+    // Session. Publish one unique Sensor into each mapping and verify that
+    // each ID is visible only from its own Session.
+    {
+        int sessionSlots[kSessionCount]{};
+        std::uint64_t sessionIds[kSessionCount]{};
+
+        for(int s=0;s<kSessionCount;++s){
+            sessionSlots[s]=-1;
+            sessionIds[s]=
+                0x125A200000000000ull+
+                static_cast<std::uint64_t>(s+1);
+
+            assert(
+                first.publish(
+                    s,
+                    sessionIds[s],
+                    sessionSlots[s],
+                    Role::Pad,
+                    400000+s,
+                    -30.0,
+                    -9.0,
+                    0.4,
+                    0.05,
+                    bands.data()));
+
+            assert(sessionSlots[s]>=0);
+        }
+
+        const auto matrixNow=
+            static_cast<std::uint64_t>(
+                GetTickCount64());
+
+        for(int expectedSession=0;
+            expectedSession<kSessionCount;
+            ++expectedSession){
+
+            for(int candidateSession=0;
+                candidateSession<kSessionCount;
+                ++candidateSession){
+
+                bool found=false;
+
+                for(int slot=0;
+                    slot<kSensorSlotCount;
+                    ++slot){
+
+                    Snapshot snapshot;
+
+                    if(!second.readSlot(
+                           candidateSession,
+                           slot,
+                           snapshot,
+                           matrixNow))
+                        continue;
+
+                    if(snapshot.connected &&
+                       snapshot.instanceId==
+                           sessionIds[
+                               expectedSession]){
+                        found=true;
+                        assert(
+                            candidateSession==
+                            expectedSession);
+                    }
+                }
+
+                if(candidateSession==
+                   expectedSession)
+                    assert(found);
+                else
+                    assert(!found);
+            }
+        }
+
+        for(int s=0;s<kSessionCount;++s){
+            assert(
+                first.release(
+                    s,
+                    sessionIds[s],
+                    sessionSlots[s]));
+
+            assert(sessionSlots[s]<0);
+        }
+    }
+
     std::cout
         << "IPCModel tests passed\n";
 #else
