@@ -421,8 +421,10 @@ static void copyMeasure(
                     std::abs(right)));
 
         sumSq+=
-            left*left+
-            right*right;
+            Analysis::analysisSamplePower(
+                left)+
+            Analysis::analysisSamplePower(
+                right);
 
         self->analyzeStereoSample(
             left,
