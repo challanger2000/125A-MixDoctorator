@@ -1,5 +1,7 @@
 #pragma once
+#include <algorithm>
 #include <cmath>
+#include <limits>
 
 namespace MixDoctorator::Analysis {
 
@@ -11,6 +13,55 @@ inline double sanitizeAudioSample(
     return std::isfinite(sample)
         ? sample
         : 0.0;
+}
+
+// Analysis arithmetic squares samples and the spectral path accumulates many
+// FFT-bin powers. Clamp only the internal analysis copy far beyond any
+// meaningful audio amplitude so finite pathological inputs cannot overflow
+// to Inf/NaN. Audio pass-through remains bit-for-bit unchanged for finite
+// samples.
+inline double analysisSampleLimit() noexcept {
+    static const double limit=
+        std::sqrt(
+            std::numeric_limits<double>::
+                max())/
+        1.0e12;
+
+    return limit;
+}
+
+inline double sanitizeAnalysisSample(
+    double sample) noexcept {
+
+    sample=sanitizeAudioSample(sample);
+
+    const double limit=
+        analysisSampleLimit();
+
+    return std::clamp(
+        sample,
+        -limit,
+        limit);
+}
+
+inline double analysisSamplePower(
+    double sample) noexcept {
+
+    const double safe=
+        sanitizeAnalysisSample(sample);
+
+    return safe*safe;
+}
+
+inline double analysisStereoPower(
+    double left,
+    double right) noexcept {
+
+    return
+        0.5*
+        analysisSamplePower(left)+
+        0.5*
+        analysisSamplePower(right);
 }
 
 template<typename T>
