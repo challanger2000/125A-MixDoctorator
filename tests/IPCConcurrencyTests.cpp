@@ -7,15 +7,159 @@
 #include <iostream>
 #include <limits>
 #include <thread>
+#include <string>
 
-int main(){
+int main(int argc,char** argv){
 #ifdef _WIN32
     using namespace MixDoctorator::IPC;
+
+    constexpr int processSession=1;
+    constexpr std::uint64_t processId=
+        0x125A00ABCDEF1234ull;
+
+    if(argc>1 &&
+       std::string(argv[1])=="--ipc-child"){
+
+        SharedMemory childMemory;
+        assert(childMemory.open());
+
+        int childSlot=-1;
+        double childBands[kBandCount]{};
+        childBands[5]=1.0;
+
+        const auto deadline=
+            GetTickCount64()+750u;
+
+        do{
+            assert(
+                childMemory.publish(
+                    processSession,
+                    processId,
+                    childSlot,
+                    Role::Synth,
+                    424242,
+                    -15.0,
+                    -3.0,
+                    0.75,
+                    0.25,
+                    childBands));
+
+            Sleep(10);
+        }while(GetTickCount64()<deadline);
+
+        assert(
+            childMemory.release(
+                processSession,
+                processId,
+                childSlot));
+
+        return 0;
+    }
 
     SharedMemory writerMemory;
     SharedMemory readerMemory;
     assert(writerMemory.open());
     assert(readerMemory.open());
+
+    // Genuine cross-process IPC: launch this test executable as a child
+    // process. The child owns and publishes its own SharedMemory instance;
+    // the parent must observe the coherent Sensor snapshot through the named
+    // mapping, exactly as two independent DAW host processes would.
+    {
+        wchar_t exePath[MAX_PATH]{};
+
+        const DWORD pathLength=
+            GetModuleFileNameW(
+                nullptr,
+                exePath,
+                MAX_PATH);
+
+        assert(pathLength>0);
+        assert(pathLength<MAX_PATH);
+
+        std::wstring command=
+            L"\""+
+            std::wstring(exePath)+
+            L"\" --ipc-child";
+
+        STARTUPINFOW startup{};
+        startup.cb=sizeof(startup);
+
+        PROCESS_INFORMATION process{};
+
+        assert(
+            CreateProcessW(
+                nullptr,
+                command.data(),
+                nullptr,
+                nullptr,
+                FALSE,
+                0,
+                nullptr,
+                nullptr,
+                &startup,
+                &process)!=FALSE);
+
+        bool observedChild=false;
+        const auto deadline=
+            GetTickCount64()+2000u;
+
+        while(GetTickCount64()<deadline &&
+              !observedChild){
+
+            const auto now=
+                static_cast<std::uint64_t>(
+                    GetTickCount64());
+
+            for(int i=0;i<kSensorSlotCount;++i){
+                Snapshot s;
+
+                if(!readerMemory.readSlot(
+                       processSession,
+                       i,
+                       s,
+                       now))
+                    continue;
+
+                if(!s.connected ||
+                   s.instanceId!=processId)
+                    continue;
+
+                assert(s.role==Role::Synth);
+                assert(s.samplePosition==424242);
+                assert(std::abs(s.rmsDb+15.0)<1.0e-12);
+                assert(std::abs(s.peakDb+3.0)<1.0e-12);
+                assert(std::abs(s.activity-0.75)<1.0e-12);
+                assert(std::abs(s.transient-0.25)<1.0e-12);
+                assert(std::abs(s.bands[5]-1.0)<1.0e-12);
+
+                observedChild=true;
+                break;
+            }
+
+            if(!observedChild)
+                Sleep(1);
+        }
+
+        assert(observedChild);
+
+        const DWORD waitResult=
+            WaitForSingleObject(
+                process.hProcess,
+                5000u);
+
+        assert(waitResult==WAIT_OBJECT_0);
+
+        DWORD exitCode=1;
+        assert(
+            GetExitCodeProcess(
+                process.hProcess,
+                &exitCode)!=FALSE);
+        assert(exitCode==0);
+
+        CloseHandle(process.hThread);
+        CloseHandle(process.hProcess);
+    }
 
     constexpr int session=6;
     constexpr std::uint64_t id=
