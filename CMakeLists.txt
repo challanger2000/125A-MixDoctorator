@@ -217,8 +217,20 @@ if(MIXDOCTORATOR_BUILD_TESTS)
     add_executable(StateValueModelTests
         tests/StateValueModelTests.cpp)
 
+    add_executable(ResetStateModelTests
+        tests/ResetStateModelTests.cpp)
+
+    target_compile_features(
+        ResetStateModelTests
+        PRIVATE cxx_std_17)
+
+    add_test(
+        NAME ResetStateModelTests
+        COMMAND ResetStateModelTests)
+
     target_compile_features(
         StateValueModelTests
+        ResetStateModelTests
         PRIVATE cxx_std_17)
 
     add_test(
