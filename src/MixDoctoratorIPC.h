@@ -3,6 +3,7 @@
 #include <cmath>
 #include <cstdint>
 #include <cwchar>
+#include "SensorHeartbeatPolicy.h"
 
 #ifdef _WIN32
 #define NOMINMAX
@@ -346,9 +347,11 @@ public:
                         candidate.heartbeatMs);
 
                 const bool stale=
-                    currentId==0 ||
-                    (now>=heartbeat &&
-                     (now-heartbeat)>2000u);
+                    Analysis::sensorHeartbeatReclaimable(
+                        now,
+                        heartbeat,
+                        static_cast<std::uint64_t>(
+                            currentId));
 
                 if(!stale){
                     InterlockedExchange(
@@ -576,10 +579,11 @@ public:
                !(after&1)){
 
                 t.connected=
-                    t.instanceId!=0 &&
-                    active!=0 &&
-                    nowMs>=t.heartbeatMs &&
-                    (nowMs-t.heartbeatMs)<1500u;
+                    Analysis::sensorHeartbeatConnected(
+                        nowMs,
+                        t.heartbeatMs,
+                        active!=0,
+                        t.instanceId);
 
                 out=t;
                 return true;
