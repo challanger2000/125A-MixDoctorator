@@ -379,6 +379,90 @@ int main(){
 
     assert(overflowSlot<0);
 
+    // Capacity recovery: once one live Sensor releases its slot, the blocked
+    // overflow Sensor must be able to connect immediately without waiting for
+    // heartbeat expiry.
+    {
+        constexpr int releasedCapacityIndex=7;
+        const std::uint64_t releasedCapacityId=
+            0x125A100000000000ull+
+            static_cast<std::uint64_t>(
+                releasedCapacityIndex+1);
+
+        const int freedPhysicalSlot=
+            capacitySlots[
+                releasedCapacityIndex];
+
+        assert(
+            first.release(
+                capacitySession,
+                releasedCapacityId,
+                capacitySlots[
+                    releasedCapacityIndex]));
+
+        assert(
+            capacitySlots[
+                releasedCapacityIndex]<0);
+
+        assert(
+            first.publish(
+                capacitySession,
+                0x125A1FFFFFFFFFFFull,
+                overflowSlot,
+                Role::Bass,
+                300256,
+                -24.0,
+                -6.0,
+                0.5,
+                0.1,
+                bands.data()));
+
+        assert(overflowSlot>=0);
+        assert(overflowSlot==freedPhysicalSlot);
+
+        Snapshot recovered;
+        assert(
+            first.readSlot(
+                capacitySession,
+                overflowSlot,
+                recovered,
+                static_cast<std::uint64_t>(
+                    GetTickCount64())));
+
+        assert(recovered.connected);
+        assert(
+            recovered.instanceId==
+            0x125A1FFFFFFFFFFFull);
+        assert(recovered.role==Role::Bass);
+
+        assert(
+            first.release(
+                capacitySession,
+                0x125A1FFFFFFFFFFFull,
+                overflowSlot));
+
+        assert(overflowSlot<0);
+    }
+
+    // Clean up remaining capacity fixtures so the shared-memory test leaves
+    // no live ownership behind for later processes.
+    for(int n=0;n<kSensorSlotCount;++n){
+        if(capacitySlots[n]<0)
+            continue;
+
+        const std::uint64_t id=
+            0x125A100000000000ull+
+            static_cast<std::uint64_t>(n+1);
+
+        assert(
+            first.release(
+                capacitySession,
+                id,
+                capacitySlots[n]));
+
+        assert(capacitySlots[n]<0);
+    }
+
     std::cout
         << "IPCModel tests passed\n";
 #else
