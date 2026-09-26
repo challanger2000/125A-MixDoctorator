@@ -79,10 +79,8 @@ int main(){
                 denorm_min();
 
         const double large=
-            std::sqrt(
-                std::numeric_limits<double>::
-                    max())*
-            1.0e-6;
+            std::numeric_limits<double>::
+                max();
 
         for(int i=0;i<4096;++i){
             const double a=
