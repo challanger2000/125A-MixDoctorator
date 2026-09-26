@@ -8,6 +8,7 @@
 #include <cmath>
 #include <iostream>
 #include <memory>
+#include <thread>
 #include <vector>
 
 using namespace MixDoctorator::Analysis;
@@ -91,9 +92,23 @@ static LoadStats runScenario(
             (totalSamples+blockSize-1)/
             blockSize));
 
+    const auto callbackPeriod=
+        std::chrono::duration<double>(
+            static_cast<double>(blockSize)/
+            sampleRate);
+
+    auto nextCallback=
+        std::chrono::steady_clock::now();
+
     for(int base=0;
         base<totalSamples;
         base+=blockSize){
+
+        // Pace callbacks like a realtime host. Waiting is deliberately outside
+        // the measured DSP interval: blockTimes records processing cost only,
+        // while overruns are still judged against the callback deadline.
+        std::this_thread::sleep_until(
+            nextCallback);
 
         const auto blockStart=
             std::chrono::steady_clock::now();
@@ -169,6 +184,11 @@ static LoadStats runScenario(
                 std::milli>(
                     blockEnd-
                     blockStart).count());
+
+        nextCallback+=
+            std::chrono::duration_cast<
+                std::chrono::steady_clock::duration>(
+                    callbackPeriod);
     }
 
     double energy=0.0;
