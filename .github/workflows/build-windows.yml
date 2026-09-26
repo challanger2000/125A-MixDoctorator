@@ -45,6 +45,9 @@ jobs:
       - name: Check processor state persistence
         run: python tests/check_state_persistence.py
 
+      - name: Check technical Coach alignment
+        run: python tests/check_technical_coach_alignment.py
+
       - name: Configure
         run: cmake -S . -B build -G "Visual Studio 17 2022" -A x64 -DMIXDOCTORATOR_BUILD_TESTS=ON -DMIXDOCTORATOR_BUILD_VALIDATOR=ON
 
