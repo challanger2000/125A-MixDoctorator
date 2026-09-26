@@ -35,13 +35,10 @@ public:
         analyzerLeft_.push(left);
         analyzerRight_.push(right);
 
-        const double power=
-            0.5*
-            (left*left+
-             right*right);
-
         transientDetector_.pushPower(
-            power);
+            Analysis::analysisStereoPower(
+                left,
+                right));
     }
 
 private:
