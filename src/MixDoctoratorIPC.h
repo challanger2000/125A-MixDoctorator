@@ -132,9 +132,6 @@ public:
                 return false;
             }
 
-            const bool existed=
-                GetLastError()==ERROR_ALREADY_EXISTS;
-
             block_[session]=static_cast<SharedBlock*>(
                 MapViewOfFile(
                     mapping_[session],
@@ -151,15 +148,16 @@ public:
             auto* shared=
                 block_[session];
 
-            if(!existed){
-                if(InterlockedCompareExchange(
-                       &shared->initState,
-                       1,
-                       0)!=0){
-                    close();
-                    return false;
-                }
+            // Any process may become the initializer. The process that created
+            // the named mapping must not assume it will win the 0->1 race:
+            // another opener can map the zero-initialized object first.
+            const bool initializeHere=
+                InterlockedCompareExchange(
+                    &shared->initState,
+                    1,
+                    0)==0;
 
+            if(initializeHere){
                 ZeroMemory(
                     shared->slots,
                     sizeof(shared->slots));
@@ -171,13 +169,13 @@ public:
                     slot.samplePosition=-1;
 
                 MemoryBarrier();
+
                 InterlockedExchange(
                     &shared->initState,
                     2);
             }else{
-                // open() is not called from process(); a short bounded wait is
-                // acceptable here and avoids two processes initializing the
-                // same mapping concurrently.
+                // open() is never called from process(); a short bounded wait
+                // is acceptable while another process completes initialization.
                 int waits=0;
 
                 while(shared->initState==1 &&
@@ -185,43 +183,13 @@ public:
                     Sleep(1);
                     ++waits;
                 }
+            }
 
-                if(shared->initState==0){
-                    if(InterlockedCompareExchange(
-                           &shared->initState,
-                           1,
-                           0)==0){
-
-                        ZeroMemory(
-                            shared->slots,
-                            sizeof(shared->slots));
-
-                        shared->magic=kMagic;
-                        shared->version=kVersion;
-
-                        for(auto& slot:shared->slots)
-                            slot.samplePosition=-1;
-
-                        MemoryBarrier();
-                        InterlockedExchange(
-                            &shared->initState,
-                            2);
-                    }else{
-                        int settleWaits=0;
-                        while(shared->initState==1 &&
-                              settleWaits<100){
-                            Sleep(1);
-                            ++settleWaits;
-                        }
-                    }
-                }
-
-                if(shared->initState!=2 ||
-                   shared->magic!=kMagic ||
-                   shared->version!=kVersion){
-                    close();
-                    return false;
-                }
+            if(shared->initState!=2 ||
+               shared->magic!=kMagic ||
+               shared->version!=kVersion){
+                close();
+                return false;
             }
         }
 
