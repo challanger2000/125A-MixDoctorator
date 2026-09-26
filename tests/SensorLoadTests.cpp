@@ -23,6 +23,7 @@ struct LoadStats {
     double p95Ms{0.0};
     double p99Ms{0.0};
     double maxMs{0.0};
+    int overruns{0};
 };
 
 static double percentile(
@@ -189,6 +190,12 @@ static LoadStats runScenario(
 
     double totalMs=0.0;
     double maxMs=0.0;
+    int overruns=0;
+
+    constexpr double blockDeadlineMs=
+        1000.0*
+        static_cast<double>(blockSize)/
+        sampleRate;
 
     for(double value:blockTimes){
         assert(std::isfinite(value));
@@ -199,6 +206,9 @@ static LoadStats runScenario(
             std::max(
                 maxMs,
                 value);
+
+        if(value>blockDeadlineMs)
+            ++overruns;
     }
 
     LoadStats out;
@@ -218,6 +228,7 @@ static LoadStats runScenario(
             0.99);
 
     out.maxMs=maxMs;
+    out.overruns=overruns;
 
     // 256 samples at 48 kHz provide about 5.33 ms of wall-clock time.
     // The test does not claim host CPU percentage because a DAW may schedule
@@ -249,7 +260,9 @@ int main(){
             << stats.p99Ms
             << " ms, max="
             << stats.maxMs
-            << " ms\n";
+            << " ms, overruns="
+            << stats.overruns
+            << "\n";
     }
 
     return 0;
