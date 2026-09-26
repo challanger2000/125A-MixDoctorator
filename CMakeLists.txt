@@ -197,6 +197,17 @@ if(MIXDOCTORATOR_BUILD_TESTS)
     add_executable(SensorGenerationPolicyTests
         tests/SensorGenerationPolicyTests.cpp)
 
+    add_executable(SensorHeartbeatPolicyTests
+        tests/SensorHeartbeatPolicyTests.cpp)
+
+    target_compile_features(
+        SensorHeartbeatPolicyTests
+        PRIVATE cxx_std_17)
+
+    add_test(
+        NAME SensorHeartbeatPolicyTests
+        COMMAND SensorHeartbeatPolicyTests)
+
     add_executable(RuntimeInstanceIdTests
         tests/RuntimeInstanceIdTests.cpp)
 
@@ -265,6 +276,7 @@ if(MIXDOCTORATOR_BUILD_TESTS)
 
     target_compile_features(
         SensorGenerationPolicyTests
+        SensorHeartbeatPolicyTests
         PRIVATE cxx_std_17)
 
     add_test(
