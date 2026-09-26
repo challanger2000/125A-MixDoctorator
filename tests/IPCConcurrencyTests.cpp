@@ -19,6 +19,13 @@ int main(int argc,char** argv){
         0x125A00ABCDEF1234ull;
 
     if(argc>1 &&
+       std::string(argv[1])=="--writer-lock-owner-child"){
+
+        Sleep(750);
+        return 0;
+    }
+
+    if(argc>1 &&
        std::string(argv[1])=="--ipc-open-race-child"){
 
         HANDLE gate=
@@ -163,6 +170,90 @@ int main(int argc,char** argv){
         }
 
         CloseHandle(gate);
+    }
+
+    // Abandoned writer-lock recovery: a live owner must never be stolen.
+    // Once that exact process is confirmed terminated and the heartbeat is
+    // stale, the worker may safely claim the orphaned lock.
+    {
+        wchar_t exePath[MAX_PATH]{};
+
+        const DWORD pathLength=
+            GetModuleFileNameW(
+                nullptr,
+                exePath,
+                MAX_PATH);
+
+        assert(pathLength>0);
+        assert(pathLength<MAX_PATH);
+
+        std::wstring command=
+            L"\""+
+            std::wstring(exePath)+
+            L"\" --writer-lock-owner-child";
+
+        STARTUPINFOW startup{};
+        startup.cb=sizeof(startup);
+
+        PROCESS_INFORMATION process{};
+
+        assert(
+            CreateProcessW(
+                nullptr,
+                command.data(),
+                nullptr,
+                nullptr,
+                FALSE,
+                0,
+                nullptr,
+                nullptr,
+                &startup,
+                &process)!=FALSE);
+
+        volatile LONG simulatedLock=
+            static_cast<LONG>(
+                process.dwProcessId);
+
+        constexpr std::uint64_t staleNow=10000u;
+        constexpr std::uint64_t staleHeartbeat=0u;
+
+        assert(
+            !acquireWriterLock(
+                simulatedLock,
+                staleNow,
+                staleHeartbeat));
+
+        const DWORD waitResult=
+            WaitForSingleObject(
+                process.hProcess,
+                5000u);
+
+        assert(waitResult==WAIT_OBJECT_0);
+
+        DWORD exitCode=1;
+        assert(
+            GetExitCodeProcess(
+                process.hProcess,
+                &exitCode)!=FALSE);
+        assert(exitCode==0);
+
+        assert(
+            acquireWriterLock(
+                simulatedLock,
+                staleNow,
+                staleHeartbeat));
+
+        assert(
+            simulatedLock==
+            currentWriterProcessId());
+
+        releaseWriterLock(
+            simulatedLock);
+
+        assert(simulatedLock==0);
+
+        CloseHandle(process.hThread);
+        CloseHandle(process.hProcess);
     }
 
     SharedMemory writerMemory;
