@@ -8,8 +8,7 @@
     <control-tag name="DrumsBassOverlap" tag="206"/><control-tag name="DrumsBassMasking" tag="207"/><control-tag name="DrumsBassBand" tag="208"/><control-tag name="DrumsBassStatus" tag="209"/>
     <control-tag name="BassGuitarOverlap" tag="210"/><control-tag name="BassGuitarMasking" tag="211"/><control-tag name="BassGuitarBand" tag="212"/><control-tag name="BassGuitarStatus" tag="213"/>
     <control-tag name="DrumsGuitarOverlap" tag="214"/><control-tag name="DrumsGuitarMasking" tag="215"/><control-tag name="DrumsGuitarBand" tag="216"/><control-tag name="DrumsGuitarStatus" tag="217"/>
-    <control-tag name="TopPair" tag="218"/><control-tag name="TopScore" tag="219"/><control-tag name="TopBand" tag="220"/><control-tag name="TopAdvice" tag="221"/><control-tag name="TopDominance" tag="222"/><control-tag name="TopConfidence" tag="223"/>
-    <control-tag name="SessionPair" tag="224"/><control-tag name="SessionScore" tag="225"/><control-tag name="SessionBand" tag="226"/>
+    <control-tag name="TopAdvice" tag="221"/>
     <control-tag name="DrumsTransient" tag="227"/><control-tag name="BassTransient" tag="228"/><control-tag name="GuitarTransient" tag="229"/>
     <control-tag name="DrumsBassTransientCompetition" tag="233"/><control-tag name="BassGuitarTransientCompetition" tag="234"/><control-tag name="DrumsGuitarTransientCompetition" tag="235"/>
     <control-tag name="TopAttackPair" tag="236"/><control-tag name="TopAttackScore" tag="237"/><control-tag name="TopAttackAdvice" tag="238"/>
