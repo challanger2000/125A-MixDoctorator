@@ -19,6 +19,7 @@
     <control-tag name="CoachTarget" tag="246"/>
     <control-tag name="CoachAttackPair" tag="247"/><control-tag name="CoachAttackAdvice" tag="248"/>
     <control-tag name="AllSensorCount" tag="249"/><control-tag name="AllRoleCount" tag="250"/>
+    <control-tag name="CoachMasking" tag="251"/><control-tag name="CoachDominance" tag="252"/><control-tag name="CoachConfidence" tag="253"/>
     <control-tag name="ViewMode" tag="9000"/>
   </control-tags>
 
@@ -114,17 +115,14 @@
     <view class="CParamDisplay" origin="470,262" size="245,28" control-tag="DrumsGuitarBand" font-size="12" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
     <view class="CParamDisplay" origin="730,262" size="150,28" control-tag="DrumsGuitarStatus" font-size="12" font-color="#ffffffff" back-color="#292929ff" frame-color="#555555ff"/>
 
-    <view class="CTextLabel" origin="0,318" size="940,22" title="WICHTIGSTER VERDECKUNGS-HINWEIS" font-size="13" font-color="#ccccccff" transparent="true"/>
-    <view class="CParamDisplay" origin="0,344" size="200,30" control-tag="TopPair" font-size="12" font-color="#ffffffff" back-color="#303030ff" frame-color="#777777ff"/>
-    <view class="CParamDisplay" origin="212,344" size="80,30" control-tag="TopScore" font-size="12" font-color="#ffffffff" back-color="#303030ff" frame-color="#777777ff"/>
-    <view class="CParamDisplay" origin="304,344" size="220,30" control-tag="TopBand" font-size="12" font-color="#ffffffff" back-color="#303030ff" frame-color="#777777ff"/>
-    <view class="CParamDisplay" origin="536,344" size="160,30" control-tag="TopDominance" font-size="12" font-color="#ffffffff" back-color="#303030ff" frame-color="#777777ff"/>
-    <view class="CParamDisplay" origin="708,344" size="100,30" control-tag="TopConfidence" font-size="12" font-color="#ffffffff" back-color="#303030ff" frame-color="#777777ff"/>
+    <view class="CTextLabel" origin="0,318" size="940,22" title="WICHTIGSTER VERDECKUNGS-HINWEIS — ALLE ROLLEN" font-size="13" font-color="#ccccccff" transparent="true"/>
+    <view class="CParamDisplay" origin="0,344" size="200,30" control-tag="CoachPair" font-size="12" font-color="#ffffffff" back-color="#303030ff" frame-color="#777777ff"/>
+    <view class="CParamDisplay" origin="212,344" size="80,30" control-tag="CoachMasking" font-size="12" font-color="#ffffffff" back-color="#303030ff" frame-color="#777777ff"/>
+    <view class="CParamDisplay" origin="304,344" size="220,30" control-tag="CoachBand" font-size="12" font-color="#ffffffff" back-color="#303030ff" frame-color="#777777ff"/>
+    <view class="CParamDisplay" origin="536,344" size="160,30" control-tag="CoachDominance" font-size="12" font-color="#ffffffff" back-color="#303030ff" frame-color="#777777ff"/>
+    <view class="CParamDisplay" origin="708,344" size="100,30" control-tag="CoachConfidence" font-size="12" font-color="#ffffffff" back-color="#303030ff" frame-color="#777777ff"/>
 
-    <view class="CTextLabel" origin="0,394" size="940,22" title="STAERKSTER DETAIL-HINWEIS" font-size="13" font-color="#ccccccff" transparent="true"/>
-    <view class="CParamDisplay" origin="0,420" size="220,30" control-tag="SessionPair" font-size="12" font-color="#ffffffff" back-color="#262626ff" frame-color="#666666ff"/>
-    <view class="CParamDisplay" origin="232,420" size="90,30" control-tag="SessionScore" font-size="12" font-color="#ffffffff" back-color="#262626ff" frame-color="#666666ff"/>
-    <view class="CParamDisplay" origin="334,420" size="240,30" control-tag="SessionBand" font-size="12" font-color="#ffffffff" back-color="#262626ff" frame-color="#666666ff"/>
+    <view class="CTextLabel" origin="0,394" size="940,22" title="Die Hauptdiagnose oben nutzt dieselbe 14-Rollen-Auswertung wie der Coach." font-size="12" font-color="#888888ff" transparent="true"/>
 
     <view class="CTextLabel" origin="0,470" size="940,22" title="AKTUELLER ANSCHLAG-HINWEIS" font-size="13" font-color="#ccccccff" transparent="true"/>
     <view class="CParamDisplay" origin="0,496" size="220,30" control-tag="TopAttackPair" font-size="12" font-color="#ffffffff" back-color="#303030ff" frame-color="#777777ff"/>
