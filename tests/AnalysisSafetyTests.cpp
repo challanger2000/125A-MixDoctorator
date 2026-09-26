@@ -39,6 +39,83 @@ int main(){
     }
     assert(total<=1.000001);
 
+    // Silence, denormals and extreme finite input must keep the complete
+    // analyzer path finite and bounded.
+    {
+        SpectralAnalyzer silenceLeft;
+        SpectralAnalyzer silenceRight;
+        silenceLeft.prepare(48000.0);
+        silenceRight.prepare(48000.0);
+
+        for(int i=0;i<4096;++i){
+            silenceLeft.push(0.0);
+            silenceRight.push(0.0);
+        }
+
+        const auto silenceBands=
+            combineStereoFractions(
+                silenceLeft,
+                silenceRight);
+
+        double silenceTotal=0.0;
+
+        for(double v:silenceBands){
+            assert(std::isfinite(v));
+            assert(v>=0.0);
+            silenceTotal+=v;
+        }
+
+        assert(silenceTotal==0.0);
+    }
+
+    {
+        SpectralAnalyzer extremeLeft;
+        SpectralAnalyzer extremeRight;
+        extremeLeft.prepare(48000.0);
+        extremeRight.prepare(48000.0);
+
+        const double denormal=
+            std::numeric_limits<double>::
+                denorm_min();
+
+        const double large=
+            std::sqrt(
+                std::numeric_limits<double>::
+                    max())*
+            1.0e-6;
+
+        for(int i=0;i<4096;++i){
+            const double a=
+                (i&1)
+                ? denormal
+                : -denormal;
+
+            const double b=
+                (i&1)
+                ? large
+                : -large;
+
+            extremeLeft.push(a);
+            extremeRight.push(b);
+        }
+
+        const auto extremeBands=
+            combineStereoFractions(
+                extremeLeft,
+                extremeRight);
+
+        double extremeTotal=0.0;
+
+        for(double v:extremeBands){
+            assert(std::isfinite(v));
+            assert(v>=0.0);
+            extremeTotal+=v;
+        }
+
+        assert(std::isfinite(extremeTotal));
+        assert(extremeTotal<=1.000001);
+    }
+
     TransientDetector detector;
     detector.prepare(48000.0);
 
