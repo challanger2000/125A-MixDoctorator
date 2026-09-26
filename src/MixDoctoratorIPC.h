@@ -407,9 +407,8 @@ public:
                             currentId));
 
                 if(!stale){
-                    InterlockedExchange(
-                        &candidate.writerLock,
-                        0);
+                    releaseWriterLock(
+                        candidate.writerLock);
                     continue;
                 }
 
@@ -522,9 +521,8 @@ public:
 
         if(static_cast<std::uint64_t>(
                s.instanceId)!=instanceId){
-            InterlockedExchange(
-                &s.writerLock,
-                0);
+            releaseWriterLock(
+                s.writerLock);
 
             // Ownership is already gone. From this instance's perspective
             // cleanup is complete; do not trap the worker in a retry loop.
@@ -547,9 +545,8 @@ public:
         InterlockedIncrement(
             &s.sequence);
 
-        InterlockedExchange(
-            &s.writerLock,
-            0);
+        releaseWriterLock(
+            s.writerLock);
 
         cachedSlot=-1;
         return true;
