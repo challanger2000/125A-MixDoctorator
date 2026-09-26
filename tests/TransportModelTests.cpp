@@ -72,6 +72,32 @@ int main(){
             false,true,false,
             20000,20000,4096));
 
+    // Repeated stop/start cycles: stopping must freeze without resetting,
+    // while every restart starts a fresh measurement.
+    for(int cycle=0;cycle<64;++cycle){
+        const std::int64_t position=
+            20000+
+            static_cast<std::int64_t>(cycle)*256;
+
+        assert(
+            !shouldResetAnalysis(
+                false,
+                true,
+                false,
+                position,
+                position,
+                4096));
+
+        assert(
+            shouldResetAnalysis(
+                true,
+                false,
+                false,
+                position,
+                position,
+                4096));
+    }
+
     std::cout
         << "TransportModel tests passed\n";
 
