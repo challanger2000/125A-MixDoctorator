@@ -1,5 +1,6 @@
 #include "../src/MixDoctoratorIPC.h"
 
+#include <array>
 #include <atomic>
 #include <cassert>
 #include <cmath>
@@ -16,6 +17,35 @@ int main(int argc,char** argv){
     constexpr int processSession=1;
     constexpr std::uint64_t processId=
         0x125A00ABCDEF1234ull;
+
+    if(argc>1 &&
+       std::string(argv[1])=="--ipc-open-race-child"){
+
+        HANDLE gate=
+            OpenEventW(
+                SYNCHRONIZE,
+                FALSE,
+                L"Local\\125A_MixDoctorator_OpenRaceGate");
+
+        assert(gate!=nullptr);
+
+        const DWORD waitResult=
+            WaitForSingleObject(
+                gate,
+                5000u);
+
+        assert(waitResult==WAIT_OBJECT_0);
+
+        CloseHandle(gate);
+
+        SharedMemory childMemory;
+        assert(childMemory.open());
+
+        // Keep mappings alive briefly so all contenders overlap.
+        Sleep(100);
+
+        return 0;
+    }
 
     if(argc>1 &&
        std::string(argv[1])=="--ipc-child"){
@@ -54,6 +84,85 @@ int main(int argc,char** argv){
                 childSlot));
 
         return 0;
+    }
+
+    // Simultaneous first-open stress: several independent processes wait on
+    // one gate and then open all eight named mappings at nearly the same time.
+    // This exercises the initState/Interlocked initialization contract itself,
+    // not merely later cross-process reads/writes.
+    {
+        HANDLE gate=
+            CreateEventW(
+                nullptr,
+                TRUE,
+                FALSE,
+                L"Local\\125A_MixDoctorator_OpenRaceGate");
+
+        assert(gate!=nullptr);
+
+        wchar_t exePath[MAX_PATH]{};
+
+        const DWORD pathLength=
+            GetModuleFileNameW(
+                nullptr,
+                exePath,
+                MAX_PATH);
+
+        assert(pathLength>0);
+        assert(pathLength<MAX_PATH);
+
+        constexpr int childCount=8;
+        std::array<
+            PROCESS_INFORMATION,
+            childCount> children{};
+
+        for(int i=0;i<childCount;++i){
+            std::wstring command=
+                L"\""+
+                std::wstring(exePath)+
+                L"\" --ipc-open-race-child";
+
+            STARTUPINFOW startup{};
+            startup.cb=sizeof(startup);
+
+            assert(
+                CreateProcessW(
+                    nullptr,
+                    command.data(),
+                    nullptr,
+                    nullptr,
+                    FALSE,
+                    0,
+                    nullptr,
+                    nullptr,
+                    &startup,
+                    &children[
+                        static_cast<std::size_t>(i)])!=FALSE);
+        }
+
+        assert(SetEvent(gate)!=FALSE);
+
+        for(auto& child:children){
+            const DWORD waitResult=
+                WaitForSingleObject(
+                    child.hProcess,
+                    10000u);
+
+            assert(waitResult==WAIT_OBJECT_0);
+
+            DWORD exitCode=1;
+            assert(
+                GetExitCodeProcess(
+                    child.hProcess,
+                    &exitCode)!=FALSE);
+
+            assert(exitCode==0);
+
+            CloseHandle(child.hThread);
+            CloseHandle(child.hProcess);
+        }
+
+        CloseHandle(gate);
     }
 
     SharedMemory writerMemory;
