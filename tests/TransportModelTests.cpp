@@ -42,11 +42,29 @@ int main(){
             true,true,false,
             1000,20000,4096));
 
-    // A loop wrap must NOT reset accumulated analysis.
-    assert(
-        !shouldResetAnalysis(
-            true,true,true,
-            1000,20000,4096));
+    // Repeated loop wraps must NOT reset accumulated analysis. The host
+    // acceptance plan requires at least four cycle passes.
+    {
+        std::int64_t lastSample=20000;
+
+        for(int wrap=0;wrap<4;++wrap){
+            const std::int64_t currentSample=
+                1000+
+                static_cast<std::int64_t>(
+                    wrap)*128;
+
+            assert(
+                !shouldResetAnalysis(
+                    true,
+                    true,
+                    true,
+                    currentSample,
+                    lastSample,
+                    4096));
+
+            lastSample=20000;
+        }
+    }
 
     // Stopping freezes; stop itself is not a reset.
     assert(
