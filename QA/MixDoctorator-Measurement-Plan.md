@@ -62,6 +62,10 @@ For each file or control:
   analysis behavior on NaN/Inf, denormal and extreme but valid inputs.
 - Stress sensor slot ownership, short disconnect/reconnect, duplicate channels,
   multi-session isolation and concurrent independent host processes.
+- Crash-recovery gate: deliberately terminate a Sensor process while it owns a
+  shared-memory writer slot and verify that no writerLock can remain permanently
+  orphaned. The current raw interprocess writerLock must not be treated as
+  release-qualified until abandoned-writer recovery is demonstrated.
 - Audit Windows shared-memory access and audio-thread timing against the
   realtime contract. Current IPC is explicitly PoC and not release-qualified.
 - Review VST3 ProcessContext/cycle flags and state/lifecycle behavior in
