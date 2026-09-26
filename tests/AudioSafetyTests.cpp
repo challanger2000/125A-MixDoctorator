@@ -18,7 +18,10 @@ int main(){
         -1.0,
         0.125,
         -0.875,
-        1.0e-300
+        1.0e-300,
+        std::numeric_limits<double>::denorm_min(),
+        std::numeric_limits<double>::max(),
+        -std::numeric_limits<double>::max()
     };
 
     for(double value:finiteValues){
@@ -48,7 +51,11 @@ int main(){
         0.25f,
         -0.5f,
         std::numeric_limits<float>::
-            quiet_NaN()
+            quiet_NaN(),
+        std::numeric_limits<float>::
+            denorm_min(),
+        std::numeric_limits<float>::
+            max()
     };
 
     assert(std::abs(
@@ -62,6 +69,20 @@ int main(){
     assert(
         readAudioSample(
             floatBuffer,2)==0.0);
+
+    assert(
+        readAudioSample(
+            floatBuffer,3)==
+        static_cast<double>(
+            std::numeric_limits<float>::
+                denorm_min()));
+
+    assert(
+        readAudioSample(
+            floatBuffer,4)==
+        static_cast<double>(
+            std::numeric_limits<float>::
+                max()));
 
     assert(
         readAudioSample<float>(
