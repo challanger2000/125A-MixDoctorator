@@ -88,6 +88,35 @@ int main(){
         readAudioSample<float>(
             nullptr,0)==0.0);
 
+    {
+        const double huge=
+            std::numeric_limits<double>::
+                max();
+
+        const double safe=
+            MixDoctorator::Analysis::
+            sanitizeAnalysisSample(huge);
+
+        assert(std::isfinite(safe));
+        assert(safe>0.0);
+        assert(safe<huge);
+
+        const double power=
+            MixDoctorator::Analysis::
+            analysisSamplePower(huge);
+
+        const double stereoPower=
+            MixDoctorator::Analysis::
+            analysisStereoPower(
+                huge,
+                -huge);
+
+        assert(std::isfinite(power));
+        assert(power>0.0);
+        assert(std::isfinite(stereoPower));
+        assert(stereoPower>0.0);
+    }
+
     assert(
         readAudioSample(
             floatBuffer,-1)==0.0);
